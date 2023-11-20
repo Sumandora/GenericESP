@@ -94,7 +94,6 @@ struct EntityESP {
 		// Since the trail is kinda supposed to be a 3d object we render it first so that the 2d box overlaps the trail
 		std::vector<ImVec2> trail; // Let's imagine this to be a trail of previous positions
 		ImVec2 basePos = { rect.Min.x + (rect.Max.x - rect.Min.x) * 0.5f, rect.Min.y + (rect.Max.y - rect.Min.y) * 0.9f }; // Imagine feet here
-		trail.push_back(basePos);
 		for (int i = 0; i < 100; i++) { // Some wobble
 			float f = static_cast<float>(i) / 100.0f;
 			trail.emplace_back(basePos.x + sinf(f * M_PIf * 2) * 30.0f + static_cast<float>(i), basePos.y - f * 20.0f);
