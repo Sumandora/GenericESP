@@ -23,9 +23,9 @@ namespace GenericESP {
 			"Outline color",
 			StaticConfig<ImColor>{ { 0.0f, 0.0f, 0.0f, 1.0f }, createColorRenderer() }
 		};
-		MixableConfigurableValue<float, EntityType> outlineThickness{
-			"Outline thickness",
-			StaticConfig<float>{ 1.0f, createFloatRenderer(0.0f, 10.0f, "%.2f") }
+		MixableConfigurableValue<float, EntityType> outlineRadius{
+			"Outline radius",
+			StaticConfig<float>{ 2.0f, createFloatRenderer(0.0f, 10.0f, "%.2f") }
 		};
 
 		void draw(ImDrawList* drawList, const EntityType& e, const ImVec2& position)
@@ -33,15 +33,10 @@ namespace GenericESP {
 			if (!enabled(e))
 				return;
 
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wshadow"
-			const float radius = this->radius(e);
-#pragma clang diagnostic pop
-
 			if (outlined(e))
-				drawList->AddCircleFilled(position, radius + outlineThickness(e), outlineColor(e));
+				drawList->AddCircleFilled(position, outlineThickness(e), outlineColor(e));
 
-			drawList->AddCircleFilled(position, radius, circleColor(e));
+			drawList->AddCircleFilled(position, radius(e), circleColor(e));
 		}
 
 		void renderGui(const std::string& id)
