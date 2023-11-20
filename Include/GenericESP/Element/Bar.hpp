@@ -253,8 +253,8 @@ namespace GenericESP {
 			if (innerRectOpt.has_value()) {
 				const ImRect innerRect = innerRectOpt.value();
 
-				const float health = percentageProvider(e);
-				const float healthPercentage = std::clamp(health, 0.0f, 1.0f);
+				const float percentage = percentageProvider(e);
+				const float clampedPercentage = std::clamp(percentage, 0.0f, 1.0f);
 
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wshadow"
@@ -268,8 +268,8 @@ namespace GenericESP {
 					std::swap(filledColor, emptyColor);
 #pragma clang diagnostic pop
 
-				const ImRect barRect = calculateBarRect(side, innerRect, flipped, healthPercentage);
-				const ImRect complementBarRect = calculateBarRect(side, innerRect, !flipped, 1.0 - healthPercentage);
+				const ImRect barRect = calculateBarRect(side, innerRect, flipped, clampedPercentage);
+				const ImRect complementBarRect = calculateBarRect(side, innerRect, !flipped, 1.0 - clampedPercentage);
 
 				drawList->AddRectFilled(complementBarRect.Min, complementBarRect.Max, backgroundColor(e));
 
@@ -277,7 +277,6 @@ namespace GenericESP {
 				auto filledHsv = colorRGBtoHSV(filledColor);
 
 				if (gradient) {
-					drawList->PushClipRect(barRect.Min, barRect.Max);
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wshadow"
 					int hueSteps = this->hueSteps(e);
@@ -286,14 +285,16 @@ namespace GenericESP {
 					// Draw multiple small rectangle because ImGui lerps RGB, not HSV. (<-- This is common)
 					// If you want to see what it would look like without this (forcefully) set hueSteps to 2.
 
-					float prevT = 0.0f;
-					ImColor prevColor = emptyColor;
+					float prevT = flipped ? 0.0f : 1.0f;
+					ImColor prevColor = filledColor;
 
+					const auto fMaxHueSteps = static_cast<float>(hueSteps - 1);
 					for (unsigned int i = 0; i < hueSteps; i++) {
-						float t = static_cast<float>(i) / static_cast<float>(hueSteps - 1);
+						float t = (static_cast<float>(i) / fMaxHueSteps) * clampedPercentage;
 						if (!flipped) {
 							t = 1.0f - t;
 						}
+
 						const auto middleHsv = arrayLerp(filledHsv, emptyHsv, t);
 						const float alpha = filledColor.Value.w + (emptyColor.Value.w - filledColor.Value.w) * t;
 
@@ -329,11 +330,10 @@ namespace GenericESP {
 						prevColor = middleColor;
 					}
 
-					drawList->PopClipRect();
 				} else {
-					const auto middleHsv = arrayLerp(emptyHsv, filledHsv, healthPercentage);
+					const auto middleHsv = arrayLerp(emptyHsv, filledHsv, clampedPercentage);
 					const auto middleRgb = colorHSVtoRGB(middleHsv);
-					const float alpha = filledColor.Value.w + (emptyColor.Value.w - filledColor.Value.w) * healthPercentage;
+					const float alpha = filledColor.Value.w + (emptyColor.Value.w - filledColor.Value.w) * clampedPercentage;
 
 					const ImColor middleColor(middleRgb[0], middleRgb[1], middleRgb[2], alpha);
 
@@ -341,7 +341,7 @@ namespace GenericESP {
 				}
 
 				if (numberText.has_value() && numberText->numberText.enabled(e))
-					if (!numberText->hideWhenFull || healthPercentage < 1.0f) {
+					if (!numberText->hideWhenFull || clampedPercentage < 1.0f) {
 						switch (side) {
 						case Side::TOP:
 						case Side::BOTTOM: {
