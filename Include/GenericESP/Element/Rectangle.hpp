@@ -22,7 +22,7 @@ namespace GenericESP {
 		};
 		MixableConfigurableValue<float, EntityType> thickness{
 			"Thickness",
-			StaticConfig<float>{ 2.0f, createFloatRenderer(0.0f, 10.0f, "%.2f") }
+			StaticConfig<float>{ 1.0f, createFloatRenderer(0.0f, 10.0f, "%.2f") }
 		};
 		MixableConfigurableValue<bool, EntityType> outlined{ "Outlined", StaticConfig<bool>{ true, createBoolRenderer() } };
 		MixableConfigurableValue<ImColor, EntityType> outlineColor{
@@ -37,7 +37,7 @@ namespace GenericESP {
 		MixableConfigurableValue<float, EntityType> outlineThickness{
 			"Outline thickness",
 			StaticConfig<float>{
-				1.0f, createFloatRenderer(0.0f, 10.0f, "%.2f") },
+				2.0f, createFloatRenderer(0.0f, 10.0f, "%.2f") },
 			[this] {
 				const ConfigurableValue<bool, EntityType>& selected = outlined.getSelected();
 				return !selected.isStatic() || selected.getStaticConfig().thing;
@@ -68,6 +68,9 @@ namespace GenericESP {
 			const float outlineThickness = this->outlineThickness(e);
 #pragma clang diagnostic pop
 
+			const float totalWidth = outlined ? std::max(thickness, outlineThickness) : thickness;
+			const float halfWidth = totalWidth / 2;
+
 			const ImVec2 min = rect.getMin();
 			const ImVec2 max = rect.getMax();
 
@@ -75,14 +78,15 @@ namespace GenericESP {
 				drawList->AddRect(min, max, outlineColor(e), rounding, ImDrawFlags_None,
 					outlineThickness);
 
-			if (fill(e))
-				drawList->AddRectFilled(min, max, fillColor(e), rounding, ImDrawFlags_None);
-			else
-				drawList->AddRect(min, max, color(e), rounding, ImDrawFlags_None, thickness);
+			if (fill(e)) {
+				const float halfThickness = thickness / 2.0f;
+				const ImVec2 rectWidth{ halfThickness, halfThickness };
+				drawList->AddRectFilled(min + rectWidth, max - rectWidth, fillColor(e), rounding, ImDrawFlags_None);
+			}
 
-			const float expansion = std::max(thickness, outlined ? outlineThickness : 0.0f) / 2;
+			drawList->AddRect(min, max, color(e), rounding, ImDrawFlags_None, thickness);
 
-			rect.expand(expansion);
+			rect.expand(halfWidth);
 		}
 
 		void renderGui(const std::string& id)
