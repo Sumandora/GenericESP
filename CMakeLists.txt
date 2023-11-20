@@ -26,6 +26,7 @@ if(PROJECT_IS_TOP_LEVEL)
     target_include_directories(imgui PUBLIC ${imgui_SOURCE_DIR})
     target_link_libraries(imgui SDL2 GL)
     target_include_directories(imgui PUBLIC "/usr/include/SDL2")
+    target_compile_definitions(imgui PUBLIC "IMGUI_DEFINE_MATH_OPERATORS")
 
     add_executable(GenericESPExample "Example/Example.cpp" "Example/ImGuiImpl.cpp")
     target_compile_features(GenericESPExample PUBLIC cxx_std_23)
