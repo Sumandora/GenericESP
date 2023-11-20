@@ -25,7 +25,7 @@ namespace GenericESP {
 		};
 		MixableConfigurableValue<float, EntityType> outlineThickness{
 			"Outline thickness",
-			StaticConfig<float>{ 1.0f, createFloatRenderer(0.0f, 10.0f, "%.2f") }
+			StaticConfig<float>{ 2.0f, createFloatRenderer(0.0f, 10.0f, "%.2f") }
 		};
 
 		void draw(ImDrawList* drawList, const EntityType& e, const std::vector<ImVec2>& points)
