@@ -288,9 +288,9 @@ namespace GenericESP {
 					float prevT = flipped ? 0.0f : 1.0f;
 					ImColor prevColor = filledColor;
 
-					const auto fMaxHueSteps = static_cast<float>(hueSteps - 1);
+					const auto maxHueSteps = static_cast<float>(hueSteps - 1);
 					for (unsigned int i = 0; i < hueSteps; i++) {
-						float t = (static_cast<float>(i) / fMaxHueSteps) * clampedPercentage;
+						float t = (static_cast<float>(i) / maxHueSteps) * clampedPercentage;
 						if (!flipped) {
 							t = 1.0f - t;
 						}
