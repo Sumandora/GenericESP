@@ -20,7 +20,7 @@ if(PROJECT_IS_TOP_LEVEL)
 
     file(GLOB IMGUI_SOURCE_FILES "${imgui_SOURCE_DIR}/*.cpp")
     list(APPEND IMGUI_SOURCE_FILES "${imgui_SOURCE_DIR}/backends/imgui_impl_sdl2.cpp")
-    list(APPEND IMGUI_SOURCE_FILES "${imgui_SOURCE_DIR}/backends/imgui_impl_opengl2.cpp")
+    list(APPEND IMGUI_SOURCE_FILES "${imgui_SOURCE_DIR}/backends/imgui_impl_opengl3.cpp")
 
     add_library(imgui STATIC ${IMGUI_SOURCE_FILES})
     target_include_directories(imgui PUBLIC ${imgui_SOURCE_DIR})
