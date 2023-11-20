@@ -166,6 +166,7 @@ void render()
 
 		static bool showDebug = false;
 		static bool healthSine = false;
+		static bool align = false;
 
 		static Entity myEntity{};
 
@@ -177,7 +178,13 @@ void render()
 
 		const ImVec2 center = ImGui::GetWindowPos() + ImVec2{ ImGui::GetColumnWidth(0), ImGui::GetWindowHeight() } / 2;
 		constexpr ImVec2 expansion{ 50, 100 };
-		const ImRect rect{ center - expansion, center + expansion };
+		ImRect rect{ center - expansion, center + expansion };
+		if(align) {
+			rect = ImRect{
+				{ std::roundf(rect.Min.x), std::roundf(rect.Min.y) },
+				{ std::roundf(rect.Max.x), std::roundf(rect.Max.y) }
+			};
+		}
 		const auto newUnionedRect = e.draw(ImGui::GetWindowDrawList(), myEntity, rect);
 
 		if (showDebug) {
@@ -194,6 +201,10 @@ void render()
 			ImGui::SetTooltip("Green is the beginning box\nRed is the horizontally expanded one\nBlue is the vertically expanded one");
 		}
 		ImGui::Checkbox("Health sine", &healthSine);
+		ImGui::Checkbox("Align", &align);
+		if (ImGui::IsItemHovered()) {
+			ImGui::SetTooltip("May improve visibility through decreased anti aliasing");
+		}
 		ImGui::EndChild();
 		ImGui::EndTable();
 	}
