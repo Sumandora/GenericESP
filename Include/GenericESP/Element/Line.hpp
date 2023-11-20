@@ -33,15 +33,10 @@ namespace GenericESP {
 			if (!enabled(e))
 				return;
 
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wshadow"
-			const float thickness = this->thickness(e);
-#pragma clang diagnostic pop
-
 			if (outlined(e))
-				drawList->AddPolyline(points.data(), (int)points.size(), outlineColor(e), ImDrawFlags_None, thickness + outlineThickness(e));
+				drawList->AddPolyline(points.data(), (int)points.size(), outlineColor(e), ImDrawFlags_None, outlineThickness(e));
 
-			drawList->AddPolyline(points.data(), (int)points.size(), lineColor(e), ImDrawFlags_None, thickness);
+			drawList->AddPolyline(points.data(), (int)points.size(), lineColor(e), ImDrawFlags_None, thickness(e));
 		}
 
 		void renderGui(const std::string& id)
