@@ -34,7 +34,7 @@ namespace GenericESP {
 				return;
 
 			if (outlined(e))
-				drawList->AddCircleFilled(position, outlineThickness(e), outlineColor(e));
+				drawList->AddCircleFilled(position, outlineRadius(e), outlineColor(e));
 
 			drawList->AddCircleFilled(position, radius(e), circleColor(e));
 		}
@@ -47,7 +47,7 @@ namespace GenericESP {
 			radius.renderGui();
 			outlined.renderGui();
 			outlineColor.renderGui();
-			outlineThickness.renderGui();
+			outlineRadius.renderGui();
 			ImGui::PopID();
 		}
 	};
