@@ -1,6 +1,8 @@
 #ifndef GENERICESP_ELEMENT_RECTANGLE_HPP
 #define GENERICESP_ELEMENT_RECTANGLE_HPP
 
+#define IMGUI_DEFINE_MATH_OPERATORS
+
 #include "../Renderer/ColorRenderer.hpp"
 #include "../Renderer/FloatRenderer.hpp"
 #include "../UnionedRect.hpp"

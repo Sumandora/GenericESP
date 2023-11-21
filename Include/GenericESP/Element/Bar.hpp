@@ -1,6 +1,8 @@
 #ifndef GENERICESP_ELEMENT_BAR_HPP
 #define GENERICESP_ELEMENT_BAR_HPP
 
+#define IMGUI_DEFINE_MATH_OPERATORS
+
 #include "../Renderer/IntRenderer.hpp"
 #include "../Util.hpp"
 #include "SidedElement.hpp"
