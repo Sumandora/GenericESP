@@ -42,7 +42,15 @@ namespace GenericESP {
 		{
 			ImGui::PushID(id.c_str());
 			textElement.renderGui("Text element");
-			ImGui::InputText("Formatting", (char*)format.c_str(), format.capacity() + 1); // from imgui_stdlib
+			ImGui::InputText("Formatting", (char*)format.c_str(), format.capacity() + 1, ImGuiInputTextFlags_CallbackResize, [](ImGuiInputTextCallbackData* data) {
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wshadow"
+				auto* format = reinterpret_cast<std::string*>(data->UserData);
+#pragma clang diagnostic pop
+				format->resize(data->BufTextLen);
+				data->Buf = (char*)format->c_str();
+				return 0;
+			}, &format); // from imgui_stdlib
 			ImGui::PopID();
 		}
 	};
