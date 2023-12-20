@@ -10,16 +10,14 @@
 
 #include "imgui.h"
 
-namespace GenericESP {
-	struct Renderable {
-		virtual ~Renderable() = default;
+#include "GenericESP/BaseClasses/Renderable.hpp"
+#include "GenericESP/BaseClasses/Serializable.hpp"
 
-		virtual void renderGui(const std::string& id) = 0;
-	};
+namespace GenericESP {
 
 	template <typename Type>
-		requires std::is_base_of_v<Renderable, Type>
-	struct Mixable {
+		//requires std::conjunction_v<std::is_base_of<Renderable, Type>, std::is_base_of<Serializable, Type>>
+	struct Mixable : Serializable {
 		using TypeTable = std::vector<std::pair<std::string, Type>>;
 		using MultiType = std::pair<std::size_t /*selected index*/, TypeTable>;
 		std::variant<Type, MultiType> options;
@@ -127,6 +125,35 @@ namespace GenericESP {
 				return;
 			}
 			std::get<Type>(options).renderGui(id);
+		}
+
+		[[nodiscard]] Serialization serialize() const override {
+			Serialization serialization;
+			if(isSingleType())
+				serialization["Default"] = std::get<Type>(options).serialize();
+			else {
+				const auto& multiType = std::get<MultiType>(options);
+				serialization["Active"] = multiType.first;
+				Serialization types;
+				for(const auto& [name, type] : multiType.second) {
+					types[name] = type.serialize();
+				}
+				serialization["Types"] = types;
+			}
+			return serialization;
+		}
+
+		void deserialize(const Serialization& data) override {
+			if(isSingleType())
+				std::get<Type>(options).deserialize(std::get<Serialization>(data["Default"]));
+			else {
+				auto& multiType = std::get<MultiType>(options);
+				multiType.first = std::get<decltype(multiType.first)>(data["Active"]);
+				auto& types = std::get<Serialization>(data["Types"]);
+				for(auto& [name, type] : multiType.second) {
+					type.deserialize(std::get<Serialization>(types[name]));
+				}
+			}
 		}
 	};
 

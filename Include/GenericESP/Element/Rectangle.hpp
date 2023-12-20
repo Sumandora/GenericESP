@@ -105,6 +105,30 @@ namespace GenericESP {
 			fillColor.renderGui();
 			ImGui::PopID();
 		}
+
+		[[nodiscard]] Serialization serialize() const override {
+			Serialization serialization;
+			serialization["Enabled"] = enabled.serialize();
+			serialization["Color"] = color.serialize();
+			serialization["Thickness"] = thickness.serialize();
+			serialization["Outlined"] = outlined.serialize();
+			serialization["Outline color"] = outlineColor.serialize();
+			serialization["Outline thickness"] = outlineThickness.serialize();
+			serialization["Fill"] = fill.serialize();
+			serialization["Fill color"] = fillColor.serialize();
+			return serialization;
+		}
+
+		void deserialize(const Serialization& data) override {
+			enabled.deserialize(std::get<Serialization>(data["Enabled"]));
+			color.deserialize(std::get<Serialization>(data["Color"]));
+			thickness.deserialize(std::get<Serialization>(data["Thickness"]));
+			outlined.deserialize(std::get<Serialization>(data["Outlined"]));
+			outlineColor.deserialize(std::get<Serialization>(data["Outline color"]));
+			outlineThickness.deserialize(std::get<Serialization>(data["Outline thickness"]));
+			fill.deserialize(std::get<Serialization>(data["Fill"]));
+			fillColor.deserialize(std::get<Serialization>(data["Fill color"]));
+		}
 	};
 
 }

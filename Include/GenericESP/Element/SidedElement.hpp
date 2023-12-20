@@ -11,14 +11,32 @@ namespace GenericESP {
 	template <typename EntityType>
 	struct SidedElement : Element<EntityType> {
 
-		MixableConfigurableValue<Side, EntityType> side{
+		struct SideConfigValue : Serializable {
+			StaticConfig<size_t> parent{
+				-1,
+				createEnumComboRenderer(sideLocalization)
+			};
+
+			[[nodiscard]] Serialization serialize() const override {
+				return Serialization{ "Value", static_cast<size_t>(parent.thing) };
+			}
+			void deserialize(const Serialization& data) override {
+				parent.thing = static_cast<Side>(data.get<size_t>("Value").value().get());
+			}
+
+			operator Side() const {
+				return parent.thing;
+			}
+		};
+
+		MixableConfigurableValue<SideConfigValue, EntityType> side{
 			"Side",
-			StaticConfig<Side>{ static_cast<Side>(-1 /*placeholder*/), createEnumComboRenderer(sideLocalization) }
+			SideConfigValue{}
 		};
 
 		explicit SidedElement(Side defaultSide)
 		{
-			side.getSelected().getStaticConfig().thing = defaultSide;
+			side.getSelected().getStaticConfig().thing.parent.thing = defaultSide;
 		}
 
 #pragma clang diagnostic push
@@ -54,6 +72,9 @@ namespace GenericESP {
 				throw std::runtime_error("Side was invalid");
 			}
 		}
+
+		[[nodiscard]] Serialization serialize() const override = 0;
+		void deserialize(const Serialization&) override = 0;
 	};
 
 }

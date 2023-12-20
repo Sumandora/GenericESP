@@ -65,7 +65,7 @@ namespace GenericESP {
 		using PercentageProvider = std::function<float(const EntityType& e)>;
 		PercentageProvider percentageProvider;
 
-		struct NumberText {
+		struct NumberText : Serializable {
 			Text<EntityType> numberText{};
 			bool hideWhenFull = false;
 
@@ -106,6 +106,13 @@ namespace GenericESP {
 					ImGui::EndPopup();
 				}
 				// Hide when full will be rendered through the injected render method
+			}
+
+			[[nodiscard]] virtual Serialization serialize() const {
+				return numberText.serialize();
+			}
+			virtual void deserialize(const Serialization& data) {
+				numberText.deserialize(data);
 			}
 		};
 
@@ -379,6 +386,44 @@ namespace GenericESP {
 			if (numberText.has_value())
 				numberText->renderGui("Number text");
 			ImGui::PopID();
+		}
+
+		[[nodiscard]] Serialization serialize() const override {
+			Serialization serialization;
+			serialization["Enabled"] = enabled.serialize();
+			serialization["Side"] = side.serialize();
+			serialization["Background color"] = backgroundColor.serialize();
+			serialization["Spacing"] = spacing.serialize();
+			serialization["Width"] = width.serialize();
+			serialization["Filled color"] = filledColor.serialize();
+			serialization["Empty color"] = emptyColor.serialize();
+			serialization["Gradient"] = gradient.serialize();
+			serialization["Hue steps"] = hueSteps.serialize();
+			serialization["Flipped"] = flipped.serialize();
+			serialization["Outlined"] = outlined.serialize();
+			serialization["Outline color"] = outlineColor.serialize();
+			serialization["Outline thickness"] = outlineThickness.serialize();
+			if (numberText.has_value())
+				serialization["Number text"] = numberText->serialize();
+			return serialization;
+		}
+
+		void deserialize(const Serialization& data) override {
+			enabled.deserialize(data.get<Serialization>("Enabled").value());
+			side.deserialize(data.get<Serialization>("Side").value());
+			backgroundColor.deserialize(data.get<Serialization>("Background color").value());
+			spacing.deserialize(data.get<Serialization>("Spacing").value());
+			width.deserialize(data.get<Serialization>("Width").value());
+			filledColor.deserialize(data.get<Serialization>("Filled color").value());
+			emptyColor.deserialize(data.get<Serialization>("Empty color").value());
+			gradient.deserialize(data.get<Serialization>("Gradient").value());
+			hueSteps.deserialize(data.get<Serialization>("Hue steps").value());
+			flipped.deserialize(data.get<Serialization>("Flipped").value());
+			outlined.deserialize(data.get<Serialization>("Outlined").value());
+			outlineColor.deserialize(data.get<Serialization>("Outline color").value());
+			outlineThickness.deserialize(data.get<Serialization>("Outline thickness").value());
+			if (numberText.has_value())
+				numberText->deserialize(data.get<Serialization>("Number text").value());
 		}
 	};
 

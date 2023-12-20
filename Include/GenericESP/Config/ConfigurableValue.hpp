@@ -8,7 +8,7 @@
 namespace GenericESP {
 
 	template <typename Configurable, typename EntityType>
-	struct ConfigurableValue final : Renderable {
+	struct ConfigurableValue : Renderable, Serializable {
 		~ConfigurableValue() override = default;
 
 		std::variant<StaticConfig<Configurable>, DynamicConfig<Configurable, EntityType>> thing;
@@ -72,6 +72,19 @@ namespace GenericESP {
 				return staticConfig.render(id, staticConfig.thing);
 			}
 			getDynamicConfig().render(id);
+		}
+
+		[[nodiscard]] Serialization serialize() const override {
+			if(isStatic())
+				return Serialization("Value", getStaticConfig().serialize());
+			return getDynamicConfig().serialize();
+		}
+
+		void deserialize(const Serialization& data) override {
+			if(isStatic())
+				getStaticConfig().deserialize(data);
+			else
+				getDynamicConfig().deserialize(data);
 		}
 	};
 }

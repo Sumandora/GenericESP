@@ -50,6 +50,26 @@ namespace GenericESP {
 			outlineRadius.renderGui();
 			ImGui::PopID();
 		}
+
+		[[nodiscard]] Serialization serialize() const override {
+			Serialization serialization;
+			serialization["Enabled"] = enabled.serialize();
+			serialization["Circle color"] = circleColor.serialize();
+			serialization["Radius"] = radius.serialize();
+			serialization["Outlined"] = outlined.serialize();
+			serialization["Outline color"] = outlineColor.serialize();
+			serialization["Outline radius"] = outlineRadius.serialize();
+			return serialization;
+		}
+
+		void deserialize(const Serialization& data) override {
+			enabled.deserialize(std::get<Serialization>(data["Enabled"]));
+			circleColor.deserialize(std::get<Serialization>(data["Circle color"]));
+			radius.deserialize(std::get<Serialization>(data["Radius"]));
+			outlined.deserialize(std::get<Serialization>(data["Outlined"]));
+			outlineColor.deserialize(std::get<Serialization>(data["Outline color"]));
+			outlineRadius.deserialize(std::get<Serialization>(data["Outline radius"]));
+		}
 	};
 
 }

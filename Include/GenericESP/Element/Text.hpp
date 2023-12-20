@@ -114,6 +114,26 @@ namespace GenericESP {
 			shadowColor.renderGui();
 			ImGui::PopID();
 		}
+
+		[[nodiscard]] Serialization serialize() const override {
+			Serialization serialization;
+			serialization["Enabled"] = enabled.serialize();
+			serialization["Font scale"] = fontScale.serialize();
+			serialization["Font color"] = fontColor.serialize();
+			serialization["Shadow"] = shadow.serialize();
+			serialization["Shadow offset"] = shadowOffset.serialize();
+			serialization["Shadow color"] = shadowColor.serialize();
+			return serialization;
+		}
+
+		void deserialize(const Serialization& data) override {
+			enabled.deserialize(std::get<Serialization>(data["Enabled"]));
+			fontScale.deserialize(std::get<Serialization>(data["Font scale"]));
+			fontColor.deserialize(std::get<Serialization>(data["Font color"]));
+			shadow.deserialize(std::get<Serialization>(data["Shadow"]));
+			shadowOffset.deserialize(std::get<Serialization>(data["Shadow offset"]));
+			shadowColor.deserialize(std::get<Serialization>(data["Shadow color"]));
+		}
 	};
 
 }

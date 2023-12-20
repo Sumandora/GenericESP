@@ -79,6 +79,22 @@ namespace GenericESP {
 			textElement.renderGui("Text");
 			ImGui::PopID();
 		}
+
+		[[nodiscard]] Serialization serialize() const override {
+			Serialization serialization;
+			serialization["Enabled"] = enabled.serialize();
+			serialization["Side"] = side.serialize();
+			serialization["Spacing"] = spacing.serialize();
+			serialization["Text element"] = textElement.serialize();
+			return serialization;
+		}
+
+		void deserialize(const Serialization& data) override {
+			enabled.deserialize(std::get<Serialization>(data["Enabled"]));
+			side.deserialize(std::get<Serialization>(data["Side"]));
+			spacing.deserialize(std::get<Serialization>(data["Spacing"]));
+			textElement.deserialize(std::get<Serialization>(data["Text element"]));
+		}
 	};
 
 }

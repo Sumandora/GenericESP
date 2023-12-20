@@ -25,45 +25,64 @@ struct EntityESP {
 	GenericESP::SidedText<Entity> name;
 	struct MyFlag : GenericESP::Flag<Entity> {
 		MyFlag()
-			: GenericESP::Flag<Entity>
-		{
-			"My flag",
+			: GenericESP::Flag<Entity>{
+				"My flag",
 				{ { "percentage", [](const Entity& e) { return std::to_string(e.flagPercentage); } } },
 				"My flag: %percentage%"
-		}
+			}
 		{
 		}
 	};
 	struct AnotherFlag : GenericESP::Flag<Entity> {
 		AnotherFlag()
 			: GenericESP::Flag<Entity>(
-				"Another flag",
-				{ { "percentage", [](const Entity& e) { return std::to_string(e.anotherFlagPercentage); } } },
-				"Another flag: %percentage%")
+				  "Another flag",
+				  { { "percentage", [](const Entity& e) { return std::to_string(e.anotherFlagPercentage); } } },
+				  "Another flag: %percentage%")
 		{
 		}
 	};
 	GenericESP::Flags<Entity, MyFlag, AnotherFlag> flags;
 
-	// Injected health-based color
-	ImColor aliveColor{ 0.0f, 1.0f, 0.0f, 1.0f };
-	ImColor deadColor{ 1.0f, 0.0f, 0.0f, 1.0f };
-
 	ImVec2 circleOffset{ 0.0f, 0.0f }; // Shout-out to that one user that wanted this feature... Cool idea though
+
+	// Injected health-based color
+	struct HealthBased : GenericESP::DynamicConfig<ImColor, Entity> {
+		using GenericESP::DynamicConfig<ImColor, Entity>::thing;
+		using GenericESP::DynamicConfig<ImColor, Entity>::render;
+
+		ImColor aliveColor{ 0.0f, 1.0f, 0.0f, 1.0f };
+		ImColor deadColor{ 1.0f, 0.0f, 0.0f, 1.0f };
+
+		HealthBased()
+			: GenericESP::DynamicConfig<ImColor, Entity>(
+				  [this](const Entity& e) {
+					  const float t = static_cast<float>(e.health) / static_cast<float>(e.maxHealth);
+					  return ImColor{ ImLerp(deadColor.Value, aliveColor.Value, t) };
+				  },
+				  [this](const std::string& id) {
+					  static auto displayColor = GenericESP::createColorRenderer();
+					  ImGui::PushID(id.c_str());
+					  displayColor("Alive color", aliveColor);
+					  displayColor("Dead color", deadColor);
+					  ImGui::PopID();
+				  })
+		{
+		}
+
+		GenericESP::Serialization serialize() const override
+		{
+			return {};
+		}
+
+		void deserialize(const GenericESP::Serialization&) override
+		{
+		}
+	};
 
 	EntityESP()
 	{
-		box.color.addType("Health-based", GenericESP::DynamicConfig<ImColor, Entity>{ [this](const Entity& e) {
-																						 const float t = static_cast<float>(e.health) / static_cast<float>(e.maxHealth);
-																						 return ImColor{ ImLerp(deadColor.Value, aliveColor.Value, t) };
-																					 },
-											  [this](const std::string& id) {
-												  static auto displayColor = GenericESP::createColorRenderer();
-												  ImGui::PushID(id.c_str());
-												  displayColor("Alive color", aliveColor);
-												  displayColor("Dead color", deadColor);
-												  ImGui::PopID();
-											  } });
+		box.color.addType("Health-based", HealthBased());
 		bar.filledColor.id = "Alive color";
 		bar.emptyColor.id = "Dead color";
 
@@ -178,7 +197,7 @@ void render()
 		const ImVec2 center = ImGui::GetWindowPos() + ImVec2{ ImGui::GetColumnWidth(0), ImGui::GetWindowHeight() } / 2;
 		constexpr ImVec2 expansion{ 50, 100 };
 		ImRect rect{ center - expansion, center + expansion };
-		if(align) {
+		if (align) {
 			rect = ImRect{
 				{ std::roundf(rect.Min.x), std::roundf(rect.Min.y) },
 				{ std::roundf(rect.Max.x), std::roundf(rect.Max.y) }

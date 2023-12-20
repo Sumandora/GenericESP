@@ -6,7 +6,7 @@
 namespace GenericESP {
 
 	template <typename EntityType>
-	struct Flag {
+	struct Flag : Serializable {
 		std::string name;
 
 		Text<EntityType> textElement;
@@ -52,6 +52,18 @@ namespace GenericESP {
 				return 0;
 			}, &format); // from imgui_stdlib
 			ImGui::PopID();
+		}
+
+		[[nodiscard]] Serialization serialize() const override {
+			Serialization serialization;
+			serialization["Text element"] = textElement.serialize();
+			serialization["Formatting"] = format;
+			return serialization;
+		}
+
+		void deserialize(const Serialization& data) override {
+			textElement.deserialize(data.get<Serialization>("Text element").value());
+			format = data.get<decltype(format)>("Formatting").value();
 		}
 	};
 
