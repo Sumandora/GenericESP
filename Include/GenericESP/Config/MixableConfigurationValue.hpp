@@ -4,11 +4,11 @@
 #include "ConfigurableValue.hpp"
 
 namespace GenericESP {
-	template <typename Configurable, typename EntityType>
-	struct MixableConfigurableValue : Mixable<ConfigurableValue<Configurable, EntityType>> {
-		using Mixable<ConfigurableValue<Configurable, EntityType>>::Mixable;
+	template <typename Configurable>
+	struct MixableConfigurableValue : Mixable<ConfigurableValue<Configurable>> {
+		using Mixable<ConfigurableValue<Configurable>>::Mixable;
 
-		auto operator()(const EntityType& e) const
+		auto operator()(const void* e) const
 		{
 			return this->getSelected().getConfigurable(e);
 		}

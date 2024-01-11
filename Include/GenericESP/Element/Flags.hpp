@@ -10,29 +10,29 @@
 
 namespace GenericESP {
 
-	template <typename EntityType, typename... Ts>
-		requires std::conjunction_v<std::is_base_of<Flag<EntityType>, Ts>...>
-	struct Flags : SidedElement<EntityType> {
-		using SidedElement<EntityType>::enabled;
-		using SidedElement<EntityType>::side;
-		MixableConfigurableValue<float, EntityType> spacing{
+	template <typename... Ts>
+		requires std::conjunction_v<std::is_base_of<Flag, Ts>...>
+	struct Flags : SidedElement {
+		using SidedElement::enabled;
+		using SidedElement::side;
+		MixableConfigurableValue<float> spacing{
 			"Spacing",
 			StaticConfig<float>{ 1.0f, createFloatRenderer(0.0, 10.0f, "%.2f") }
 		};
 
-		std::vector<std::unique_ptr<Flag<EntityType>>> flags;
-		VectorOrdering<std::unique_ptr<Flag<EntityType>>> flagOrder;
+		std::vector<std::unique_ptr<Flag>> flags;
+		VectorOrdering<std::unique_ptr<Flag>> flagOrder;
 
 		explicit Flags()
-			: SidedElement<EntityType>(Side::RIGHT)
-			, flagOrder{ flags, [](const std::unique_ptr<Flag<EntityType>>& flag) { return flag->name; } }
+			: SidedElement(Side::RIGHT)
+			, flagOrder{ flags, [](const std::unique_ptr<Flag>& flag) { return flag->name; } }
 		{
 			(flags.emplace_back(std::make_unique<Ts>()), ...);
 		}
 
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wshadow"
-		ImVec2 drawEntry(Side side, Text<EntityType> textElement, ImDrawList* drawList, const EntityType& e, ImRect& rect, std::string text, float spacing, float yOffset)
+		ImVec2 drawEntry(Side side, Text textElement, ImDrawList* drawList, const void* e, ImRect& rect, std::string text, float spacing, float yOffset)
 		{
 #pragma clang diagnostic pop
 			switch (side) {
@@ -66,9 +66,9 @@ namespace GenericESP {
 			return { 0.0f, 0.0f };
 		}
 
-		using SidedElement<EntityType>::chooseRect;
+		using SidedElement::chooseRect;
 
-		void draw(ImDrawList* drawList, const EntityType& e, UnionedRect& unionedRect)
+		void draw(ImDrawList* drawList, const void* e, UnionedRect& unionedRect)
 		{
 			if (!enabled(e))
 				return;
@@ -85,7 +85,7 @@ namespace GenericESP {
 			float biggestOffset = 0.0f;
 			float yOffset = 0.0f;
 
-			auto process = [&](const std::unique_ptr<Flag<EntityType>>& flag) {
+			auto process = [&](const std::unique_ptr<Flag>& flag) {
 				ImVec2 offset = drawEntry(side, flag->textElement, drawList, e, rect, flag->computeText(e), spacing, yOffset);
 				if (offset.x > biggestOffset)
 					biggestOffset = offset.x;
@@ -124,7 +124,7 @@ namespace GenericESP {
 			side.renderGui();
 			spacing.renderGui();
 			if (ImGui::BeginTabBar("Flags", ImGuiTabBarFlags_Reorderable)) {
-				for (std::unique_ptr<Flag<EntityType>>& flag : flags) {
+				for (std::unique_ptr<Flag>& flag : flags) {
 					const char* flagName = flag->name.c_str();
 					if (ImGui::BeginTabItem(flagName)) {
 						flag->renderGui(flagName);

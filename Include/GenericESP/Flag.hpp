@@ -5,13 +5,12 @@
 
 namespace GenericESP {
 
-	template <typename EntityType>
 	struct Flag {
 		std::string name;
 
-		Text<EntityType> textElement;
+		Text textElement;
 
-		using Provider = std::function<std::string(const EntityType&)>;
+		using Provider = std::function<std::string(const void*)>;
 		using Remaps = std::unordered_map<std::string, Provider>;
 
 		Remaps remaps;
@@ -24,7 +23,7 @@ namespace GenericESP {
 		{
 		}
 
-		std::string computeText(const EntityType& e) const
+		std::string computeText(const void* e) const
 		{
 			std::string result = format;
 			for (const auto& [varName, provider] : remaps) {

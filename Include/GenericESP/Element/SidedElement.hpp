@@ -8,10 +8,9 @@
 
 namespace GenericESP {
 
-	template <typename EntityType>
-	struct SidedElement : Element<EntityType> {
+	struct SidedElement : Element {
 
-		MixableConfigurableValue<Side, EntityType> side{
+		MixableConfigurableValue<Side> side{
 			"Side",
 			StaticConfig<Side>{ static_cast<Side>(-1 /*placeholder*/), createEnumComboRenderer(sideLocalization) }
 		};
@@ -21,9 +20,11 @@ namespace GenericESP {
 			side.getSelected().getStaticConfig().thing = defaultSide;
 		}
 
+		// TODO get side ourselves
+
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wshadow"
-		[[nodiscard]] const ImRect& chooseRect(Side side, const UnionedRect& unionedRect) const
+		[[nodiscard]] static const ImRect& chooseRect(Side side, const UnionedRect& unionedRect)
 #pragma clang diagnostic pop
 		{
 			switch (side) {
@@ -40,7 +41,7 @@ namespace GenericESP {
 
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wshadow"
-		[[nodiscard]] ImRect& chooseRect(Side side, UnionedRect& unionedRect) const
+		[[nodiscard]] static ImRect& chooseRect(Side side, UnionedRect& unionedRect)
 #pragma clang diagnostic pop
 		{
 			switch (side) {

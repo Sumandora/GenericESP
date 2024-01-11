@@ -10,66 +10,65 @@
 
 namespace GenericESP {
 
-	template <typename EntityType>
-	struct Bar : SidedElement<EntityType> {
-		using SidedElement<EntityType>::enabled;
-		using SidedElement<EntityType>::side;
-		MixableConfigurableValue<ImColor, EntityType> backgroundColor{
+	struct Bar : SidedElement {
+		using SidedElement::enabled;
+		using SidedElement::side;
+		MixableConfigurableValue<ImColor> backgroundColor{
 			"Background color",
 			StaticConfig<ImColor>{ { 0.0f, 0.0f, 0.0f, 1.0f }, createColorRenderer() }
 		};
-		MixableConfigurableValue<float, EntityType> spacing{
+		MixableConfigurableValue<float> spacing{
 			"Spacing",
 			StaticConfig<float>{ 1.0f, createFloatRenderer(0.0, 10.0f, "%.2f") }
 		};
-		MixableConfigurableValue<float, EntityType> width{
+		MixableConfigurableValue<float> width{
 			"Width",
 			StaticConfig<float>{ 2.0f, createFloatRenderer(0.0, 10.0f, "%.2f") }
 		};
-		MixableConfigurableValue<ImColor, EntityType> filledColor{
+		MixableConfigurableValue<ImColor> filledColor{
 			"Filled color",
 			StaticConfig<ImColor>{ { 0.0f, 1.0f, 0.0f, 1.0f }, createColorRenderer() }
 		};
-		MixableConfigurableValue<ImColor, EntityType> emptyColor{
+		MixableConfigurableValue<ImColor> emptyColor{
 			"Empty color",
 			StaticConfig<ImColor>{ { 1.0f, 0.0f, 0.0f, 1.0f }, createColorRenderer() }
 		};
-		MixableConfigurableValue<bool, EntityType> gradient{ "Gradient", StaticConfig<bool>{ true, createBoolRenderer() } };
-		MixableConfigurableValue<int, EntityType> hueSteps{
+		MixableConfigurableValue<bool> gradient{ "Gradient", StaticConfig<bool>{ true, createBoolRenderer() } };
+		MixableConfigurableValue<int> hueSteps{
 			"Hue steps",
 			StaticConfig<int>{ 3, createIntRenderer(3, 10) },
 			[this] {
-				const ConfigurableValue<bool, EntityType>& selected = gradient.getSelected();
+				const ConfigurableValue<bool>& selected = gradient.getSelected();
 				return !selected.isStatic() || selected.getStaticConfig().thing;
 			}
 		};
-		MixableConfigurableValue<bool, EntityType> flipped{ "Flipped", StaticConfig<bool>{ false, createBoolRenderer() } };
-		MixableConfigurableValue<bool, EntityType> outlined{ "Outlined", StaticConfig<bool>{ true, createBoolRenderer() } };
-		MixableConfigurableValue<ImColor, EntityType> outlineColor{
+		MixableConfigurableValue<bool> flipped{ "Flipped", StaticConfig<bool>{ false, createBoolRenderer() } };
+		MixableConfigurableValue<bool> outlined{ "Outlined", StaticConfig<bool>{ true, createBoolRenderer() } };
+		MixableConfigurableValue<ImColor> outlineColor{
 			"Outline color",
 			StaticConfig<ImColor>{ { 0.0f, 0.0f, 0.0f, 1.0f }, createColorRenderer() },
 			[this] {
-				const ConfigurableValue<bool, EntityType>& selected = outlined.getSelected();
+				const ConfigurableValue<bool>& selected = outlined.getSelected();
 				return !selected.isStatic() || selected.getStaticConfig().thing;
 			}
 		};
-		MixableConfigurableValue<float, EntityType> outlineThickness{
+		MixableConfigurableValue<float> outlineThickness{
 			"Outline thickness",
 			StaticConfig<float>{ 1.0f, createFloatRenderer(0.0, 10.0f, "%.2f") },
 			[this] {
-				const ConfigurableValue<bool, EntityType>& selected = outlined.getSelected();
+				const ConfigurableValue<bool>& selected = outlined.getSelected();
 				return !selected.isStatic() || selected.getStaticConfig().thing;
 			}
 		};
 
-		using PercentageProvider = std::function<float(const EntityType& e)>;
+		using PercentageProvider = std::function<float(const void* e)>;
 		PercentageProvider percentageProvider;
 
 		struct NumberText {
-			Text<EntityType> numberText{};
+			Text numberText{};
 			bool hideWhenFull = false;
 
-			using Provider = std::function<std::string(const EntityType& e)>;
+			using Provider = std::function<std::string(const void* e)>;
 			Provider numberTextProvider;
 
 			std::function<void(const std::string&, bool&)> boolRenderer = createBoolRenderer();
@@ -87,7 +86,7 @@ namespace GenericESP {
 				};
 			}
 
-			void draw(ImDrawList* drawList, const EntityType& e, ImVec2 pos)
+			void draw(ImDrawList* drawList, const void* e, ImVec2 pos)
 			{
 				numberText.draw(drawList, e, numberTextProvider(e), pos, TextAlignment::CENTERED, VerticalAlignment::CENTERED);
 			}
@@ -112,8 +111,8 @@ namespace GenericESP {
 		std::optional<NumberText> numberText;
 
 		explicit Bar(PercentageProvider percentageProvider,
-			std::optional<typename NumberText::Provider> numberTextProvider = std::nullopt)
-			: SidedElement<EntityType>(Side::LEFT)
+			const std::optional<typename NumberText::Provider>& numberTextProvider = std::nullopt)
+			: SidedElement(Side::LEFT)
 			, percentageProvider(std::move(percentageProvider))
 			, numberText(numberTextProvider.has_value()
 					  ? std::optional<NumberText>{ numberTextProvider.value() }
@@ -121,7 +120,7 @@ namespace GenericESP {
 		{
 		}
 
-		ImRect calculateNewRect(Side side, const EntityType& e, const ImRect& rect)
+		ImRect calculateNewRect(Side side, const void* e, const ImRect& rect) const
 		{
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wshadow"
@@ -163,7 +162,7 @@ namespace GenericESP {
 			}
 		}
 
-		std::optional<ImRect> calculateInnerRect(const EntityType& e, const ImRect& rect)
+		std::optional<ImRect> calculateInnerRect(const void* e, const ImRect& rect) const
 		{
 			if (this->outlined(e)) {
 #pragma clang diagnostic push
@@ -189,7 +188,7 @@ namespace GenericESP {
 
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wshadow"
-		ImRect calculateBarRect(Side side, const ImRect& rect, const bool flipped, const float percentage)
+		static ImRect calculateBarRect(Side side, const ImRect& rect, const bool flipped, const float percentage)
 		{
 #pragma clang diagnostic pop
 			ImRect barRect = rect;
@@ -215,9 +214,9 @@ namespace GenericESP {
 			return barRect;
 		}
 
-		using SidedElement<EntityType>::chooseRect;
+		using SidedElement::chooseRect;
 
-		void draw(ImDrawList* drawList, const EntityType& e, UnionedRect& unionedRect)
+		void draw(ImDrawList* drawList, const void* e, UnionedRect& unionedRect)
 		{
 			if (!enabled(e))
 				return;
@@ -271,7 +270,7 @@ namespace GenericESP {
 #pragma clang diagnostic pop
 
 				const ImRect barRect = calculateBarRect(side, innerRect, flipped, clampedPercentage);
-				const ImRect complementBarRect = calculateBarRect(side, innerRect, !flipped, 1.0 - clampedPercentage);
+				const ImRect complementBarRect = calculateBarRect(side, innerRect, !flipped, 1.0f - clampedPercentage);
 
 				drawList->AddRectFilled(complementBarRect.Min, complementBarRect.Max, backgroundColor(e));
 

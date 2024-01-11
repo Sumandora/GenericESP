@@ -6,9 +6,8 @@
 
 namespace GenericESP {
 
-	template <typename EntityType>
 	struct Element {
-		MixableConfigurableValue<bool, EntityType> enabled{
+		MixableConfigurableValue<bool> enabled{
 			"Enabled",
 			StaticConfig<bool>{ false, createBoolRenderer() }
 		};

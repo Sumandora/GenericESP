@@ -7,28 +7,27 @@
 
 namespace GenericESP {
 
-	template <typename EntityType>
-	struct Circle : Element<EntityType> {
-		using Element<EntityType>::enabled;
-		MixableConfigurableValue<ImColor, EntityType> circleColor{
+	struct Circle : Element {
+		using Element::enabled;
+		MixableConfigurableValue<ImColor> circleColor{
 			"Circle color",
 			StaticConfig<ImColor>{ { 1.0f, 1.0f, 1.0f, 1.0f }, createColorRenderer() }
 		};
-		MixableConfigurableValue<float, EntityType> radius{
+		MixableConfigurableValue<float> radius{
 			"Radius",
 			StaticConfig<float>{ 1.0f, createFloatRenderer(0.0f, 10.0f, "%.2f") }
 		};
-		MixableConfigurableValue<bool, EntityType> outlined{ "Outlined", StaticConfig<bool>{ true, createBoolRenderer() } };
-		MixableConfigurableValue<ImColor, EntityType> outlineColor{
+		MixableConfigurableValue<bool> outlined{ "Outlined", StaticConfig<bool>{ true, createBoolRenderer() } };
+		MixableConfigurableValue<ImColor> outlineColor{
 			"Outline color",
 			StaticConfig<ImColor>{ { 0.0f, 0.0f, 0.0f, 1.0f }, createColorRenderer() }
 		};
-		MixableConfigurableValue<float, EntityType> outlineRadius{
+		MixableConfigurableValue<float> outlineRadius{
 			"Outline radius",
 			StaticConfig<float>{ 2.0f, createFloatRenderer(0.0f, 10.0f, "%.2f") }
 		};
 
-		void draw(ImDrawList* drawList, const EntityType& e, const ImVec2& position)
+		void draw(ImDrawList* drawList, const void* e, const ImVec2& position)
 		{
 			if (!enabled(e))
 				return;

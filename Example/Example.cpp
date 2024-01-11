@@ -10,40 +10,42 @@ struct Entity {
 	float anotherFlagPercentage = 6.9f;
 };
 
+using namespace GenericESP;
+
 struct EntityESP {
-	GenericESP::Rectangle<Entity> box;
-	GenericESP::Bar<Entity> bar{
-		[](const Entity& entity) { return static_cast<float>(entity.health) / static_cast<float>(entity.maxHealth); },
-		[](const Entity& entity) { return std::to_string(entity.health); }
+	Rectangle box;
+	Bar bar{
+		lambda<Entity, float>([](const Entity& entity) { return static_cast<float>(entity.health) / static_cast<float>(entity.maxHealth); }),
+		lambda<Entity, std::string>([](const Entity& entity) { return std::to_string(entity.health); })
 	};
-	GenericESP::Bar<Entity> bar2{
-		[](const Entity& entity) { return static_cast<float>(entity.health) / static_cast<float>(entity.maxHealth); },
-		[](const Entity& entity) { return std::to_string(entity.health); }
+	GenericESP::Bar bar2{
+		lambda<Entity, float>([](const Entity& entity) { return static_cast<float>(entity.health) / static_cast<float>(entity.maxHealth); }),
+		lambda<Entity, std::string>([](const Entity& entity) { return std::to_string(entity.health); })
 	};
-	GenericESP::Line<Entity> line;
-	GenericESP::Circle<Entity> circle;
-	GenericESP::SidedText<Entity> name;
-	struct MyFlag : GenericESP::Flag<Entity> {
+	GenericESP::Line line;
+	GenericESP::Circle circle;
+	GenericESP::SidedText name;
+	struct MyFlag : GenericESP::Flag {
 		MyFlag()
-			: GenericESP::Flag<Entity>
+			: GenericESP::Flag
 		{
 			"My flag",
-				{ { "percentage", [](const Entity& e) { return std::to_string(e.flagPercentage); } } },
+				{ { "percentage", lambda<Entity, std::string>([](const Entity& e) { return std::to_string(e.flagPercentage); }) } },
 				"My flag: %percentage%"
 		}
 		{
 		}
 	};
-	struct AnotherFlag : GenericESP::Flag<Entity> {
+	struct AnotherFlag : GenericESP::Flag {
 		AnotherFlag()
-			: GenericESP::Flag<Entity>(
+			: GenericESP::Flag(
 				"Another flag",
-				{ { "percentage", [](const Entity& e) { return std::to_string(e.anotherFlagPercentage); } } },
+				{ { "percentage", lambda<Entity, std::string>([](const Entity& e) { return std::to_string(e.anotherFlagPercentage); }) } },
 				"Another flag: %percentage%")
 		{
 		}
 	};
-	GenericESP::Flags<Entity, MyFlag, AnotherFlag> flags;
+	GenericESP::Flags<MyFlag, AnotherFlag> flags;
 
 	// Injected health-based color
 	ImColor aliveColor{ 0.0f, 1.0f, 0.0f, 1.0f };
@@ -53,10 +55,10 @@ struct EntityESP {
 
 	EntityESP()
 	{
-		box.color.addType("Health-based", GenericESP::DynamicConfig<ImColor, Entity>{ [this](const Entity& e) {
-																						 const float t = static_cast<float>(e.health) / static_cast<float>(e.maxHealth);
-																						 return ImColor{ ImLerp(deadColor.Value, aliveColor.Value, t) };
-																					 },
+		box.color.addType("Health-based", GenericESP::DynamicConfig<ImColor>{ lambda<Entity, float>([this](const Entity& e) {
+																				 const float t = static_cast<float>(e.health) / static_cast<float>(e.maxHealth);
+																				 return ImColor{ ImLerp(deadColor.Value, aliveColor.Value, t) };
+																			 }),
 											  [this](const std::string& id) {
 												  static auto displayColor = GenericESP::createColorRenderer();
 												  ImGui::PushID(id.c_str());
@@ -98,19 +100,19 @@ struct EntityESP {
 			float f = static_cast<float>(i) / 100.0f;
 			trail.emplace_back(basePos.x + sinf(f * M_PIf * 2) * 30.0f + static_cast<float>(i), basePos.y - f * 20.0f);
 		}
-		line.draw(drawList, e, trail);
+		line.draw(drawList, &e, trail);
 
-		box.draw(drawList, e, unionedRect);
+		box.draw(drawList, &e, unionedRect);
 
-		bar.draw(drawList, e, unionedRect);
+		bar.draw(drawList, &e, unionedRect);
 
-		bar2.draw(drawList, e, unionedRect);
+		bar2.draw(drawList, &e, unionedRect);
 
-		name.draw(drawList, e, e.name, unionedRect);
+		name.draw(drawList, &e, e.name, unionedRect);
 
-		flags.draw(drawList, e, unionedRect);
+		flags.draw(drawList, &e, unionedRect);
 
-		circle.draw(drawList, e, ImVec2{ rect.Min.x + (rect.Max.x - rect.Min.x) * 0.5f, rect.Min.y + (rect.Max.y - rect.Min.y) * 0.25f } + circleOffset); // Let's imagine this to be a head dot
+		circle.draw(drawList, &e, ImVec2{ rect.Min.x + (rect.Max.x - rect.Min.x) * 0.5f, rect.Min.y + (rect.Max.y - rect.Min.y) * 0.25f } + circleOffset); // Let's imagine this to be a head dot
 
 		return unionedRect;
 	}

@@ -6,29 +6,28 @@
 
 namespace GenericESP {
 
-	template <typename EntityType>
-	struct SidedText : SidedElement<EntityType> {
-		using SidedElement<EntityType>::enabled;
-		using SidedElement<EntityType>::side;
-		MixableConfigurableValue<float, EntityType> spacing{
+	struct SidedText : SidedElement {
+		using SidedElement::enabled;
+		using SidedElement::side;
+		MixableConfigurableValue<float> spacing{
 			"Spacing",
 			StaticConfig<float>{ 1.0f, createFloatRenderer(0.0, 10.0f, "%.2f") }
 		};
-		Text<EntityType> textElement;
+		Text textElement;
 
 		SidedText()
-			: SidedElement<EntityType>(Side::TOP)
+			: SidedElement(Side::TOP)
 		{
 			// Remove second enabled setting
-			textElement.enabled.options = DynamicConfig<bool, EntityType>{
-				[this](const EntityType& e) { return this->enabled(e); },
+			textElement.enabled.options = DynamicConfig<bool>{
+				[this](const void* e) { return this->enabled(e); },
 				[](const std::string& id) { /* don't render anything */ }
 			};
 		}
 
-		using SidedElement<EntityType>::chooseRect;
+		using SidedElement::chooseRect;
 
-		void draw(ImDrawList* drawList, const EntityType& e, const std::string& text, UnionedRect& unionedRect)
+		void draw(ImDrawList* drawList, const void* e, const std::string& text, UnionedRect& unionedRect)
 		{
 			if (!enabled(e))
 				return;

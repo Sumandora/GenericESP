@@ -7,11 +7,11 @@
 
 namespace GenericESP {
 
-	template <typename Configurable, typename EntityType>
+	template <typename Configurable>
 	struct ConfigurableValue final : Renderable {
 		~ConfigurableValue() override = default;
 
-		std::variant<StaticConfig<Configurable>, DynamicConfig<Configurable, EntityType>> thing;
+		std::variant<StaticConfig<Configurable>, DynamicConfig<Configurable>> thing;
 
 #pragma clang diagnostic push
 #pragma ide diagnostic ignored "google-explicit-constructor"
@@ -20,7 +20,7 @@ namespace GenericESP {
 		{
 		}
 
-		ConfigurableValue(DynamicConfig<Configurable, EntityType> d)
+		ConfigurableValue(DynamicConfig<Configurable> d)
 			: thing(d)
 		{
 		}
@@ -36,9 +36,9 @@ namespace GenericESP {
 			return std::get<StaticConfig<Configurable>>(thing);
 		}
 
-		[[nodiscard]] const DynamicConfig<Configurable, EntityType>& getDynamicConfig() const
+		[[nodiscard]] const DynamicConfig<Configurable>& getDynamicConfig() const
 		{
-			return std::get<DynamicConfig<Configurable, EntityType>>(thing);
+			return std::get<DynamicConfig<Configurable>>(thing);
 		}
 
 		StaticConfig<Configurable>& getStaticConfig()
@@ -46,19 +46,19 @@ namespace GenericESP {
 			return std::get<StaticConfig<Configurable>>(thing);
 		}
 
-		DynamicConfig<Configurable, EntityType>& getDynamicConfig()
+		DynamicConfig<Configurable>& getDynamicConfig()
 		{
-			return std::get<DynamicConfig<Configurable, EntityType>>(thing);
+			return std::get<DynamicConfig<Configurable>>(thing);
 		}
 
-		[[nodiscard]] Configurable getConfigurable(const EntityType& e) const
+		[[nodiscard]] Configurable getConfigurable(const void* e) const
 		{
 			if (isStatic())
 				return getStaticConfig().thing;
 			return getDynamicConfig().thing(e);
 		}
 
-		Configurable getConfigurable(const EntityType& e)
+		Configurable getConfigurable(const void* e)
 		{
 			if (isStatic())
 				return getStaticConfig().thing;

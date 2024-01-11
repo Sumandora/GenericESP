@@ -10,36 +10,35 @@
 
 namespace GenericESP {
 
-	template <typename EntityType>
-	struct Text : Element<EntityType> {
-		using Element<EntityType>::enabled;
-		MixableConfigurableValue<float, EntityType> fontScale{
+	struct Text : Element {
+		using Element::enabled;
+		MixableConfigurableValue<float> fontScale{
 			"Font scale",
 			StaticConfig<float>{ 1.0f, createFloatRenderer(0.0f, 10.0f, "%.2f") }
 		};
-		MixableConfigurableValue<ImColor, EntityType> fontColor{
+		MixableConfigurableValue<ImColor> fontColor{
 			"Font color",
 			StaticConfig<ImColor>{ { 1.0f, 1.0f, 1.0f, 1.0f }, createColorRenderer() }
 		};
-		MixableConfigurableValue<bool, EntityType> shadow{ "Shadow", StaticConfig<bool>{ true, createBoolRenderer() } };
-		MixableConfigurableValue<float, EntityType> shadowOffset{
+		MixableConfigurableValue<bool> shadow{ "Shadow", StaticConfig<bool>{ true, createBoolRenderer() } };
+		MixableConfigurableValue<float> shadowOffset{
 			"Shadow offset",
 			StaticConfig<float>{ 1.0f, createFloatRenderer(0.0f, 10.0f, "%.2f") },
 			[this] {
-				const ConfigurableValue<bool, EntityType>& selected = shadow.getSelected();
+				const ConfigurableValue<bool>& selected = shadow.getSelected();
 				return !selected.isStatic() || selected.getStaticConfig().thing;
 			}
 		};
-		MixableConfigurableValue<ImColor, EntityType> shadowColor{
+		MixableConfigurableValue<ImColor> shadowColor{
 			"Shadow color",
 			StaticConfig<ImColor>{ { 0.0f, 0.0f, 0.0f, 1.0f }, createColorRenderer() },
 			[this] {
-				const ConfigurableValue<bool, EntityType>& selected = shadow.getSelected();
+				const ConfigurableValue<bool>& selected = shadow.getSelected();
 				return !selected.isStatic() || selected.getStaticConfig().thing;
 			}
 		};
 
-		std::optional<ImVec2> draw(ImDrawList* drawList, const EntityType& e, const std::string& text, const ImVec2& pos, const TextAlignment horizontalAlignment, const VerticalAlignment verticalAlignment)
+		std::optional<ImVec2> draw(ImDrawList* drawList, const void* e, const std::string& text, const ImVec2& pos, const TextAlignment horizontalAlignment, const VerticalAlignment verticalAlignment)
 		{
 			if (!enabled(e) || text.empty())
 				return std::nullopt;
@@ -98,7 +97,7 @@ namespace GenericESP {
 			return size;
 		}
 
-		[[nodiscard]] float getLineHeight(const EntityType& e) const
+		[[nodiscard]] float getLineHeight(const void* e) const
 		{
 			return ImGui::GetTextLineHeight() * fontScale(e);
 		}

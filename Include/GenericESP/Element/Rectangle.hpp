@@ -10,53 +10,52 @@
 
 namespace GenericESP {
 
-	template <typename EntityType>
-	struct Rectangle : Element<EntityType> {
-		using Element<EntityType>::enabled;
-		MixableConfigurableValue<ImColor, EntityType> color{
+	struct Rectangle : Element {
+		using Element::enabled;
+		MixableConfigurableValue<ImColor> color{
 			"Color",
 			StaticConfig<ImColor>{
 				{ 1.0f, 1.0f, 1.0f, 1.0f }, createColorRenderer() }
 		};
-		MixableConfigurableValue<float, EntityType> rounding{
+		MixableConfigurableValue<float> rounding{
 			"Rounding",
 			StaticConfig<float>{ 0.0f, createFloatRenderer(0.0f, 10.0f, "%.2f") }
 		};
-		MixableConfigurableValue<float, EntityType> thickness{
+		MixableConfigurableValue<float> thickness{
 			"Thickness",
 			StaticConfig<float>{ 1.0f, createFloatRenderer(0.0f, 10.0f, "%.2f") }
 		};
-		MixableConfigurableValue<bool, EntityType> outlined{ "Outlined", StaticConfig<bool>{ true, createBoolRenderer() } };
-		MixableConfigurableValue<ImColor, EntityType> outlineColor{
+		MixableConfigurableValue<bool> outlined{ "Outlined", StaticConfig<bool>{ true, createBoolRenderer() } };
+		MixableConfigurableValue<ImColor> outlineColor{
 			"Outline color",
 			StaticConfig<ImColor>{
 				{ 0.0f, 0.0f, 0.0f, 1.0f }, createColorRenderer() },
 			[this] {
-				const ConfigurableValue<bool, EntityType>& selected = outlined.getSelected();
+				const ConfigurableValue<bool>& selected = outlined.getSelected();
 				return !selected.isStatic() || selected.getStaticConfig().thing;
 			}
 		};
-		MixableConfigurableValue<float, EntityType> outlineThickness{
+		MixableConfigurableValue<float> outlineThickness{
 			"Outline thickness",
 			StaticConfig<float>{
 				2.0f, createFloatRenderer(0.0f, 10.0f, "%.2f") },
 			[this] {
-				const ConfigurableValue<bool, EntityType>& selected = outlined.getSelected();
+				const ConfigurableValue<bool>& selected = outlined.getSelected();
 				return !selected.isStatic() || selected.getStaticConfig().thing;
 			}
 		};
-		MixableConfigurableValue<bool, EntityType> fill{ "Fill", StaticConfig<bool>{ false, createBoolRenderer() } };
-		MixableConfigurableValue<ImColor, EntityType> fillColor{
+		MixableConfigurableValue<bool> fill{ "Fill", StaticConfig<bool>{ false, createBoolRenderer() } };
+		MixableConfigurableValue<ImColor> fillColor{
 			"Fill color",
 			StaticConfig<ImColor>{
 				{ 1.0f, 1.0f, 1.0f, 1.0f }, createColorRenderer() },
 			[this] {
-				const ConfigurableValue<bool, EntityType>& selected = fill.getSelected();
+				const ConfigurableValue<bool>& selected = fill.getSelected();
 				return !selected.isStatic() || selected.getStaticConfig().thing;
 			}
 		};
 
-		void draw(ImDrawList* drawList, const EntityType& e, UnionedRect& rect)
+		void draw(ImDrawList* drawList, const void* e, UnionedRect& rect)
 		{
 			if (!enabled(e))
 				return;

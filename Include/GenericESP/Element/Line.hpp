@@ -7,28 +7,27 @@
 
 namespace GenericESP {
 
-	template <typename EntityType>
-	struct Line : Element<EntityType> {
-		using Element<EntityType>::enabled;
-		MixableConfigurableValue<ImColor, EntityType> lineColor{
+	struct Line : Element {
+		using Element::enabled;
+		MixableConfigurableValue<ImColor> lineColor{
 			"Line color",
 			StaticConfig<ImColor>{ { 1.0f, 1.0f, 1.0f, 1.0f }, createColorRenderer() }
 		};
-		MixableConfigurableValue<float, EntityType> thickness{
+		MixableConfigurableValue<float> thickness{
 			"Thickness",
 			StaticConfig<float>{ 1.0f, createFloatRenderer(0.0f, 10.0f, "%.2f") }
 		};
-		MixableConfigurableValue<bool, EntityType> outlined{ "Outlined", StaticConfig<bool>{ true, createBoolRenderer() } };
-		MixableConfigurableValue<ImColor, EntityType> outlineColor{
+		MixableConfigurableValue<bool> outlined{ "Outlined", StaticConfig<bool>{ true, createBoolRenderer() } };
+		MixableConfigurableValue<ImColor> outlineColor{
 			"Outline color",
 			StaticConfig<ImColor>{ { 0.0f, 0.0f, 0.0f, 1.0f }, createColorRenderer() }
 		};
-		MixableConfigurableValue<float, EntityType> outlineThickness{
+		MixableConfigurableValue<float> outlineThickness{
 			"Outline thickness",
 			StaticConfig<float>{ 2.0f, createFloatRenderer(0.0f, 10.0f, "%.2f") }
 		};
 
-		void draw(ImDrawList* drawList, const EntityType& e, const std::vector<ImVec2>& points)
+		void draw(ImDrawList* drawList, const void* e, const std::vector<ImVec2>& points)
 		{
 			if (!enabled(e))
 				return;
