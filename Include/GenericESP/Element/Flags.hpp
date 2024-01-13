@@ -10,135 +10,17 @@
 
 namespace GenericESP {
 
-	template <typename... Ts>
-		requires std::conjunction_v<std::is_base_of<Flag, Ts>...>
 	struct Flags : SidedElement {
-		using SidedElement::enabled;
-		using SidedElement::side;
-		MixableConfigurableValue<float> spacing{
-			"Spacing",
-			StaticConfig<float>{ 1.0f, createFloatRenderer(0.0, 10.0f, "%.2f") }
-		};
+		MixableConfigurableValue<float> spacing;
 
 		std::vector<std::unique_ptr<Flag>> flags;
 		VectorOrdering<std::unique_ptr<Flag>> flagOrder;
 
-		explicit Flags()
-			: SidedElement(Side::RIGHT)
-			, flagOrder{ flags, [](const std::unique_ptr<Flag>& flag) { return flag->name; } }
-		{
-			(flags.emplace_back(std::make_unique<Ts>()), ...);
-		}
+		explicit Flags(ESP* base, std::initializer_list<Flag*> flags);
 
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wshadow"
-		ImVec2 drawEntry(Side side, Text textElement, ImDrawList* drawList, const void* e, ImRect& rect, std::string text, float spacing, float yOffset)
-		{
-#pragma clang diagnostic pop
-			switch (side) {
-			case Side::TOP: {
-				auto size = textElement.draw(drawList, e, text, { rect.Min.x + (rect.Max.x - rect.Min.x) * 0.5f, rect.Min.y - spacing - yOffset }, TextAlignment::CENTERED, VerticalAlignment::ABOVE_POSITION);
-				if (size.has_value())
-#pragma clang diagnostic push
-#pragma ide diagnostic ignored "ArgumentSelectionDefects"
-					return { yOffset + size->y, size->y };
-#pragma clang diagnostic pop
-			}
-			case Side::LEFT: {
-				auto size = textElement.draw(drawList, e, text, { rect.Min.x - spacing, rect.Min.y + yOffset }, TextAlignment::RIGHT_BOUNDED, VerticalAlignment::BELOW_POSITION);
-				if (size.has_value())
-					return size.value();
-			}
-			case Side::BOTTOM: {
-				auto size = textElement.draw(drawList, e, text, { rect.Min.x + (rect.Max.x - rect.Min.x) * 0.5f, rect.Max.y + spacing + yOffset }, TextAlignment::CENTERED, VerticalAlignment::BELOW_POSITION);
-				if (size.has_value())
-#pragma clang diagnostic push
-#pragma ide diagnostic ignored "ArgumentSelectionDefects"
-					return { yOffset + size->y, size->y };
-#pragma clang diagnostic pop
-			}
-			case Side::RIGHT: {
-				auto size = textElement.draw(drawList, e, text, { rect.Max.x + spacing, rect.Min.y + yOffset }, TextAlignment::LEFT_BOUNDED, VerticalAlignment::BELOW_POSITION);
-				if (size.has_value())
-					return size.value();
-			}
-			}
-			return { 0.0f, 0.0f };
-		}
-
-		using SidedElement::chooseRect;
-
-		void draw(ImDrawList* drawList, const void* e, UnionedRect& unionedRect)
-		{
-			if (!enabled(e))
-				return;
-
-			const Side side = this->side(e);
-
-			ImRect& rect = chooseRect(side, unionedRect);
-
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wshadow"
-			const float spacing = this->spacing(e);
-#pragma clang diagnostic pop
-
-			float biggestOffset = 0.0f;
-			float yOffset = 0.0f;
-
-			auto process = [&](const std::unique_ptr<Flag>& flag) {
-				ImVec2 offset = drawEntry(side, flag->textElement, drawList, e, rect, flag->computeText(e), spacing, yOffset);
-				if (offset.x > biggestOffset)
-					biggestOffset = offset.x;
-				yOffset += offset.y;
-			};
-
-			if (side == Side::TOP) { // We render from bottom to top in this case, so reverse the flags to get the same order
-				for (const auto& flag : std::ranges::views::reverse(flags))
-					process(flag);
-			} else
-				for (const auto& flag : flags)
-					process(flag);
-
-			biggestOffset += spacing;
-
-			switch (side) {
-			case Side::TOP:
-				rect.Min.y -= biggestOffset;
-				break;
-			case Side::LEFT:
-				rect.Min.x -= biggestOffset;
-				break;
-			case Side::BOTTOM:
-				rect.Max.y += biggestOffset;
-				break;
-			case Side::RIGHT:
-				rect.Max.x += biggestOffset;
-				break;
-			}
-		}
-
-		void renderGui(const std::string& id)
-		{
-			ImGui::PushID(id.c_str());
-			enabled.renderGui();
-			side.renderGui();
-			spacing.renderGui();
-			if (ImGui::BeginTabBar("Flags", ImGuiTabBarFlags_Reorderable)) {
-				for (std::unique_ptr<Flag>& flag : flags) {
-					const char* flagName = flag->name.c_str();
-					if (ImGui::BeginTabItem(flagName)) {
-						flag->renderGui(flagName);
-						ImGui::EndTabItem();
-					}
-				}
-				if (ImGui::BeginTabItem("Order")) {
-					flagOrder.renderGui("Order");
-					ImGui::EndTabItem();
-				}
-				ImGui::EndTabBar();
-			}
-			ImGui::PopID();
-		}
+		ImVec2 drawEntry(ImDrawList* drawList, const void* e, ImRect& rect, const std::unique_ptr<Flag>& flag, float yOffset) const;
+		void draw(ImDrawList* drawList, const void* e, UnionedRect& unionedRect) const;
+		void renderGui(const std::string& id);
 	};
 
 }

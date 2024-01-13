@@ -5,7 +5,8 @@
 
 namespace GenericESP {
 	template <typename Configurable>
-	struct MixableConfigurableValue : Mixable<ConfigurableValue<Configurable>> {
+	class MixableConfigurableValue : public Mixable<ConfigurableValue<Configurable>> {
+	public:
 		using Mixable<ConfigurableValue<Configurable>>::Mixable;
 
 		auto operator()(const void* e) const

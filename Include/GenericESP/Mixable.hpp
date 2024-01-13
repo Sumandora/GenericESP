@@ -29,8 +29,14 @@ namespace GenericESP {
 
 		std::string id; // Can be used to rename the thing
 
-		Mixable(
-			std::string id, Type t, IsVisible isVisible = [] { return true; })
+		Mixable(std::string&& id, Type&& t, IsVisible&& isVisible = [] { return true; })
+			: id(std::move(id))
+			, options(std::move(t))
+			, isVisible(std::move(isVisible))
+		{
+		}
+
+		Mixable(std::string&& id, MultiType&& t, IsVisible&& isVisible = [] { return true; })
 			: id(std::move(id))
 			, options(std::move(t))
 			, isVisible(std::move(isVisible))
@@ -38,15 +44,7 @@ namespace GenericESP {
 		}
 
 		Mixable(
-			std::string id, MultiType t, IsVisible isVisible = [] { return true; })
-			: id(std::move(id))
-			, options(std::move(t))
-			, isVisible(std::move(isVisible))
-		{
-		}
-
-		Mixable(
-			std::string id, TypeTable t, IsVisible isVisible = [] { return true; })
+			std::string&& id, TypeTable&& t, IsVisible&& isVisible = [] { return true; })
 			: Mixable(
 				std::move(id), MultiType{ 0, std::move(t) }, std::move(isVisible))
 		{

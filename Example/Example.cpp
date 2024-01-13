@@ -12,40 +12,44 @@ struct Entity {
 
 using namespace GenericESP;
 
-struct EntityESP {
-	Rectangle box;
+struct EntityESP : ESP {
+	Rectangle box{ this };
 	Bar bar{
-		lambda<Entity, float>([](const Entity& entity) { return static_cast<float>(entity.health) / static_cast<float>(entity.maxHealth); }),
-		lambda<Entity, std::string>([](const Entity& entity) { return std::to_string(entity.health); })
+		this,
+		makeOpaque<float, Entity>([](const Entity* entity) { return static_cast<float>(entity->health) / static_cast<float>(entity->maxHealth); }),
+		Bar::NumberText{ this, makeOpaque<std::string, Entity>([](const Entity* entity) { return std::to_string(entity->health); }) }
 	};
-	GenericESP::Bar bar2{
-		lambda<Entity, float>([](const Entity& entity) { return static_cast<float>(entity.health) / static_cast<float>(entity.maxHealth); }),
-		lambda<Entity, std::string>([](const Entity& entity) { return std::to_string(entity.health); })
+	Bar bar2{
+		this,
+		makeOpaque<float, Entity>([](const Entity* entity) { return static_cast<float>(entity->health) / static_cast<float>(entity->maxHealth); }),
+		Bar::NumberText{ this, makeOpaque<std::string, Entity>([](const Entity* entity) { return std::to_string(entity->health); }) }
 	};
-	GenericESP::Line line;
-	GenericESP::Circle circle;
-	GenericESP::SidedText name;
-	struct MyFlag : GenericESP::Flag {
-		MyFlag()
-			: GenericESP::Flag
-		{
-			"My flag",
-				{ { "percentage", lambda<Entity, std::string>([](const Entity& e) { return std::to_string(e.flagPercentage); }) } },
+	Line line{ this };
+	Circle circle{ this };
+	SidedText name{ this };
+	struct MyFlag : Flag {
+		MyFlag(ESP* base)
+			: Flag{
+				base,
+				"My flag",
+				{ { "percentage", makeOpaque<std::string, Entity>([](const Entity* e) { return std::to_string(e->flagPercentage); }) } },
 				"My flag: %percentage%"
-		}
+			}
 		{
 		}
 	};
-	struct AnotherFlag : GenericESP::Flag {
-		AnotherFlag()
-			: GenericESP::Flag(
+	struct AnotherFlag : Flag {
+		AnotherFlag(ESP* base)
+			: Flag{
+				base,
 				"Another flag",
-				{ { "percentage", lambda<Entity, std::string>([](const Entity& e) { return std::to_string(e.anotherFlagPercentage); }) } },
-				"Another flag: %percentage%")
+				{ { "percentage", makeOpaque<std::string, Entity>([](const Entity* e) { return std::to_string(e->anotherFlagPercentage); }) } },
+				"Another flag: %percentage%"
+			}
 		{
 		}
 	};
-	GenericESP::Flags<MyFlag, AnotherFlag> flags;
+	Flags flags{ this, { new MyFlag(this), new AnotherFlag(this) } };
 
 	// Injected health-based color
 	ImColor aliveColor{ 0.0f, 1.0f, 0.0f, 1.0f };
@@ -55,12 +59,12 @@ struct EntityESP {
 
 	EntityESP()
 	{
-		box.color.addType("Health-based", GenericESP::DynamicConfig<ImColor>{ lambda<Entity, float>([this](const Entity& e) {
-																				 const float t = static_cast<float>(e.health) / static_cast<float>(e.maxHealth);
-																				 return ImColor{ ImLerp(deadColor.Value, aliveColor.Value, t) };
-																			 }),
+		box.color.addType("Health-based", DynamicConfig<ImColor>{ makeOpaque<float, Entity>([this](const Entity* e) {
+																	 const float t = static_cast<float>(e->health) / static_cast<float>(e->maxHealth);
+																	 return ImColor{ ImLerp(deadColor.Value, aliveColor.Value, t) };
+																 }),
 											  [this](const std::string& id) {
-												  static auto displayColor = GenericESP::createColorRenderer();
+												  static auto displayColor = createColorRenderer();
 												  ImGui::PushID(id.c_str());
 												  displayColor("Alive color", aliveColor);
 												  displayColor("Dead color", deadColor);
@@ -89,7 +93,7 @@ struct EntityESP {
 		};
 	}
 
-	GenericESP::UnionedRect draw(ImDrawList* drawList, const Entity& e, const ImRect& rect)
+	GenericESP::UnionedRect draw(ImDrawList* drawList, const Entity& e, const ImRect& rect) const
 	{
 		GenericESP::UnionedRect unionedRect{ rect };
 
@@ -151,6 +155,77 @@ struct EntityESP {
 			ImGui::EndTabBar();
 		}
 	}
+
+	std::function<void(const std::string&, bool&)> createBoolRenderer(const std::function<void()>& onChange = [] {}) override
+	{
+		return [onChange](const std::string& id, bool& thing) {
+			if (ImGui::Checkbox(id.c_str(), &thing))
+				onChange();
+		};
+	};
+	std::function<void(const std::string&, ImColor&)> createColorRenderer(const std::function<void()>& onChange = [] {}) override
+	{
+		static ImColor colorClipboard; // You probably want to replace this with a global color clipboard
+		return [onChange](const std::string& id, ImColor& thing) {
+			ImGui::PushID(id.c_str());
+			const bool clicked = ImGui::ColorButton(id.c_str(), thing.Value, ImGuiColorEditFlags_None, ImVec2(0, 0));
+			if (ImGui::BeginPopupContextItem()) {
+				if (ImGui::Selectable("Copy")) {
+					colorClipboard = thing;
+				}
+				if (ImGui::Selectable("Paste")) {
+					thing = colorClipboard;
+				}
+				ImGui::EndPopup();
+			}
+			ImGui::SameLine();
+			ImGui::Text("%s", id.c_str());
+
+			if (clicked)
+				ImGui::OpenPopup("##Picker");
+
+			if (ImGui::BeginPopup("##Picker")) {
+				float color[] = { thing.Value.x, thing.Value.y, thing.Value.z, thing.Value.w };
+				if (ImGui::ColorPicker4(id.c_str(), color, 0)) {
+					thing.Value = ImVec4(color[0], color[1], color[2], color[3]);
+					onChange();
+				}
+				ImGui::EndPopup();
+			}
+			ImGui::PopID();
+		};
+	};
+	std::function<void(const std::string&, std::size_t&)> createComboRenderer(const std::list<std::string>& localization, const std::function<void()>& onChange = [] {}) override
+	{
+		return [&localization, onChange](const std::string& id, std::size_t& thing) {
+			const char* names[localization.size()];
+			std::size_t idx = 0;
+			for (const auto& local : localization) {
+				names[idx] = local.c_str();
+				idx++;
+			}
+
+			int i = static_cast<int>(thing);
+			if (ImGui::Combo(id.c_str(), &i, names, IM_ARRAYSIZE(names))) {
+				thing = static_cast<std::size_t>(i);
+				onChange();
+			}
+		};
+	}
+	std::function<void(const std::string&, float&)> createFloatRenderer(float min, float max, const char* fmt, const std::function<void()>& onChange = [] {}) override
+	{
+		return [min, max, fmt, onChange](const std::string& id, float& thing) {
+			if (ImGui::SliderFloat(id.c_str(), &thing, min, max, fmt))
+				onChange();
+		};
+	}
+	std::function<void(const std::string&, int&)> createIntRenderer(int min, int max, const std::function<void()>& onChange = [] {}) override
+	{
+		return [min, max, onChange](const std::string& id, int& thing) {
+			if (ImGui::SliderInt(id.c_str(), &thing, min, max))
+				onChange();
+		};
+	}
 };
 
 EntityESP e;
@@ -180,7 +255,7 @@ void render()
 		const ImVec2 center = ImGui::GetWindowPos() + ImVec2{ ImGui::GetColumnWidth(0), ImGui::GetWindowHeight() } / 2;
 		constexpr ImVec2 expansion{ 50, 100 };
 		ImRect rect{ center - expansion, center + expansion };
-		if(align) {
+		if (align) {
 			rect = ImRect{
 				{ std::roundf(rect.Min.x), std::roundf(rect.Min.y) },
 				{ std::roundf(rect.Max.x), std::roundf(rect.Max.y) }

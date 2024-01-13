@@ -15,9 +15,9 @@ namespace GenericESP {
 
 		Remaps remaps;
 		std::string format;
-		explicit Flag(std::string name, Remaps remaps, std::string defaultFormat)
+		explicit Flag(ESP* base, std::string&& name, Remaps&& remaps, std::string&& defaultFormat)
 			: name(std::move(name))
-			, textElement({})
+			, textElement(base)
 			, remaps(std::move(remaps))
 			, format(std::move(defaultFormat))
 		{

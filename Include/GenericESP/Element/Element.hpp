@@ -2,15 +2,14 @@
 #define GENERICESP_ELEMENT_HPP
 
 #include "../Config/MixableConfigurationValue.hpp"
-#include "../Renderer/BoolRenderer.hpp"
+#include "GenericESP/ESP.hpp"
 
 namespace GenericESP {
 
 	struct Element {
-		MixableConfigurableValue<bool> enabled{
-			"Enabled",
-			StaticConfig<bool>{ false, createBoolRenderer() }
-		};
+		MixableConfigurableValue<bool> enabled;
+
+		explicit Element(ESP* base);
 	};
 
 }

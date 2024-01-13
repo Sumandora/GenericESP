@@ -3,10 +3,21 @@
 
 #include <array>
 #include <cstdint>
+#include <functional>
 
 #include "imgui.h"
 
 namespace GenericESP {
+
+	template<typename T, typename RealT>
+	inline std::function<T(const void*)> makeOpaque(const std::function<T(const RealT*)>& transparent) {
+		if constexpr(std::is_same_v<T, RealT>) {
+			return transparent;
+		}
+		return [transparent](const void* ptr) {
+			return transparent(reinterpret_cast<const RealT*>(ptr));
+		};
+	}
 
 	template <typename T, std::size_t N>
 	std::array<T, N> arrayLerp(const std::array<T, N>& from, const std::array<T, N>& to, float t)
@@ -18,14 +29,14 @@ namespace GenericESP {
 		return newArray;
 	}
 
-	std::array<float, 3> colorRGBtoHSV(ImColor color)
+	inline std::array<float, 3> colorRGBtoHSV(ImColor color)
 	{
 		std::array<float, 3> hsv{};
 		ImGui::ColorConvertRGBtoHSV(color.Value.x, color.Value.y, color.Value.z, hsv[0], hsv[1], hsv[2]);
 		return hsv;
 	}
 
-	std::array<float, 3> colorHSVtoRGB(std::array<float, 3> hsv)
+	inline std::array<float, 3> colorHSVtoRGB(std::array<float, 3> hsv)
 	{
 		std::array<float, 3> rgb{};
 		ImGui::ColorConvertHSVtoRGB(hsv[0], hsv[1], hsv[2], rgb[0], rgb[1], rgb[2]);

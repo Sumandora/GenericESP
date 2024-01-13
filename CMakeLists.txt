@@ -4,28 +4,38 @@ include_guard()
 
 project(GenericESP)
 
-add_library(GenericESP INTERFACE)
-target_include_directories(GenericESP INTERFACE "${PROJECT_SOURCE_DIR}/Include")
-
-if(PROJECT_IS_TOP_LEVEL)
+if(NOT DEFINED IMGUI_DEPENDENCY_OVERRIDE)
+    if(NOT PROJECT_IS_TOP_LEVEL)
+        message(WARNING "ImGui dependency was not set by top level project, this is probably unintended")
+    endif ()
+    set(IMGUI_DEPENDENCY_OVERRIDE imgui)
     include(FetchContent)
 
-    FetchContent_Declare(imgui
+    FetchContent_Declare(${IMGUI_DEPENDENCY_OVERRIDE}
             GIT_REPOSITORY https://github.com/ocornut/imgui
             GIT_PROGRESS TRUE
             GIT_TAG v1.90
             BUILD_COMMAND ""
             INSTALL_COMMAND "")
-    FetchContent_MakeAvailable(imgui)
+    FetchContent_MakeAvailable(${IMGUI_DEPENDENCY_OVERRIDE})
 
     file(GLOB IMGUI_SOURCE_FILES "${imgui_SOURCE_DIR}/*.cpp")
     list(APPEND IMGUI_SOURCE_FILES "${imgui_SOURCE_DIR}/backends/imgui_impl_sdl2.cpp")
     list(APPEND IMGUI_SOURCE_FILES "${imgui_SOURCE_DIR}/backends/imgui_impl_opengl3.cpp")
 
-    add_library(imgui STATIC ${IMGUI_SOURCE_FILES})
-    target_include_directories(imgui PUBLIC ${imgui_SOURCE_DIR})
-    target_link_libraries(imgui SDL2 GL)
-    target_include_directories(imgui PUBLIC "/usr/include/SDL2")
+    add_library(${IMGUI_DEPENDENCY_OVERRIDE} STATIC ${IMGUI_SOURCE_FILES})
+    target_include_directories(${IMGUI_DEPENDENCY_OVERRIDE} PUBLIC ${${IMGUI_DEPENDENCY_OVERRIDE}_SOURCE_DIR})
+    target_link_libraries(${IMGUI_DEPENDENCY_OVERRIDE} SDL2 GL)
+    target_include_directories(${IMGUI_DEPENDENCY_OVERRIDE} PUBLIC "/usr/include/SDL2")
+endif()
+
+file(GLOB_RECURSE GENERIC_ESP_FILES "Source/*.cpp")
+add_library(GenericESP STATIC ${GENERIC_ESP_FILES})
+target_link_libraries(GenericESP PUBLIC ${IMGUI_DEPENDENCY_OVERRIDE})
+target_include_directories(GenericESP PUBLIC "${PROJECT_SOURCE_DIR}/Include")
+target_compile_features(GenericESP PUBLIC cxx_std_23)
+
+if(PROJECT_IS_TOP_LEVEL)
 
     add_executable(GenericESPExample "Example/Example.cpp" "Example/ImGuiImpl.cpp")
     target_compile_features(GenericESPExample PUBLIC cxx_std_23)
