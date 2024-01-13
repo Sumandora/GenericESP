@@ -28,7 +28,7 @@ struct EntityESP : ESP {
 	Circle circle{ this };
 	SidedText name{ this };
 	struct MyFlag : Flag {
-		MyFlag(ESP* base)
+		explicit MyFlag(ESP* base)
 			: Flag{
 				base,
 				"My flag",
@@ -39,7 +39,7 @@ struct EntityESP : ESP {
 		}
 	};
 	struct AnotherFlag : Flag {
-		AnotherFlag(ESP* base)
+		explicit AnotherFlag(ESP* base)
 			: Flag{
 				base,
 				"Another flag",
