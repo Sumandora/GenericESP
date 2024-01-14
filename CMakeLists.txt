@@ -9,6 +9,9 @@ if(NOT DEFINED IMGUI_DEPENDENCY_OVERRIDE)
         message(WARNING "ImGui dependency was not set by top level project, this is probably unintended")
     endif ()
     set(IMGUI_DEPENDENCY_OVERRIDE imgui)
+endif()
+
+if(PROJECT_IS_TOP_LEVEL)
     include(FetchContent)
 
     FetchContent_Declare(${IMGUI_DEPENDENCY_OVERRIDE}
