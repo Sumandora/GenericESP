@@ -14,7 +14,7 @@ namespace GenericESP {
 		RIGHT
 	};
 
-	inline std::list<std::string> sideLocalization{
+	inline std::initializer_list<std::string> sideLocalization{
 		"Top",
 		"Left",
 		"Bottom",

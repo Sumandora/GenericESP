@@ -195,7 +195,7 @@ struct EntityESP : ESP {
 			ImGui::PopID();
 		};
 	};
-	std::function<void(const std::string&, std::size_t&)> createComboRenderer(const std::list<std::string>& localization, const std::function<void()>& onChange = [] {}) override
+	std::function<void(const std::string&, std::size_t&)> createComboRenderer(const std::initializer_list<std::string>& localization, const std::function<void()>& onChange = [] {}) override
 	{
 		return [&localization, onChange](const std::string& id, std::size_t& thing) {
 			const char* names[localization.size()];
