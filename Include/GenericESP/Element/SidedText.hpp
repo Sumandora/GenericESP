@@ -14,7 +14,7 @@ namespace GenericESP {
 
 		explicit SidedText(ESP* base);
 
-		void draw(ImDrawList* drawList, const void* e, const std::string& text, UnionedRect& unionedRect) const;
+		void draw(ImDrawList* drawList, const EntityType* e, const std::string& text, UnionedRect& unionedRect) const;
 		void renderGui(const std::string& id);
 	};
 

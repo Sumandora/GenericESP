@@ -14,7 +14,7 @@ namespace GenericESP {
 
 		explicit Circle(ESP* base);
 
-		void draw(ImDrawList* drawList, const void* e, const ImVec2& position) const;
+		void draw(ImDrawList* drawList, const EntityType* e, const ImVec2& position) const;
 		void renderGui(const std::string& id);
 	};
 

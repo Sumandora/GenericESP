@@ -7,51 +7,18 @@ namespace GenericESP {
 
 	struct Flag {
 		std::string name;
-
 		Text textElement;
 
-		using Provider = std::function<std::string(const void*)>;
+		using Provider = std::function<std::string(const EntityType*)>;
 		using Remaps = std::unordered_map<std::string, Provider>;
 
 		Remaps remaps;
 		std::string format;
-		explicit Flag(ESP* base, std::string&& name, Remaps&& remaps, std::string&& defaultFormat)
-			: name(std::move(name))
-			, textElement(base)
-			, remaps(std::move(remaps))
-			, format(std::move(defaultFormat))
-		{
-		}
 
-		std::string computeText(const void* e) const
-		{
-			std::string result = format;
-			for (const auto& [varName, provider] : remaps) {
-				size_t pos = 0;
-				while ((pos = result.find('%' + varName + '%', pos)) != std::string::npos) {
-					std::string replacement = provider(e);
-					result.replace(pos, varName.length() + 2, replacement);
-					pos += replacement.length();
-				}
-			}
-			return result;
-		}
+		explicit Flag(ESP* base, std::string&& name, Remaps&& remaps, std::string&& defaultFormat);
 
-		void renderGui(const std::string& id)
-		{
-			ImGui::PushID(id.c_str());
-			textElement.renderGui("Text element");
-			ImGui::InputText("Formatting", (char*)format.c_str(), format.capacity() + 1, ImGuiInputTextFlags_CallbackResize, [](ImGuiInputTextCallbackData* data) {
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wshadow"
-				auto* format = reinterpret_cast<std::string*>(data->UserData);
-#pragma clang diagnostic pop
-				format->resize(data->BufTextLen);
-				data->Buf = (char*)format->c_str();
-				return 0;
-			}, &format); // from imgui_stdlib
-			ImGui::PopID();
-		}
+		[[nodiscard]] std::string computeText(const EntityType* e) const;
+		void renderGui(const std::string& id);
 	};
 
 }

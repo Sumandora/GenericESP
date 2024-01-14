@@ -13,7 +13,7 @@ Flags::Flags(ESP* base, std::initializer_list<Flag*> flags)
 	}
 }
 
-ImVec2 Flags::drawEntry(ImDrawList* drawList, const void* e, ImRect& rect, const std::unique_ptr<Flag>& flag, float yOffset) const
+ImVec2 Flags::drawEntry(ImDrawList* drawList, const EntityType* e, ImRect& rect, const std::unique_ptr<Flag>& flag, float yOffset) const
 {
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wshadow"
@@ -47,7 +47,7 @@ ImVec2 Flags::drawEntry(ImDrawList* drawList, const void* e, ImRect& rect, const
 	return { 0.0f, 0.0f };
 }
 
-void Flags::draw(ImDrawList* drawList, const void* e, UnionedRect& unionedRect) const
+void Flags::draw(ImDrawList* drawList, const EntityType* e, UnionedRect& unionedRect) const
 {
 	if (!enabled(e))
 		return;

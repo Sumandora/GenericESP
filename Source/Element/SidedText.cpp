@@ -9,7 +9,7 @@ SidedText::SidedText(ESP* base)
 {
 }
 
-void SidedText::draw(ImDrawList* drawList, const void* e, const std::string& text, UnionedRect& unionedRect) const
+void SidedText::draw(ImDrawList* drawList, const EntityType* e, const std::string& text, UnionedRect& unionedRect) const
 {
 	if (!enabled(e))
 		return;

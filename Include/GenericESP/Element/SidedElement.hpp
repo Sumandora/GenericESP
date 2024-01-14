@@ -17,8 +17,8 @@ namespace GenericESP {
 
 		explicit SidedElement(ESP* base, Side defaultSide);
 
-		[[nodiscard]] const ImRect& chooseRect(const void* e, const UnionedRect& unionedRect) const;
-		[[nodiscard]] ImRect& chooseRect(const void* e, UnionedRect& unionedRect) const;
+		[[nodiscard]] const ImRect& chooseRect(const EntityType* e, const UnionedRect& unionedRect) const;
+		[[nodiscard]] ImRect& chooseRect(const EntityType* e, UnionedRect& unionedRect) const;
 	};
 
 }

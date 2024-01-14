@@ -2,7 +2,6 @@
 #define GENERICESP_ENUM_TEXT_HPP
 
 namespace GenericESP {
-
 	enum class TextAlignment {
 		LEFT_BOUNDED,
 		CENTERED,
@@ -14,7 +13,6 @@ namespace GenericESP {
 		CENTERED,
 		ABOVE_POSITION
 	};
-
 }
 
 #endif

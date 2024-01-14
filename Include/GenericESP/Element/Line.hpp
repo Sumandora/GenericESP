@@ -14,7 +14,7 @@ namespace GenericESP {
 
 		explicit Line(ESP* base);
 
-		void draw(ImDrawList* drawList, const void* e, const std::vector<ImVec2>& points) const;
+		void draw(ImDrawList* drawList, const EntityType* e, const std::vector<ImVec2>& points) const;
 		void renderGui(const std::string& id);
 	};
 

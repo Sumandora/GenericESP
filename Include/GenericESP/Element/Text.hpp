@@ -17,8 +17,8 @@ namespace GenericESP {
 
 		explicit Text(ESP* base);
 
-		std::optional<ImVec2> draw(ImDrawList* drawList, const void* e, const std::string& text, const ImVec2& pos, const TextAlignment horizontalAlignment, const VerticalAlignment verticalAlignment) const;
-		[[nodiscard]] float getLineHeight(const void* e) const;
+		std::optional<ImVec2> draw(ImDrawList* drawList, const EntityType* e, const std::string& text, const ImVec2& pos, TextAlignment horizontalAlignment, VerticalAlignment verticalAlignment) const;
+		[[nodiscard]] float getLineHeight(const EntityType* e) const;
 		void renderGui(const std::string& id);
 	};
 

@@ -36,7 +36,7 @@ Bar::NumberText::NumberText(GenericESP::ESP* base, GenericESP::Bar::NumberText::
 {
 }
 
-void Bar::NumberText::draw(ImDrawList* drawList, const void* e, ImVec2 pos) const
+void Bar::NumberText::draw(ImDrawList* drawList, const EntityType* e, ImVec2 pos) const
 {
 	numberText.draw(drawList, e, numberTextProvider(e), pos, TextAlignment::CENTERED, VerticalAlignment::CENTERED);
 }
@@ -57,7 +57,7 @@ void Bar::NumberText::renderGui(const std::string& id)
 	}
 }
 
-ImRect Bar::calculateNewRect(const void* e, const ImRect& rect) const
+ImRect Bar::calculateNewRect(const EntityType* e, const ImRect& rect) const
 {
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wshadow"
@@ -99,7 +99,7 @@ ImRect Bar::calculateNewRect(const void* e, const ImRect& rect) const
 	}
 }
 
-std::optional<ImRect> Bar::calculateInnerRect(const void* e, const ImRect& rect) const
+std::optional<ImRect> Bar::calculateInnerRect(const EntityType* e, const ImRect& rect) const
 {
 	if (this->outlined(e)) {
 #pragma clang diagnostic push
@@ -125,7 +125,7 @@ std::optional<ImRect> Bar::calculateInnerRect(const void* e, const ImRect& rect)
 
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wshadow"
-ImRect Bar::calculateBarRect(const void* e, ImRect rect, const bool flipped, const float percentage) const
+ImRect Bar::calculateBarRect(const EntityType* e, ImRect rect, const bool flipped, const float percentage) const
 #pragma clang diagnostic pop
 {
 	switch (side(e)) {
@@ -150,7 +150,7 @@ ImRect Bar::calculateBarRect(const void* e, ImRect rect, const bool flipped, con
 	return rect;
 }
 
-void Bar::draw(ImDrawList* drawList, const void* e, UnionedRect& unionedRect) const
+void Bar::draw(ImDrawList* drawList, const EntityType* e, UnionedRect& unionedRect) const
 {
 	if (!enabled(e))
 		return;

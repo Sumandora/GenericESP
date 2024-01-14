@@ -22,19 +22,19 @@ namespace GenericESP {
 		MixableConfigurableValue<ImColor> outlineColor;
 		MixableConfigurableValue<float> outlineThickness;
 
-		using PercentageProvider = std::function<float(const void*)>;
+		using PercentageProvider = std::function<float(const EntityType*)>;
 		PercentageProvider percentageProvider;
 
 		struct NumberText {
 			Text numberText;
 			bool hideWhenFull;
 
-			using Provider = std::function<std::string(const void*)>;
+			using Provider = std::function<std::string(const EntityType*)>;
 			Provider numberTextProvider;
 
 			explicit NumberText(ESP* base, Provider&& provider);
 
-			void draw(ImDrawList* drawList, const void* e, ImVec2 pos) const;
+			void draw(ImDrawList* drawList, const EntityType* e, ImVec2 pos) const;
 			void renderGui(const std::string& id);
 		};
 
@@ -42,10 +42,13 @@ namespace GenericESP {
 
 		explicit Bar(ESP* base, PercentageProvider&& percentageProvider, std::optional<NumberText> numberText = std::nullopt);
 
-		ImRect calculateNewRect(const void* e, const ImRect& rect) const;
-		std::optional<ImRect> calculateInnerRect(const void* e, const ImRect& rect) const;
-		ImRect calculateBarRect(const void* e, ImRect rect, bool flipped, float percentage) const;
-		void draw(ImDrawList* drawList, const void* e, UnionedRect& unionedRect) const;
+		// --- Likely irrelevant for users ---
+		ImRect calculateNewRect(const EntityType* e, const ImRect& rect) const;
+		std::optional<ImRect> calculateInnerRect(const EntityType* e, const ImRect& rect) const;
+		ImRect calculateBarRect(const EntityType* e, ImRect rect, bool flipped, float percentage) const;
+		// --- Likely irrelevant for users ---
+
+		void draw(ImDrawList* drawList, const EntityType* e, UnionedRect& unionedRect) const;
 		void renderGui(const std::string& id);
 	};
 

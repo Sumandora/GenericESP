@@ -12,7 +12,7 @@ Circle::Circle(GenericESP::ESP* base)
 {
 }
 
-void Circle::draw(ImDrawList* drawList, const void* e, const ImVec2& position) const
+void Circle::draw(ImDrawList* drawList, const EntityType* e, const ImVec2& position) const
 {
 	if (!enabled(e))
 		return;

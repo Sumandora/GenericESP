@@ -18,8 +18,8 @@ namespace GenericESP {
 
 		explicit Flags(ESP* base, std::initializer_list<Flag*> flags);
 
-		ImVec2 drawEntry(ImDrawList* drawList, const void* e, ImRect& rect, const std::unique_ptr<Flag>& flag, float yOffset) const;
-		void draw(ImDrawList* drawList, const void* e, UnionedRect& unionedRect) const;
+		ImVec2 drawEntry(ImDrawList* drawList, const EntityType* e, ImRect& rect, const std::unique_ptr<Flag>& flag, float yOffset) const;
+		void draw(ImDrawList* drawList, const EntityType* e, UnionedRect& unionedRect) const;
 		void renderGui(const std::string& id);
 	};
 

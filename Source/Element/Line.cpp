@@ -15,7 +15,7 @@ Line::Line(GenericESP::ESP* base)
 {
 }
 
-void Line::draw(ImDrawList* drawList, const void* e, const std::vector<ImVec2>& points) const
+void Line::draw(ImDrawList* drawList, const EntityType* e, const std::vector<ImVec2>& points) const
 {
 	if (!enabled(e))
 		return;

@@ -22,7 +22,7 @@ namespace GenericESP {
 
 		explicit Rectangle(ESP* base);
 
-		void draw(ImDrawList* drawList, const void* e, UnionedRect& rect) const;
+		void draw(ImDrawList* drawList, const EntityType* e, UnionedRect& rect) const;
 		void renderGui(const std::string& id);
 	};
 

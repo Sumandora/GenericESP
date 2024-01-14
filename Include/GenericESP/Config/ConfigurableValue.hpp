@@ -51,14 +51,14 @@ namespace GenericESP {
 			return std::get<DynamicConfig<Configurable>>(thing);
 		}
 
-		[[nodiscard]] Configurable getConfigurable(const void* e) const
+		[[nodiscard]] Configurable getConfigurable(const EntityType* e) const
 		{
 			if (isStatic())
 				return getStaticConfig().thing;
 			return getDynamicConfig().thing(e);
 		}
 
-		Configurable getConfigurable(const void* e)
+		Configurable getConfigurable(const EntityType* e)
 		{
 			if (isStatic())
 				return getStaticConfig().thing;

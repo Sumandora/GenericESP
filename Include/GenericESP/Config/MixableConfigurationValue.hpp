@@ -9,7 +9,7 @@ namespace GenericESP {
 	public:
 		using Mixable<ConfigurableValue<Configurable>>::Mixable;
 
-		auto operator()(const void* e) const
+		auto operator()(const EntityType* e) const
 		{
 			return this->getSelected().getConfigurable(e);
 		}

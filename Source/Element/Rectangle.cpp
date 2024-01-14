@@ -24,7 +24,7 @@ Rectangle::Rectangle(GenericESP::ESP* base)
 {
 }
 
-void Rectangle::draw(ImDrawList* drawList, const void* e, GenericESP::UnionedRect& rect) const
+void Rectangle::draw(ImDrawList* drawList, const EntityType* e, GenericESP::UnionedRect& rect) const
 {
 	if (!enabled(e))
 		return;

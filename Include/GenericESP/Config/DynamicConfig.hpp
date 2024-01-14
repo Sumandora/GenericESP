@@ -4,10 +4,12 @@
 #include <functional>
 #include <string>
 
+#include "../ESP.hpp"
+
 namespace GenericESP {
 	template <typename Configurable>
 	struct DynamicConfig {
-		std::function<Configurable(const void*)> thing;
+		std::function<Configurable(const EntityType*)> thing;
 		std::function<void(const std::string&)> render;
 	};
 }

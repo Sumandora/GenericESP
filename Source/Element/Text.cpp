@@ -18,7 +18,7 @@ Text::Text(ESP* base)
 {
 }
 
-std::optional<ImVec2> Text::draw(ImDrawList* drawList, const void* e, const std::string& text, const ImVec2& pos, const TextAlignment horizontalAlignment, const VerticalAlignment verticalAlignment) const
+std::optional<ImVec2> Text::draw(ImDrawList* drawList, const EntityType* e, const std::string& text, const ImVec2& pos, const TextAlignment horizontalAlignment, const VerticalAlignment verticalAlignment) const
 {
 	if (!enabled(e) || text.empty())
 		return std::nullopt;
@@ -77,7 +77,7 @@ std::optional<ImVec2> Text::draw(ImDrawList* drawList, const void* e, const std:
 	return size;
 }
 
-[[nodiscard]] float Text::getLineHeight(const void* e) const
+[[nodiscard]] float Text::getLineHeight(const EntityType* e) const
 {
 	return ImGui::GetTextLineHeight() * fontScale(e);
 }
