@@ -1,5 +1,7 @@
 #include <chrono>
 
+#define IMGUI_DEFINE_MATH_OPERATORS
+
 #include "GenericESP.hpp"
 
 struct Entity {

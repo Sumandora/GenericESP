@@ -1,19 +1,29 @@
 #ifndef GENERICESP_ELEMENT_SIDEDELEMENT_HPP
 #define GENERICESP_ELEMENT_SIDEDELEMENT_HPP
 
-#include "../Enum/Side.hpp"
 #include "../UnionedRect.hpp"
 #include "Element.hpp"
 
 namespace GenericESP {
+	enum class Side {
+		TOP,
+		LEFT,
+		BOTTOM,
+		RIGHT
+	};
+
+	inline std::initializer_list<std::string> sideLocalization{
+		"Top",
+		"Left",
+		"Bottom",
+		"Right"
+	};
 
 	struct SidedElement : Element {
 		MixableConfigurableValue<Side> side;
 
-	private:
 		// The renderer which is later replaced by the list renderer
 		std::function<void(const std::string &,size_t &)> comboRenderer;
-	public:
 
 		explicit SidedElement(ESP* base, Side defaultSide);
 

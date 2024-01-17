@@ -1,3 +1,5 @@
+#define IMGUI_DEFINE_MATH_OPERATORS
+
 #include "GenericESP/Element/Rectangle.hpp"
 
 using namespace GenericESP;

@@ -1,12 +1,22 @@
 #ifndef GENERICESP_ELEMENT_TEXT_HPP
 #define GENERICESP_ELEMENT_TEXT_HPP
 
-#include "../Element/Element.hpp"
-#include "../Enum/Text.hpp"
+#include "Element.hpp"
 
 #include <optional>
 
 namespace GenericESP {
+	enum class TextAlignment {
+		LEFT_BOUNDED,
+		CENTERED,
+		RIGHT_BOUNDED
+	};
+
+	enum class VerticalAlignment {
+		BELOW_POSITION,
+		CENTERED,
+		ABOVE_POSITION
+	};
 
 	struct Text : Element {
 		MixableConfigurableValue<float> fontScale;
@@ -17,7 +27,8 @@ namespace GenericESP {
 
 		explicit Text(ESP* base);
 
-		std::optional<ImVec2> draw(ImDrawList* drawList, const EntityType* e, const std::string& text, const ImVec2& pos, TextAlignment horizontalAlignment, VerticalAlignment verticalAlignment) const;
+		std::optional<ImVec2> draw(ImDrawList* drawList, const EntityType* e, const std::string& text, const ImVec2& pos,
+			TextAlignment horizontalAlignment, VerticalAlignment verticalAlignment) const;
 		[[nodiscard]] float getLineHeight(const EntityType* e) const;
 		void renderGui(const std::string& id);
 	};

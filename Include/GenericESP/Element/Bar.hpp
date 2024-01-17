@@ -1,9 +1,6 @@
 #ifndef GENERICESP_ELEMENT_BAR_HPP
 #define GENERICESP_ELEMENT_BAR_HPP
 
-#define IMGUI_DEFINE_MATH_OPERATORS
-
-#include "../Util.hpp"
 #include "SidedElement.hpp"
 #include "Text.hpp"
 
@@ -47,6 +44,13 @@ namespace GenericESP {
 		std::optional<ImRect> calculateInnerRect(const EntityType* e, const ImRect& rect) const;
 		ImRect calculateBarRect(const EntityType* e, ImRect rect, bool flipped, float percentage) const;
 		// --- Likely irrelevant for users ---
+
+		// --- Utility functions for color conversion ---
+		using HsvColor = std::array<float, 3>;
+		static HsvColor colorLerp(const HsvColor& from, const HsvColor& to, float t);
+		static HsvColor colorRGBtoHSV(ImColor color);
+		static ImColor colorHSVtoRGB(HsvColor hsv);
+		// --- Utility functions for color conversion ---
 
 		void draw(ImDrawList* drawList, const EntityType* e, UnionedRect& unionedRect) const;
 		void renderGui(const std::string& id);

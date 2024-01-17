@@ -16,8 +16,7 @@ namespace GenericESP {
 	// Check the example for more information
 	using EntityType = void;
 
-	class ESP {
-	public:
+	struct ESP {
 		virtual std::function<void(const std::string&, bool&)> createBoolRenderer(const std::function<void()>& onChange = [] {}) = 0;
 		virtual std::function<void(const std::string&, ImColor&)> createColorRenderer(const std::function<void()>& onChange = [] {}) = 0;
 		virtual std::function<void(const std::string&, std::size_t&)> createComboRenderer(const std::initializer_list<std::string>& localization, const std::function<void()>& onChange = [] {}) = 0;

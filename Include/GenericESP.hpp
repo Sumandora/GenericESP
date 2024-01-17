@@ -10,4 +10,6 @@
 #include "GenericESP/Element/Flags.hpp"
 #include "GenericESP/ESP.hpp"
 
+#include "GenericESP/OpaqueLambda.hpp"
+
 #endif

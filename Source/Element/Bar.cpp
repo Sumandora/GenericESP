@@ -1,3 +1,5 @@
+#define IMGUI_DEFINE_MATH_OPERATORS
+
 #include "GenericESP/Element/Bar.hpp"
 
 using namespace GenericESP;
@@ -150,6 +152,29 @@ ImRect Bar::calculateBarRect(const EntityType* e, ImRect rect, const bool flippe
 	return rect;
 }
 
+Bar::HsvColor Bar::colorLerp(const Bar::HsvColor& from, const Bar::HsvColor& to, float t)
+{
+	return {
+		from[0] + (to[0] - from[0]) * t,
+		from[1] + (to[1] - from[1]) * t,
+		from[2] + (to[2] - from[2]) * t
+	};
+}
+
+Bar::HsvColor Bar::colorRGBtoHSV(ImColor color)
+{
+	Bar::HsvColor hsv{};
+	ImGui::ColorConvertRGBtoHSV(color.Value.x, color.Value.y, color.Value.z, hsv[0], hsv[1], hsv[2]);
+	return hsv;
+}
+
+ImColor Bar::colorHSVtoRGB(Bar::HsvColor hsv)
+{
+	ImColor rgb{0.0f, 0.0f, 0.0f, 1.0f};
+	ImGui::ColorConvertHSVtoRGB(hsv[0], hsv[1], hsv[2], rgb.Value.x, rgb.Value.y, rgb.Value.z);
+	return rgb;
+}
+
 void Bar::draw(ImDrawList* drawList, const EntityType* e, UnionedRect& unionedRect) const
 {
 	if (!enabled(e))
@@ -230,11 +255,11 @@ void Bar::draw(ImDrawList* drawList, const EntityType* e, UnionedRect& unionedRe
 					t = 1.0f - t;
 				}
 
-				const auto middleHsv = arrayLerp(filledHsv, emptyHsv, t);
+				const auto middleHsv = colorLerp(filledHsv, emptyHsv, t);
 				const float alpha = filledColor.Value.w + (emptyColor.Value.w - filledColor.Value.w) * t;
 
 				const auto middleRgb = colorHSVtoRGB(middleHsv);
-				const ImColor middleColor(middleRgb[0], middleRgb[1], middleRgb[2], alpha);
+				const ImColor middleColor(middleRgb.Value.x, middleRgb.Value.y, middleRgb.Value.z, alpha);
 
 				switch (side) {
 				case Side::TOP:
@@ -266,29 +291,30 @@ void Bar::draw(ImDrawList* drawList, const EntityType* e, UnionedRect& unionedRe
 			}
 
 		} else {
-			const auto middleHsv = arrayLerp(emptyHsv, filledHsv, clampedPercentage);
+			const auto middleHsv = colorLerp(emptyHsv, filledHsv, clampedPercentage);
 			const auto middleRgb = colorHSVtoRGB(middleHsv);
 			const float alpha = filledColor.Value.w + (emptyColor.Value.w - filledColor.Value.w) * clampedPercentage;
 
-			const ImColor middleColor(middleRgb[0], middleRgb[1], middleRgb[2], alpha);
+			const ImColor middleColor(middleRgb.Value.x, middleRgb.Value.y, middleRgb.Value.z, alpha);
 
 			drawList->AddRectFilled(barRect.Min, barRect.Max, middleColor);
 		}
 
 		if (numberText.has_value() && numberText->numberText.enabled(e))
 			if (!numberText->hideWhenFull || clampedPercentage < 1.0f) {
-				switch (side) {
-				case Side::TOP:
-				case Side::BOTTOM: {
-					numberText->draw(drawList, e, { flipped ? barRect.Max.x : barRect.Min.x, barRect.Min.y + (barRect.Max.y - barRect.Min.y) * 0.5f });
-					break;
-				}
-				case Side::LEFT:
-				case Side::RIGHT: {
-					numberText->draw(drawList, e, { barRect.Min.x + (barRect.Max.x - barRect.Min.x) * 0.5f, flipped ? barRect.Max.y : barRect.Min.y });
-					break;
-				}
-				}
+				auto textPosition = [&]() -> ImVec2 {
+					switch (side) {
+					case Side::TOP:
+					case Side::BOTTOM: {
+						return { flipped ? barRect.Max.x : barRect.Min.x, barRect.Min.y + (barRect.Max.y - barRect.Min.y) * 0.5f };
+					}
+					case Side::LEFT:
+					case Side::RIGHT: {
+						return { barRect.Min.x + (barRect.Max.x - barRect.Min.x) * 0.5f, flipped ? barRect.Max.y : barRect.Min.y };
+					}
+					}
+				}();
+				numberText->draw(drawList, e, textPosition);
 			}
 	}
 }
