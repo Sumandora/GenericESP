@@ -111,18 +111,16 @@ namespace GenericESP {
 					idx++;
 				}
 
-				ImGui::PushID(id.c_str());
 				int i = pair.first;
 				ImGui::Combo(id.c_str(), &i, names, IM_ARRAYSIZE(names));
 				pair.first = i;
 
+				ImGui::PushID(id.c_str());
 				auto& selectedPair = *std::next(pair.second.begin(), pair.first);
 				selectedPair.second.renderGui(id);
-
 				ImGui::PopID();
-				return;
-			}
-			std::get<Type>(options).renderGui(id);
+			} else
+				std::get<Type>(options).renderGui(id);
 		}
 	};
 
