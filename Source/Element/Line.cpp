@@ -2,8 +2,8 @@
 
 using namespace GenericESP;
 
-Line::Line(GenericESP::ESP* base)
-	: Element(base)
+Line::Line(GenericESP::ESP* base, std::string&& id)
+	: Element(base, std::move(id))
 	, lineColor{
 		"Line color",
 		StaticConfig<ImColor>{ { 1.0f, 1.0f, 1.0f, 1.0f }, base->createColorRenderer() }
@@ -26,7 +26,7 @@ void Line::draw(ImDrawList* drawList, const EntityType* e, const std::vector<ImV
 	drawList->AddPolyline(points.data(), (int)points.size(), lineColor(e), ImDrawFlags_None, thickness(e));
 }
 
-void Line::renderGui(const std::string& id)
+void Line::renderGui()
 {
 	ImGui::PushID(id.c_str());
 	enabled.renderGui();

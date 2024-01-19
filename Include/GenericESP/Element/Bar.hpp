@@ -32,12 +32,12 @@ namespace GenericESP {
 			explicit NumberText(ESP* base, Provider&& provider);
 
 			void draw(ImDrawList* drawList, const EntityType* e, ImVec2 pos) const;
-			void renderGui(const std::string& id);
+			void renderGui();
 		};
 
 		std::optional<NumberText> numberText;
 
-		explicit Bar(ESP* base, PercentageProvider&& percentageProvider, std::optional<NumberText> numberText = std::nullopt);
+		explicit Bar(ESP* base, std::string&& id, PercentageProvider&& percentageProvider, std::optional<NumberText>&& numberText = std::nullopt);
 
 		// --- Likely irrelevant for users ---
 		ImRect calculateNewRect(const EntityType* e, const ImRect& rect) const;
@@ -53,7 +53,7 @@ namespace GenericESP {
 		// --- Utility functions for color conversion ---
 
 		void draw(ImDrawList* drawList, const EntityType* e, UnionedRect& unionedRect) const;
-		void renderGui(const std::string& id);
+		void renderGui();
 	};
 
 }

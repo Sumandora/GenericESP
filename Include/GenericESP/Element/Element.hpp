@@ -7,9 +7,11 @@
 namespace GenericESP {
 
 	struct Element {
+		std::string id;
+
 		MixableConfigurableValue<bool> enabled;
 
-		explicit Element(ESP* base);
+		explicit Element(ESP* base, std::string&& id);
 	};
 
 }

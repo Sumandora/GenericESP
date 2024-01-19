@@ -2,10 +2,10 @@
 
 using namespace GenericESP;
 
-SidedText::SidedText(ESP* base)
-	: SidedElement(base, Side::TOP)
+SidedText::SidedText(ESP* base, std::string&& id)
+	: SidedElement(base, std::move(id), Side::TOP)
 	, spacing{ "Spacing", StaticConfig<float>{ 1.0f, base->createFloatRenderer(0.0, 10.0f, "%.2f") } }
-	, textElement(base)
+	, textElement(base, "Text")
 {
 }
 
@@ -49,12 +49,12 @@ void SidedText::draw(ImDrawList* drawList, const EntityType* e, const std::strin
 	}
 }
 
-void SidedText::renderGui(const std::string& id)
+void SidedText::renderGui()
 {
 	ImGui::PushID(id.c_str());
 	enabled.renderGui();
 	side.renderGui();
 	spacing.renderGui();
-	textElement.renderGui("Text");
+	textElement.renderGui();
 	ImGui::PopID();
 }

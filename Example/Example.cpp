@@ -15,20 +15,22 @@ struct Entity {
 using namespace GenericESP;
 
 struct EntityESP : ESP {
-	Rectangle box{ this };
+	Rectangle box{ this, "Box" };
 	Bar bar{
 		this,
+		"Bar",
 		makeOpaque<float, Entity>([](const Entity* entity) { return static_cast<float>(entity->health) / static_cast<float>(entity->maxHealth); }),
 		Bar::NumberText{ this, makeOpaque<std::string, Entity>([](const Entity* entity) { return std::to_string(entity->health); }) }
 	};
 	Bar bar2{
 		this,
+		"Bar 2",
 		makeOpaque<float, Entity>([](const Entity* entity) { return static_cast<float>(entity->health) / static_cast<float>(entity->maxHealth); }),
 		Bar::NumberText{ this, makeOpaque<std::string, Entity>([](const Entity* entity) { return std::to_string(entity->health); }) }
 	};
-	Line line{ this };
-	Circle circle{ this };
-	SidedText name{ this };
+	Line line{ this, "Line" };
+	Circle circle{ this, "Circle" };
+	SidedText name{ this, "Name" };
 	struct MyFlag : Flag {
 		explicit MyFlag(ESP* base)
 			: Flag{
@@ -51,7 +53,7 @@ struct EntityESP : ESP {
 		{
 		}
 	};
-	Flags flags{ this, { new MyFlag(this), new AnotherFlag(this) } };
+	Flags flags{ this, "Flags", { new MyFlag(this), new AnotherFlag(this) } };
 
 	// Injected health-based color
 	ImColor aliveColor{ 0.0f, 1.0f, 0.0f, 1.0f };
@@ -126,32 +128,32 @@ struct EntityESP : ESP {
 	void renderGui()
 	{
 		if (ImGui::BeginTabBar("Elements", ImGuiTabBarFlags_Reorderable)) {
-			if (ImGui::BeginTabItem("Box")) {
-				box.renderGui("Box");
+			if (ImGui::BeginTabItem(box.id.c_str())) {
+				box.renderGui();
 				ImGui::EndTabItem();
 			}
-			if (ImGui::BeginTabItem("Bar")) {
-				bar.renderGui("Bar");
+			if (ImGui::BeginTabItem(bar.id.c_str())) {
+				bar.renderGui();
 				ImGui::EndTabItem();
 			}
-			if (ImGui::BeginTabItem("Bar 2")) {
-				bar2.renderGui("Bar 2");
+			if (ImGui::BeginTabItem(bar2.id.c_str())) {
+				bar2.renderGui();
 				ImGui::EndTabItem();
 			}
-			if (ImGui::BeginTabItem("Line")) {
-				line.renderGui("Line");
+			if (ImGui::BeginTabItem(line.id.c_str())) {
+				line.renderGui();
 				ImGui::EndTabItem();
 			}
-			if (ImGui::BeginTabItem("Circle")) {
-				circle.renderGui("Circle");
+			if (ImGui::BeginTabItem(circle.id.c_str())) {
+				circle.renderGui();
 				ImGui::EndTabItem();
 			}
-			if (ImGui::BeginTabItem("Name")) {
-				name.renderGui("Name");
+			if (ImGui::BeginTabItem(name.id.c_str())) {
+				name.renderGui();
 				ImGui::EndTabItem();
 			}
-			if (ImGui::BeginTabItem("Flags")) {
-				flags.renderGui("Flags");
+			if (ImGui::BeginTabItem(flags.id.c_str())) {
+				flags.renderGui();
 				ImGui::EndTabItem();
 			}
 			ImGui::EndTabBar();

@@ -4,8 +4,8 @@
 
 using namespace GenericESP;
 
-Rectangle::Rectangle(GenericESP::ESP* base)
-	: Element(base)
+Rectangle::Rectangle(GenericESP::ESP* base, std::string&& id)
+	: Element(base, std::move(id))
 	, color{ "Color", StaticConfig<ImColor>{ { 1.0f, 1.0f, 1.0f, 1.0f }, base->createColorRenderer() } }
 	, rounding{ "Rounding", StaticConfig<float>{ 0.0f, base->createFloatRenderer(0.0f, 10.0f, "%.2f") } }
 	, thickness{ "Thickness", StaticConfig<float>{ 1.0f, base->createFloatRenderer(0.0f, 10.0f, "%.2f") } }
@@ -61,7 +61,7 @@ void Rectangle::draw(ImDrawList* drawList, const EntityType* e, GenericESP::Unio
 	rect.expand(halfWidth);
 }
 
-void Rectangle::renderGui(const std::string& id)
+void Rectangle::renderGui()
 {
 	ImGui::PushID(id.c_str());
 	enabled.renderGui();

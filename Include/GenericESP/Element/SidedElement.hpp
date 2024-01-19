@@ -25,7 +25,7 @@ namespace GenericESP {
 		// The renderer which is later replaced by the list renderer
 		std::function<void(const std::string &,size_t &)> comboRenderer;
 
-		explicit SidedElement(ESP* base, Side defaultSide);
+		explicit SidedElement(ESP* base, std::string&& id, Side defaultSide);
 
 		[[nodiscard]] const ImRect& chooseRect(const EntityType* e, const UnionedRect& unionedRect) const;
 		[[nodiscard]] ImRect& chooseRect(const EntityType* e, UnionedRect& unionedRect) const;

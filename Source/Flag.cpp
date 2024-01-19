@@ -4,7 +4,7 @@ using namespace GenericESP;
 
 Flag::Flag(GenericESP::ESP* base, std::string&& name, GenericESP::Flag::Remaps&& remaps, std::string&& defaultFormat)
 	: name(std::move(name))
-	, textElement(base)
+	, textElement(base, "Text element")
 	, remaps(std::move(remaps))
 	, format(std::move(defaultFormat))
 {
@@ -24,10 +24,10 @@ std::string Flag::computeText(const EntityType* e) const
 	return result;
 }
 
-void Flag::renderGui(const std::string& id)
+void Flag::renderGui()
 {
-	ImGui::PushID(id.c_str());
-	textElement.renderGui("Text element");
+	ImGui::PushID(name.c_str());
+	textElement.renderGui();
 	ImGui::InputText("Formatting", (char*)format.c_str(), format.capacity() + 1, ImGuiInputTextFlags_CallbackResize, [](ImGuiInputTextCallbackData* data) {
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wshadow"

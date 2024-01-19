@@ -16,11 +16,11 @@ namespace GenericESP {
 		std::vector<std::unique_ptr<Flag>> flags;
 		VectorOrdering<std::unique_ptr<Flag>> flagOrder;
 
-		explicit Flags(ESP* base, std::initializer_list<Flag*> flags);
+		explicit Flags(ESP* base, std::string&& id, std::initializer_list<Flag*> flags);
 
 		ImVec2 drawEntry(ImDrawList* drawList, const EntityType* e, ImRect& rect, const std::unique_ptr<Flag>& flag, float yOffset) const;
 		void draw(ImDrawList* drawList, const EntityType* e, UnionedRect& unionedRect) const;
-		void renderGui(const std::string& id);
+		void renderGui();
 	};
 
 }

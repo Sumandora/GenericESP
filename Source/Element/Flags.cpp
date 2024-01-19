@@ -2,8 +2,8 @@
 
 using namespace GenericESP;
 
-Flags::Flags(ESP* base, std::initializer_list<Flag*> flags)
-	: SidedElement(base, Side::RIGHT)
+Flags::Flags(ESP* base, std::string&& id, std::initializer_list<Flag*> flags)
+	: SidedElement(base, std::move(id), Side::RIGHT)
 	, spacing{ "Spacing", StaticConfig<float>{ 1.0f, base->createFloatRenderer(0.0, 10.0f, "%.2f") } }
 	, flagOrder{ this->flags, [](const std::unique_ptr<Flag>& flag) { return flag->name; } }
 {
@@ -96,7 +96,7 @@ void Flags::draw(ImDrawList* drawList, const EntityType* e, UnionedRect& unioned
 	}
 }
 
-void Flags::renderGui(const std::string& id)
+void Flags::renderGui()
 {
 	ImGui::PushID(id.c_str());
 	enabled.renderGui();
@@ -104,9 +104,8 @@ void Flags::renderGui(const std::string& id)
 	spacing.renderGui();
 	if (ImGui::BeginTabBar("Flags", ImGuiTabBarFlags_Reorderable)) {
 		for (std::unique_ptr<Flag>& flag : flags) {
-			const char* flagName = flag->name.c_str();
-			if (ImGui::BeginTabItem(flagName)) {
-				flag->renderGui(flagName);
+			if (ImGui::BeginTabItem(flag->name.c_str())) {
+				flag->renderGui();
 				ImGui::EndTabItem();
 			}
 		}

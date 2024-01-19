@@ -2,8 +2,8 @@
 
 using namespace GenericESP;
 
-SidedElement::SidedElement(ESP* base, GenericESP::Side defaultSide)
-	: Element(base)
+SidedElement::SidedElement(ESP* base, std::string&& id, GenericESP::Side defaultSide)
+	: Element(base, std::move(id))
 	, comboRenderer(base->createComboRenderer(sideLocalization))
 	, side{
 		"Side",

@@ -2,8 +2,8 @@
 
 using namespace GenericESP;
 
-Text::Text(ESP* base)
-	: Element(base)
+Text::Text(ESP* base, std::string&& id)
+	: Element(base, std::move(id))
 	, fontScale{ "Font scale", StaticConfig<float>{ 1.0f, base->createFloatRenderer(0.0f, 10.0f, "%.2f") } }
 	, fontColor{ "Font color", StaticConfig<ImColor>{ { 1.0f, 1.0f, 1.0f, 1.0f }, base->createColorRenderer() } }
 	, shadow{ "Shadow", StaticConfig<bool>{ true, base->createBoolRenderer() } }
@@ -82,7 +82,7 @@ std::optional<ImVec2> Text::draw(ImDrawList* drawList, const EntityType* e, cons
 	return ImGui::GetTextLineHeight() * fontScale(e);
 }
 
-void Text::renderGui(const std::string& id)
+void Text::renderGui()
 {
 	ImGui::PushID(id.c_str());
 	enabled.renderGui();

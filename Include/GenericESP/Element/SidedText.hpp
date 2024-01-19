@@ -12,10 +12,10 @@ namespace GenericESP {
 		MixableConfigurableValue<float> spacing;
 		Text textElement;
 
-		explicit SidedText(ESP* base);
+		explicit SidedText(ESP* base, std::string&& id);
 
 		void draw(ImDrawList* drawList, const EntityType* e, const std::string& text, UnionedRect& unionedRect) const;
-		void renderGui(const std::string& id);
+		void renderGui();
 	};
 
 }

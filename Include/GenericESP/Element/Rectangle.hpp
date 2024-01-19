@@ -16,10 +16,10 @@ namespace GenericESP {
 		MixableConfigurableValue<bool> fill;
 		MixableConfigurableValue<ImColor> fillColor;
 
-		explicit Rectangle(ESP* base);
+		explicit Rectangle(ESP* base, std::string&& id);
 
 		void draw(ImDrawList* drawList, const EntityType* e, UnionedRect& rect) const;
-		void renderGui(const std::string& id);
+		void renderGui();
 	};
 
 }

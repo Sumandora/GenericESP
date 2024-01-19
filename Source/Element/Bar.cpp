@@ -5,8 +5,8 @@
 
 using namespace GenericESP;
 
-Bar::Bar(GenericESP::ESP* base, GenericESP::Bar::PercentageProvider&& percentageProvider, std::optional<NumberText> numberText)
-	: SidedElement(base, Side::LEFT)
+Bar::Bar(GenericESP::ESP* base, std::string&& id, GenericESP::Bar::PercentageProvider&& percentageProvider, std::optional<NumberText>&& numberText)
+	: SidedElement(base, std::move(id), Side::LEFT)
 	, backgroundColor{ "Background color", StaticConfig<ImColor>{ { 0.0f, 0.0f, 0.0f, 1.0f }, base->createColorRenderer() } }
 	, spacing{ "Spacing", StaticConfig<float>{ 1.0f, base->createFloatRenderer(0.0, 10.0f, "%.2f") } }
 	, width{ "Width", StaticConfig<float>{ 2.0f, base->createFloatRenderer(0.0, 10.0f, "%.2f") } }
@@ -34,7 +34,7 @@ Bar::Bar(GenericESP::ESP* base, GenericESP::Bar::PercentageProvider&& percentage
 
 Bar::NumberText::NumberText(GenericESP::ESP* base, GenericESP::Bar::NumberText::Provider&& provider)
 	: numberTextProvider(provider)
-	, numberText(base)
+	, numberText(base, "Number text")
 	, hideWhenFull(false)
 {
 }
@@ -44,17 +44,17 @@ void Bar::NumberText::draw(ImDrawList* drawList, const EntityType* e, ImVec2 pos
 	numberText.draw(drawList, e, numberTextProvider(e), pos, TextAlignment::CENTERED, VerticalAlignment::CENTERED);
 }
 
-void Bar::NumberText::renderGui(const std::string& id)
+void Bar::NumberText::renderGui()
 {
-	const auto popupLabel = id + "##Popup";
+	const auto popupLabel = numberText.id + "##Popup";
 
-	ImGui::Text("%s", id.c_str());
+	ImGui::Text("%s", numberText.id.c_str());
 	ImGui::SameLine();
 	if (ImGui::Button("..."))
 		ImGui::OpenPopup(popupLabel.c_str());
 
 	if (ImGui::BeginPopup(popupLabel.c_str())) {
-		numberText.renderGui(id);
+		numberText.renderGui();
 		// Hide when full will be rendered through the injected render method
 		ImGui::EndPopup();
 	}
@@ -321,7 +321,7 @@ void Bar::draw(ImDrawList* drawList, const EntityType* e, UnionedRect& unionedRe
 	}
 }
 
-void Bar::renderGui(const std::string& id)
+void Bar::renderGui()
 {
 	ImGui::PushID(id.c_str());
 	enabled.renderGui();
@@ -338,6 +338,6 @@ void Bar::renderGui(const std::string& id)
 	outlineColor.renderGui();
 	outlineThickness.renderGui();
 	if (numberText.has_value())
-		numberText->renderGui("Number text");
+		numberText->renderGui();
 	ImGui::PopID();
 }

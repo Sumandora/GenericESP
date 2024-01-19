@@ -18,7 +18,7 @@ namespace GenericESP {
 		explicit Flag(ESP* base, std::string&& name, Remaps&& remaps, std::string&& defaultFormat);
 
 		[[nodiscard]] std::string computeText(const EntityType* e) const;
-		void renderGui(const std::string& id);
+		void renderGui();
 	};
 
 }

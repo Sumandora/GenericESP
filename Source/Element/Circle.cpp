@@ -2,8 +2,8 @@
 
 using namespace GenericESP;
 
-Circle::Circle(GenericESP::ESP* base)
-	: Element(base)
+Circle::Circle(GenericESP::ESP* base, std::string&& id)
+	: Element(base, std::move(id))
 	, circleColor{ "Circle color", StaticConfig<ImColor>{ { 1.0f, 1.0f, 1.0f, 1.0f }, base->createColorRenderer() } }
 	, radius{ "Radius", StaticConfig<float>{ 1.0f, base->createFloatRenderer(0.0f, 10.0f, "%.2f") } }
 	, outlined{ "Outlined", StaticConfig<bool>{ true, base->createBoolRenderer() } }
@@ -23,7 +23,7 @@ void Circle::draw(ImDrawList* drawList, const EntityType* e, const ImVec2& posit
 	drawList->AddCircleFilled(position, radius(e), circleColor(e));
 }
 
-void Circle::renderGui(const std::string& id)
+void Circle::renderGui()
 {
 	ImGui::PushID(id.c_str());
 	enabled.renderGui();

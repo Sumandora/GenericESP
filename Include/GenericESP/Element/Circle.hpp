@@ -12,10 +12,10 @@ namespace GenericESP {
 		MixableConfigurableValue<ImColor> outlineColor;
 		MixableConfigurableValue<float> outlineRadius;
 
-		explicit Circle(ESP* base);
+		explicit Circle(ESP* base, std::string&& id);
 
 		void draw(ImDrawList* drawList, const EntityType* e, const ImVec2& position) const;
-		void renderGui(const std::string& id);
+		void renderGui();
 	};
 
 }
