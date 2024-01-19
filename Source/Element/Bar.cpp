@@ -1,6 +1,7 @@
 #define IMGUI_DEFINE_MATH_OPERATORS
 
 #include "GenericESP/Element/Bar.hpp"
+#include <utility>
 
 using namespace GenericESP;
 
@@ -313,6 +314,7 @@ void Bar::draw(ImDrawList* drawList, const EntityType* e, UnionedRect& unionedRe
 						return { barRect.Min.x + (barRect.Max.x - barRect.Min.x) * 0.5f, flipped ? barRect.Max.y : barRect.Min.y };
 					}
 					}
+					std::unreachable();
 				}();
 				numberText->draw(drawList, e, textPosition);
 			}
