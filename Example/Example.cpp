@@ -61,7 +61,7 @@ struct EntityESP : ESP {
 
 	EntityESP()
 	{
-		box.color.addType("Health-based", DynamicConfig<ImColor>{ makeOpaque<float, Entity>([this](const Entity* e) {
+		box.color.addType("Health-based", DynamicConfig<ImColor>{ makeOpaque<ImColor, Entity>([this](const Entity* e) {
 																	 const float t = static_cast<float>(e->health) / static_cast<float>(e->maxHealth);
 																	 return ImColor{ ImLerp(deadColor.Value, aliveColor.Value, t) };
 																 }),
