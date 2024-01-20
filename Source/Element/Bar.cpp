@@ -68,7 +68,7 @@ ImRect Bar::calculateNewRect(const EntityType* e, const ImRect& rect) const
 	const float spacing = this->spacing(e);
 #pragma clang diagnostic pop
 
-	switch (side(e)) {
+	switch (getSide(e)) {
 	case Side::TOP:
 		return ImRect{
 			{ rect.Min.x,
@@ -131,7 +131,7 @@ std::optional<ImRect> Bar::calculateInnerRect(const EntityType* e, const ImRect&
 ImRect Bar::calculateBarRect(const EntityType* e, ImRect rect, const bool flipped, const float percentage) const
 #pragma clang diagnostic pop
 {
-	switch (side(e)) {
+	switch (getSide(e)) {
 	case Side::LEFT:
 	case Side::RIGHT:
 		if (flipped)
@@ -181,7 +181,7 @@ void Bar::draw(ImDrawList* drawList, const EntityType* e, UnionedRect& unionedRe
 	if (!enabled(e))
 		return;
 
-	const Side side = this->side(e);
+	const Side side = getSide(e);
 
 	ImRect& rect = chooseRect(e, unionedRect);
 
@@ -340,4 +340,25 @@ void Bar::renderGui()
 	if (numberText.has_value())
 		numberText->renderGui();
 	ImGui::PopID();
+}
+
+SerializedTypeMap Bar::serialize() const
+{
+	SerializedTypeMap map;
+	map["Enabled"] = enabled.serialize();
+	side.renderGui();
+	backgroundColor.renderGui();
+	spacing.renderGui();
+	width.renderGui();
+	filledColor.renderGui();
+	emptyColor.renderGui();
+	gradient.renderGui();
+	hueSteps.renderGui();
+	flipped.renderGui();
+	outlined.renderGui();
+	outlineColor.renderGui();
+	outlineThickness.renderGui();
+	if (numberText.has_value())
+		numberText->renderGui();
+	return map;
 }

@@ -21,7 +21,7 @@ void SidedText::draw(ImDrawList* drawList, const EntityType* e, const std::strin
 	const float spacing = this->spacing(e);
 #pragma clang diagnostic pop
 
-	switch (side(e)) {
+	switch (getSide(e)) {
 	case Side::TOP: {
 		auto size = textElement.draw(drawList, e, text, { rect.Min.x + (rect.Max.x - rect.Min.x) * 0.5f, rect.Min.y - spacing }, TextAlignment::CENTERED, VerticalAlignment::ABOVE_POSITION);
 		if (size.has_value())

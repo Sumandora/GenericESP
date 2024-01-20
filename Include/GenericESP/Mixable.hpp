@@ -9,6 +9,7 @@
 #include <vector>
 
 #include "imgui.h"
+#include "Serialization/Serialization.hpp"
 
 namespace GenericESP {
 	struct Renderable {
@@ -18,8 +19,8 @@ namespace GenericESP {
 	};
 
 	template <typename Type>
-		requires std::is_base_of_v<Renderable, Type>
-	struct Mixable {
+		requires std::conjunction_v<std::is_base_of<Renderable, Type>, std::is_base_of<Serializable, Type>>
+	struct Mixable : Serializable {
 		using TypeTable = std::vector<std::pair<std::string, Type>>;
 		using MultiType = std::pair<std::size_t /*selected index*/, TypeTable>;
 		std::variant<Type, MultiType> options;
@@ -121,6 +122,33 @@ namespace GenericESP {
 				ImGui::PopID();
 			} else
 				std::get<Type>(options).renderGui(id);
+		}
+
+		SerializedTypeMap serialize() const override {
+			SerializedTypeMap map;
+
+			if (isMultiType()) {
+				auto& pair = std::get<MultiType>(options);
+				map["Selected Index"] = pair.first;
+
+				for (const auto& [name, type] : pair.second) {
+					map[name] = type.serialize();
+				}
+			} else
+				map[id] = std::get<Type>(options).serialize();
+			return map;
+		}
+
+		void deserialize(const SerializedTypeMap& map) override {
+			if (isMultiType()) {
+				auto& pair = std::get<MultiType>(options);
+				pair.first = std::get<std::size_t>(map.at("Selected Index"));
+
+				for (auto& [name, type] : pair.second) {
+					type.deserialize(map.at(name));
+				}
+			} else
+				std::get<Type>(options).deserialize(map.at(id));
 		}
 	};
 

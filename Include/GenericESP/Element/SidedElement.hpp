@@ -20,12 +20,14 @@ namespace GenericESP {
 	};
 
 	struct SidedElement : Element {
-		MixableConfigurableValue<Side> side;
+		MixableConfigurableValue<std::size_t> side;
 
 		// The renderer which is later replaced by the list renderer
-		std::function<void(const std::string &,size_t &)> comboRenderer;
+		std::function<void(const std::string&, std::size_t&)> comboRenderer;
 
 		explicit SidedElement(ESP* base, std::string&& id, Side defaultSide);
+
+		Side getSide(const EntityType* e) const;
 
 		[[nodiscard]] const ImRect& chooseRect(const EntityType* e, const UnionedRect& unionedRect) const;
 		[[nodiscard]] ImRect& chooseRect(const EntityType* e, UnionedRect& unionedRect) const;

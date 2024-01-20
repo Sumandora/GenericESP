@@ -73,6 +73,14 @@ struct EntityESP : ESP {
 												  displayColor("Alive color", aliveColor);
 												  displayColor("Dead color", deadColor);
 												  ImGui::PopID();
+											  },
+											  [this] -> SerializedType {
+												  return std::vector<AnyType>{ aliveColor, deadColor };
+											  },
+											  [this](const SerializedType& t) {
+												  auto vec = get<std::vector<AnyType>>(t);
+												  aliveColor = get<ImColor>(vec[0]);
+												  deadColor = get<ImColor>(vec[1]);
 											  } });
 		bar.filledColor.id = "Alive color";
 		bar.emptyColor.id = "Dead color";

@@ -4,22 +4,21 @@ using namespace GenericESP;
 
 SidedElement::SidedElement(ESP* base, std::string&& id, GenericESP::Side defaultSide)
 	: Element(base, std::move(id))
-	, comboRenderer(base->createComboRenderer(sideLocalization))
 	, side{
 		"Side",
-		StaticConfig<Side>{ static_cast<Side>(-1 /*placeholder*/), [&](const std::string& id, Side& side) {
-							   auto idx = static_cast<std::size_t>(side);
-							   comboRenderer(id, idx);
-							   side = static_cast<Side>(idx);
-						   } }
+		StaticConfig<std::size_t>{ 0 /* placeholder */, base->createComboRenderer(sideLocalization) }
 	}
 {
-	side.getSelected().getStaticConfig().thing = defaultSide;
+	side.getSelected().getStaticConfig().thing = static_cast<std::size_t>(defaultSide);
 }
 
-const ImRect& SidedElement::chooseRect(const void* e, const UnionedRect& unionedRect) const
+Side SidedElement::getSide(const EntityType* e) const {
+	return static_cast<Side>(side(e));
+}
+
+const ImRect& SidedElement::chooseRect(const EntityType* e, const UnionedRect& unionedRect) const
 {
-	switch (side(e)) {
+	switch (getSide(e)) {
 	case Side::LEFT:
 	case Side::RIGHT:
 		return unionedRect.horizontal;
@@ -31,9 +30,9 @@ const ImRect& SidedElement::chooseRect(const void* e, const UnionedRect& unioned
 	}
 }
 
-ImRect& SidedElement::chooseRect(const void* e, UnionedRect& unionedRect) const
+ImRect& SidedElement::chooseRect(const EntityType* e, UnionedRect& unionedRect) const
 {
-	switch (side(e)) {
+	switch (getSide(e)) {
 	case Side::LEFT:
 	case Side::RIGHT:
 		return unionedRect.horizontal;

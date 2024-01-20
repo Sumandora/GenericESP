@@ -16,12 +16,18 @@ namespace GenericESP {
 	// Check the example for more information
 	using EntityType = void;
 
+	using BoolRenderer	= std::function<void(const std::string&, bool&)>;
+	using ColorRenderer	= std::function<void(const std::string&, ImColor&)>;
+	using ComboRenderer	= std::function<void(const std::string&, std::size_t&)>;
+	using FloatRenderer	= std::function<void(const std::string&, float&)>;
+	using IntRenderer	= std::function<void(const std::string&, int&)>;
+
 	struct ESP {
-		virtual std::function<void(const std::string&, bool&)> createBoolRenderer(const std::function<void()>& onChange = [] {}) = 0;
-		virtual std::function<void(const std::string&, ImColor&)> createColorRenderer(const std::function<void()>& onChange = [] {}) = 0;
-		virtual std::function<void(const std::string&, std::size_t&)> createComboRenderer(const std::initializer_list<std::string>& localization, const std::function<void()>& onChange = [] {}) = 0;
-		virtual std::function<void(const std::string&, float&)> createFloatRenderer(float min, float max, const char* fmt, const std::function<void()>& onChange = [] {}) = 0;
-		virtual std::function<void(const std::string&, int&)> createIntRenderer(int min, int max, const std::function<void()>& onChange = [] {}) = 0;
+		virtual BoolRenderer	createBoolRenderer(const std::function<void()>& onChange = [] {}) = 0;
+		virtual ColorRenderer	createColorRenderer(const std::function<void()>& onChange = [] {}) = 0;
+		virtual ComboRenderer	createComboRenderer(const std::initializer_list<std::string>& localization, const std::function<void()>& onChange = [] {}) = 0;
+		virtual FloatRenderer	createFloatRenderer(float min, float max, const char* fmt, const std::function<void()>& onChange = [] {}) = 0;
+		virtual IntRenderer		createIntRenderer(int min, int max, const std::function<void()>& onChange = [] {}) = 0;
 	};
 }
 

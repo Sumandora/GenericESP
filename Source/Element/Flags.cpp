@@ -22,7 +22,7 @@ ImVec2 Flags::drawEntry(ImDrawList* drawList, const EntityType* e, ImRect& rect,
 	const std::string text = flag->computeText(e);
 	const Text& textElement = flag->textElement;
 
-	switch (side(e)) {
+	switch (getSide(e)) {
 	case Side::TOP: {
 		auto size = textElement.draw(drawList, e, text, { rect.Min.x + (rect.Max.x - rect.Min.x) * 0.5f, rect.Min.y - spacing - yOffset }, TextAlignment::CENTERED, VerticalAlignment::ABOVE_POSITION);
 		if (size.has_value())
@@ -62,7 +62,7 @@ void Flags::draw(ImDrawList* drawList, const EntityType* e, UnionedRect& unioned
 	float biggestOffset = 0.0f;
 	float yOffset = 0.0f;
 
-	Side side = this->side(e);
+	Side side = getSide(e);
 
 	auto process = [&](const std::unique_ptr<Flag>& flag) {
 		ImVec2 offset = drawEntry(drawList, e, rect, flag, yOffset);

@@ -54,6 +54,9 @@ namespace GenericESP {
 
 		void draw(ImDrawList* drawList, const EntityType* e, UnionedRect& unionedRect) const;
 		void renderGui();
+
+		SerializedTypeMap serialize() const;
+		void deserialize(const SerializedTypeMap& map);
 	};
 
 }
