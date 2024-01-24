@@ -12,6 +12,7 @@ namespace GenericESP {
 
 	struct Flags : SidedElement {
 		Mixable<float> spacing;
+		Mixable<float> lineSpacing;
 
 		std::vector<std::unique_ptr<Flag>> flags;
 		VectorOrdering<std::unique_ptr<Flag>> flagOrder;

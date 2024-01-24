@@ -5,6 +5,7 @@ using namespace GenericESP;
 Flags::Flags(ESP* base, std::string id, std::initializer_list<Flag*> flags)
 	: SidedElement(base, std::move(id), Side::RIGHT)
 	, spacing{ StaticConfig<float>{ "Spacing", 1.0f, base->createFloatRenderer(0.0, 10.0f, "%.2f") } }
+	, lineSpacing{ StaticConfig<float>{ "Line spacing", 1.0f, base->createFloatRenderer(0.0, 2.0f, "%.2f") } }
 	, flagOrder{ this->flags, [](const std::unique_ptr<Flag>& flag) { return flag->name; } }
 {
 	this->flags.reserve(flags.size());
@@ -57,6 +58,7 @@ void Flags::draw(ImDrawList* drawList, const EntityType* e, UnionedRect& unioned
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wshadow"
 	const float spacing = this->spacing(e);
+	const float lineSpacing = this->lineSpacing(e);
 #pragma clang diagnostic pop
 
 	float biggestOffset = 0.0f;
@@ -68,7 +70,7 @@ void Flags::draw(ImDrawList* drawList, const EntityType* e, UnionedRect& unioned
 		ImVec2 offset = drawEntry(drawList, e, rect, flag, yOffset);
 		if (offset.x > biggestOffset)
 			biggestOffset = offset.x;
-		yOffset += offset.y;
+		yOffset += offset.y * lineSpacing;
 	};
 
 	if (side == Side::TOP) // We render from bottom to top in this case, so reverse the flags to get the same order
@@ -100,7 +102,7 @@ void Flags::renderGui()
 {
 	ImGui::PushID(id.c_str());
 	for (Renderable* r : std::initializer_list<Renderable*>{
-			 &enabled, &side, &spacing })
+			 &enabled, &side, &spacing, &lineSpacing })
 		r->renderGui();
 	if (ImGui::BeginTabBar("Flags", ImGuiTabBarFlags_Reorderable)) {
 		for (std::unique_ptr<Flag>& flag : flags) {
@@ -122,7 +124,7 @@ SerializedTypeMap Flags::serialize() const
 {
 	SerializedTypeMap map;
 	for (const MixableBase* mixable : std::initializer_list<const MixableBase*>{
-			 &enabled, &side, &spacing })
+			 &enabled, &side, &spacing, &lineSpacing })
 		mixable->serialize(map);
 	for (const std::unique_ptr<Flag>& flag : flags)
 		map.putSubtree(flag->name, flag->serialize());
@@ -137,7 +139,7 @@ SerializedTypeMap Flags::serialize() const
 void Flags::deserialize(const SerializedTypeMap& map)
 {
 	for (MixableBase* mixable : std::initializer_list<MixableBase*>{
-			 &enabled, &side, &spacing })
+			 &enabled, &side, &spacing, &lineSpacing })
 		mixable->deserializeFromParent(map);
 	for (const std::unique_ptr<Flag>& flag : flags)
 		flag->deserialize(map.getSubtree(flag->name));
