@@ -2,9 +2,9 @@
 
 using namespace GenericESP;
 
-Flags::Flags(ESP* base, std::string&& id, std::initializer_list<Flag*> flags)
+Flags::Flags(ESP* base, std::string id, std::initializer_list<Flag*> flags)
 	: SidedElement(base, std::move(id), Side::RIGHT)
-	, spacing{ "Spacing", StaticConfig<float>{ 1.0f, base->createFloatRenderer(0.0, 10.0f, "%.2f") } }
+	, spacing{ StaticConfig<float>{ "Spacing", 1.0f, base->createFloatRenderer(0.0, 10.0f, "%.2f") } }
 	, flagOrder{ this->flags, [](const std::unique_ptr<Flag>& flag) { return flag->name; } }
 {
 	this->flags.reserve(flags.size());
@@ -99,9 +99,9 @@ void Flags::draw(ImDrawList* drawList, const EntityType* e, UnionedRect& unioned
 void Flags::renderGui()
 {
 	ImGui::PushID(id.c_str());
-	enabled.renderGui();
-	side.renderGui();
-	spacing.renderGui();
+	for (Renderable* r : std::initializer_list<Renderable*>{
+			 &enabled, &side, &spacing })
+		r->renderGui();
 	if (ImGui::BeginTabBar("Flags", ImGuiTabBarFlags_Reorderable)) {
 		for (std::unique_ptr<Flag>& flag : flags) {
 			if (ImGui::BeginTabItem(flag->name.c_str())) {
@@ -116,4 +116,36 @@ void Flags::renderGui()
 		ImGui::EndTabBar();
 	}
 	ImGui::PopID();
+}
+
+SerializedTypeMap Flags::serialize() const
+{
+	SerializedTypeMap map;
+	for (const MixableBase* mixable : std::initializer_list<const MixableBase*>{
+			 &enabled, &side, &spacing })
+		mixable->serialize(map);
+	for (const std::unique_ptr<Flag>& flag : flags)
+		map.putSubtree(flag->name, flag->serialize());
+	SerializedTypeMap order;
+	for(std::size_t i = 0; i < flags.size(); i++) {
+		order[flags[i]->name] = i;
+	}
+	map.putSubtree("Order", std::move(order));
+	return map;
+}
+
+void Flags::deserialize(const SerializedTypeMap& map)
+{
+	for (MixableBase* mixable : std::initializer_list<MixableBase*>{
+			 &enabled, &side, &spacing })
+		mixable->deserializeFromParent(map);
+	for (const std::unique_ptr<Flag>& flag : flags)
+		flag->deserialize(map.getSubtree(flag->name));
+	auto& order = map.getSubtree("Order");
+	for (const auto& [name, pos] : order) {
+		std::size_t i = std::get<std::size_t>(pos);
+		auto it = std::find_if(flags.begin(), flags.end(), [&name](const std::unique_ptr<Flag>& flag) { return flag->name == name; });
+		if(it != flags.end())
+			std::iter_swap(it, std::next(flags.begin(), static_cast<decltype(flags)::difference_type>(i)));
+	}
 }

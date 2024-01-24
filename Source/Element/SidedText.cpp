@@ -2,11 +2,13 @@
 
 using namespace GenericESP;
 
-SidedText::SidedText(ESP* base, std::string&& id)
+SidedText::SidedText(ESP* base, std::string id)
 	: SidedElement(base, std::move(id), Side::TOP)
-	, spacing{ "Spacing", StaticConfig<float>{ 1.0f, base->createFloatRenderer(0.0, 10.0f, "%.2f") } }
+	, spacing{ StaticConfig<float>{ "Spacing", 1.0f, base->createFloatRenderer(0.0, 10.0f, "%.2f") } }
 	, textElement(base, "Text")
 {
+	auto& textEnabled = textElement.enabled.getSelected();
+	textEnabled.thing = DynamicConfig<bool>{ textEnabled.getStaticConfig().id, [this](const EntityType* e) -> bool { return this->enabled(e); }, [](const std::string&) {}, [] -> SerializedTypeMap { return {}; }, [](const SerializedTypeMap&) {} };
 }
 
 void SidedText::draw(ImDrawList* drawList, const EntityType* e, const std::string& text, UnionedRect& unionedRect) const
@@ -52,9 +54,26 @@ void SidedText::draw(ImDrawList* drawList, const EntityType* e, const std::strin
 void SidedText::renderGui()
 {
 	ImGui::PushID(id.c_str());
-	enabled.renderGui();
-	side.renderGui();
-	spacing.renderGui();
-	textElement.renderGui();
+	for (Renderable* r : std::initializer_list<Renderable*>{
+			 &enabled, &side, &spacing, &textElement })
+		r->renderGui();
 	ImGui::PopID();
+}
+
+SerializedTypeMap SidedText::serialize() const
+{
+	SerializedTypeMap map;
+	for (const MixableBase* mixable : std::initializer_list<const MixableBase*>{
+			 &enabled, &side, &spacing })
+		mixable->serialize(map);
+	map.putSubtree(textElement.id, textElement.serialize());
+	return map;
+}
+
+void SidedText::deserialize(const SerializedTypeMap& map)
+{
+	for (MixableBase* mixable : std::initializer_list<MixableBase*>{
+			 &enabled, &side, &spacing })
+		mixable->deserializeFromParent(map);
+	textElement.deserialize(map.getSubtree(textElement.id));
 }

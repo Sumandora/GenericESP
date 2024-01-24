@@ -1,17 +1,17 @@
 #ifndef GENERICESP_ELEMENT_HPP
 #define GENERICESP_ELEMENT_HPP
 
-#include "../Config/MixableConfigurationValue.hpp"
+#include "../Config/Mixable.hpp"
 #include "GenericESP/ESP.hpp"
 
 namespace GenericESP {
 
-	struct Element {
+	struct Element : Renderable, Serializable {
 		std::string id;
 
-		MixableConfigurableValue<bool> enabled;
+		Mixable<bool> enabled;
 
-		explicit Element(ESP* base, std::string&& id);
+		explicit Element(ESP* base, std::string id);
 	};
 
 }

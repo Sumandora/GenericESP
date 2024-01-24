@@ -4,29 +4,29 @@
 
 using namespace GenericESP;
 
-Rectangle::Rectangle(GenericESP::ESP* base, std::string&& id)
+Rectangle::Rectangle(ESP* base, std::string id)
 	: Element(base, std::move(id))
-	, color{ "Color", StaticConfig<ImColor>{ { 1.0f, 1.0f, 1.0f, 1.0f }, base->createColorRenderer() } }
-	, rounding{ "Rounding", StaticConfig<float>{ 0.0f, base->createFloatRenderer(0.0f, 10.0f, "%.2f") } }
-	, thickness{ "Thickness", StaticConfig<float>{ 1.0f, base->createFloatRenderer(0.0f, 10.0f, "%.2f") } }
-	, outlined{ "Outlined", StaticConfig<bool>{ true, base->createBoolRenderer() } }
-	, outlineColor{ "Outline color", StaticConfig<ImColor>{ { 0.0f, 0.0f, 0.0f, 1.0f }, base->createColorRenderer() }, [this] {
+	, color{ StaticConfig<ImColor>{ "Color", { 1.0f, 1.0f, 1.0f, 1.0f }, base->createColorRenderer() } }
+	, rounding{ StaticConfig<float>{ "Rounding", 0.0f, base->createFloatRenderer(0.0f, 10.0f, "%.2f") } }
+	, thickness{ StaticConfig<float>{ "Thickness", 1.0f, base->createFloatRenderer(0.0f, 10.0f, "%.2f") } }
+	, outlined{ StaticConfig<bool>{ "Outlined", true, base->createBoolRenderer() } }
+	, outlineColor{ StaticConfig<ImColor>{ "Outline color", { 0.0f, 0.0f, 0.0f, 1.0f }, base->createColorRenderer() }, [this] {
 					   const ConfigurableValue<bool>& selected = outlined.getSelected();
 					   return !selected.isStatic() || selected.getStaticConfig().thing;
 				   } }
-	, outlineThickness{ "Outline thickness", StaticConfig<float>{ 2.0f, base->createFloatRenderer(0.0f, 10.0f, "%.2f") }, [this] {
+	, outlineThickness{ StaticConfig<float>{ "Outline thickness", 2.0f, base->createFloatRenderer(0.0f, 10.0f, "%.2f") }, [this] {
 						   const ConfigurableValue<bool>& selected = outlined.getSelected();
 						   return !selected.isStatic() || selected.getStaticConfig().thing;
 					   } }
-	, fill{ "Fill", StaticConfig<bool>{ false, base->createBoolRenderer() } }
-	, fillColor{ "Fill color", StaticConfig<ImColor>{ { 1.0f, 1.0f, 1.0f, 1.0f }, base->createColorRenderer() }, [this] {
+	, fill{ StaticConfig<bool>{ "Fill", false, base->createBoolRenderer() } }
+	, fillColor{ StaticConfig<ImColor>{ "Fill color", { 1.0f, 1.0f, 1.0f, 1.0f }, base->createColorRenderer() }, [this] {
 					const ConfigurableValue<bool>& selected = fill.getSelected();
 					return !selected.isStatic() || selected.getStaticConfig().thing;
 				} }
 {
 }
 
-void Rectangle::draw(ImDrawList* drawList, const EntityType* e, GenericESP::UnionedRect& rect) const
+void Rectangle::draw(ImDrawList* drawList, const EntityType* e, UnionedRect& rect) const
 {
 	if (!enabled(e))
 		return;
@@ -64,14 +64,30 @@ void Rectangle::draw(ImDrawList* drawList, const EntityType* e, GenericESP::Unio
 void Rectangle::renderGui()
 {
 	ImGui::PushID(id.c_str());
-	enabled.renderGui();
-	color.renderGui();
-	rounding.renderGui();
-	thickness.renderGui();
-	outlined.renderGui();
-	outlineColor.renderGui();
-	outlineThickness.renderGui();
-	fill.renderGui();
-	fillColor.renderGui();
+	for (Renderable* r : std::initializer_list<Renderable*>{
+			 &enabled, &color, &rounding, &thickness,
+			 &outlined, &outlineColor, &outlineThickness, &fill,
+			 &fillColor })
+		r->renderGui();
 	ImGui::PopID();
+}
+
+SerializedTypeMap Rectangle::serialize() const
+{
+	SerializedTypeMap map;
+	for (const MixableBase* mixable : std::initializer_list<const MixableBase*>{
+			 &enabled, &color, &rounding, &thickness,
+			 &outlined, &outlineColor, &outlineThickness, &fill,
+			 &fillColor })
+		mixable->serialize(map);
+	return map;
+}
+
+void Rectangle::deserialize(const SerializedTypeMap& map)
+{
+	for (MixableBase* mixable : std::initializer_list<MixableBase*>{
+			 &enabled, &color, &rounding, &thickness,
+			 &outlined, &outlineColor, &outlineThickness, &fill,
+			 &fillColor })
+		mixable->deserializeFromParent(map);
 }

@@ -2,16 +2,13 @@
 
 using namespace GenericESP;
 
-Line::Line(GenericESP::ESP* base, std::string&& id)
+Line::Line(ESP* base, std::string id)
 	: Element(base, std::move(id))
-	, lineColor{
-		"Line color",
-		StaticConfig<ImColor>{ { 1.0f, 1.0f, 1.0f, 1.0f }, base->createColorRenderer() }
-	}
-	, thickness{ "Thickness", StaticConfig<float>{ 1.0f, base->createFloatRenderer(0.0f, 10.0f, "%.2f") } }
-	, outlined{ "Outlined", StaticConfig<bool>{ true, base->createBoolRenderer() } }
-	, outlineColor{ "Outline color", StaticConfig<ImColor>{ { 0.0f, 0.0f, 0.0f, 1.0f }, base->createColorRenderer() } }
-	, outlineThickness{ "Outline thickness", StaticConfig<float>{ 2.0f, base->createFloatRenderer(0.0f, 10.0f, "%.2f") } }
+	, lineColor{ StaticConfig<ImColor>{ "Line color", { 1.0f, 1.0f, 1.0f, 1.0f }, base->createColorRenderer() } }
+	, thickness{ StaticConfig<float>{ "Thickness", 1.0f, base->createFloatRenderer(0.0f, 10.0f, "%.2f") } }
+	, outlined{ StaticConfig<bool>{ "Outlined", true, base->createBoolRenderer() } }
+	, outlineColor{ StaticConfig<ImColor>{ "Outline color", { 0.0f, 0.0f, 0.0f, 1.0f }, base->createColorRenderer() } }
+	, outlineThickness{ StaticConfig<float>{ "Outline thickness", 2.0f, base->createFloatRenderer(0.0f, 10.0f, "%.2f") } }
 {
 }
 
@@ -29,11 +26,27 @@ void Line::draw(ImDrawList* drawList, const EntityType* e, const std::vector<ImV
 void Line::renderGui()
 {
 	ImGui::PushID(id.c_str());
-	enabled.renderGui();
-	lineColor.renderGui();
-	thickness.renderGui();
-	outlined.renderGui();
-	outlineColor.renderGui();
-	outlineThickness.renderGui();
+	for (Renderable* r : std::initializer_list<Renderable*>{
+			 &enabled, &lineColor, &thickness, &outlined,
+			 &outlineColor, &outlineThickness })
+		r->renderGui();
 	ImGui::PopID();
+}
+
+SerializedTypeMap Line::serialize() const
+{
+	SerializedTypeMap map;
+	for (const MixableBase* mixable : std::initializer_list<const MixableBase*>{
+			 &enabled, &lineColor, &thickness, &outlined,
+			 &outlineColor, &outlineThickness })
+		mixable->serialize(map);
+	return map;
+}
+
+void Line::deserialize(const SerializedTypeMap& map)
+{
+	for (MixableBase* mixable : std::initializer_list<MixableBase*>{
+			 &enabled, &lineColor, &thickness, &outlined,
+			 &outlineColor, &outlineThickness })
+		mixable->deserializeFromParent(map);
 }

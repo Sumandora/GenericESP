@@ -7,15 +7,15 @@
 namespace GenericESP {
 
 	struct SidedText : SidedElement {
-		using SidedElement::enabled;
-		using SidedElement::side;
-		MixableConfigurableValue<float> spacing;
+		Mixable<float> spacing;
 		Text textElement;
 
-		explicit SidedText(ESP* base, std::string&& id);
+		explicit SidedText(ESP* base, std::string id);
 
 		void draw(ImDrawList* drawList, const EntityType* e, const std::string& text, UnionedRect& unionedRect) const;
-		void renderGui();
+		void renderGui() override;
+		[[nodiscard]] SerializedTypeMap serialize() const override;
+		void deserialize(const SerializedTypeMap &map) override;
 	};
 
 }

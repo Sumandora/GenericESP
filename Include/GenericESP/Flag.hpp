@@ -5,7 +5,7 @@
 
 namespace GenericESP {
 
-	struct Flag {
+	struct Flag : Renderable, Serializable {
 		std::string name;
 		Text textElement;
 
@@ -15,10 +15,12 @@ namespace GenericESP {
 		Remaps remaps;
 		std::string format;
 
-		explicit Flag(ESP* base, std::string&& name, Remaps&& remaps, std::string&& defaultFormat);
+		explicit Flag(ESP* base, std::string name, Remaps remaps, std::string defaultFormat);
 
 		[[nodiscard]] std::string computeText(const EntityType* e) const;
-		void renderGui();
+		void renderGui() override;
+		[[nodiscard]] SerializedTypeMap serialize() const override;
+		void deserialize(const SerializedTypeMap &map) override;
 	};
 
 }

@@ -2,14 +2,10 @@
 
 using namespace GenericESP;
 
-SidedElement::SidedElement(ESP* base, std::string&& id, GenericESP::Side defaultSide)
+SidedElement::SidedElement(ESP* base, std::string id, Side defaultSide)
 	: Element(base, std::move(id))
-	, side{
-		"Side",
-		StaticConfig<std::size_t>{ 0 /* placeholder */, base->createComboRenderer(sideLocalization) }
-	}
+	, side{ StaticConfig<std::size_t>{ "Side", static_cast<std::size_t>(defaultSide), base->createComboRenderer(sideLocalization) } }
 {
-	side.getSelected().getStaticConfig().thing = static_cast<std::size_t>(defaultSide);
 }
 
 Side SidedElement::getSide(const EntityType* e) const {

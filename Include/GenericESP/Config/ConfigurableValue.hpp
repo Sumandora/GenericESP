@@ -1,7 +1,6 @@
 #ifndef GENERICESP_CONFIG_CONFIGURABLEVALUE_HPP
 #define GENERICESP_CONFIG_CONFIGURABLEVALUE_HPP
 
-#include "../Mixable.hpp"
 #include "DynamicConfig.hpp"
 #include "StaticConfig.hpp"
 
@@ -16,12 +15,12 @@ namespace GenericESP {
 #pragma clang diagnostic push
 #pragma ide diagnostic ignored "google-explicit-constructor"
 		ConfigurableValue(StaticConfig<Configurable> s)
-			: thing(s)
+			: thing(std::move(s))
 		{
 		}
 
 		ConfigurableValue(DynamicConfig<Configurable> d)
-			: thing(d)
+			: thing(std::move(d))
 		{
 		}
 #pragma clang diagnostic pop
@@ -51,6 +50,19 @@ namespace GenericESP {
 			return std::get<DynamicConfig<Configurable>>(thing);
 		}
 
+		[[nodiscard]] const std::string& getId() const {
+			if (isStatic())
+				return getStaticConfig().id;
+			return getDynamicConfig().id;
+		}
+
+		void rename(std::string newId) {
+			if (isStatic())
+				getStaticConfig().id = newId;
+			else
+				getDynamicConfig().id = newId;
+		}
+
 		[[nodiscard]] Configurable getConfigurable(const EntityType* e) const
 		{
 			if (isStatic())
@@ -65,16 +77,16 @@ namespace GenericESP {
 			return getDynamicConfig().thing(e);
 		}
 
-		void renderGui(const std::string& id) override
+		void renderGui() override
 		{
 			if (isStatic()) {
 				auto& staticConfig = getStaticConfig();
-				return staticConfig.render(id, staticConfig.thing);
+				return staticConfig.renderGui();
 			}
-			return getDynamicConfig().render(id);
+			return getDynamicConfig().renderGui();
 		}
 
-		SerializedTypeMap serialize() const override {
+		[[nodiscard]] SerializedTypeMap serialize() const override {
 			if (isStatic()) {
 				auto& staticConfig = getStaticConfig();
 				return staticConfig.serialize();
@@ -82,12 +94,12 @@ namespace GenericESP {
 			return getDynamicConfig().serialize();
 		}
 
-		void deserialize(const SerializedTypeMap& t) override {
+		void deserialize(const SerializedTypeMap& map) override {
 			if (isStatic()) {
 				auto& staticConfig = getStaticConfig();
-				return staticConfig.deserialize(t);
+				return staticConfig.deserialize(map);
 			}
-			return getDynamicConfig().deserialize(t);
+			return getDynamicConfig().deserialize(map);
 		}
 	};
 }

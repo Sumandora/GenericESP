@@ -5,38 +5,39 @@
 
 using namespace GenericESP;
 
-Bar::Bar(GenericESP::ESP* base, std::string&& id, GenericESP::Bar::PercentageProvider&& percentageProvider, std::optional<NumberText>&& numberText)
+Bar::Bar(ESP* base, std::string id, Bar::PercentageProvider percentageProvider, std::optional<NumberText> numberText)
 	: SidedElement(base, std::move(id), Side::LEFT)
-	, backgroundColor{ "Background color", StaticConfig<ImColor>{ { 0.0f, 0.0f, 0.0f, 1.0f }, base->createColorRenderer() } }
-	, spacing{ "Spacing", StaticConfig<float>{ 1.0f, base->createFloatRenderer(0.0, 10.0f, "%.2f") } }
-	, width{ "Width", StaticConfig<float>{ 2.0f, base->createFloatRenderer(0.0, 10.0f, "%.2f") } }
-	, filledColor{ "Filled color", StaticConfig<ImColor>{ { 0.0f, 1.0f, 0.0f, 1.0f }, base->createColorRenderer() } }
-	, emptyColor{ "Empty color", StaticConfig<ImColor>{ { 1.0f, 0.0f, 0.0f, 1.0f }, base->createColorRenderer() } }
-	, hueSteps{ "Hue steps", StaticConfig<int>{ 3, base->createIntRenderer(3, 10) }, [this] {
+	, backgroundColor{ StaticConfig<ImColor>{ "Background color", { 0.0f, 0.0f, 0.0f, 1.0f }, base->createColorRenderer() } }
+	, spacing{ StaticConfig<float>{ "Spacing", 1.0f, base->createFloatRenderer(0.0, 10.0f, "%.2f") } }
+	, width{ StaticConfig<float>{ "Width", 2.0f, base->createFloatRenderer(0.0, 10.0f, "%.2f") } }
+	, filledColor{ StaticConfig<ImColor>{ "Filled color", { 0.0f, 1.0f, 0.0f, 1.0f }, base->createColorRenderer() } }
+	, emptyColor{ StaticConfig<ImColor>{ "Empty color", { 1.0f, 0.0f, 0.0f, 1.0f }, base->createColorRenderer() } }
+	, hueSteps{ StaticConfig<int>{ "Hue steps", 3, base->createIntRenderer(3, 10) }, [this] {
 				   const ConfigurableValue<bool>& selected = gradient.getSelected();
 				   return !selected.isStatic() || selected.getStaticConfig().thing;
 			   } }
-	, flipped{ "Flipped", StaticConfig<bool>{ false, base->createBoolRenderer() } }
-	, gradient{ "Gradient", StaticConfig<bool>{ true, base->createBoolRenderer() } }
-	, outlined{ "Outlined", StaticConfig<bool>{ true, base->createBoolRenderer() } }
-	, outlineColor{ "Outline color", StaticConfig<ImColor>{ { 0.0f, 0.0f, 0.0f, 1.0f }, base->createColorRenderer() }, [this] {
+	, flipped{ StaticConfig<bool>{ "Flipped", false, base->createBoolRenderer() } }
+	, gradient{ StaticConfig<bool>{ "Gradient", true, base->createBoolRenderer() } }
+	, outlined{ StaticConfig<bool>{ "Outlined", true, base->createBoolRenderer() } }
+	, outlineColor{ StaticConfig<ImColor>{ "Outline color", { 0.0f, 0.0f, 0.0f, 1.0f }, base->createColorRenderer() }, [this] {
 					   const ConfigurableValue<bool>& selected = outlined.getSelected();
 					   return !selected.isStatic() || selected.getStaticConfig().thing;
 				   } }
-	, outlineThickness{ "Outline thickness", StaticConfig<float>{ 1.0f, base->createFloatRenderer(0.0, 10.0f, "%.2f") }, [this] {
+	, outlineThickness{ StaticConfig<float>{ "Outline thickness", 1.0f, base->createFloatRenderer(0.0, 10.0f, "%.2f") }, [this] {
 						   const ConfigurableValue<bool>& selected = outlined.getSelected();
 						   return !selected.isStatic() || selected.getStaticConfig().thing;
 					   } }
-	, percentageProvider(percentageProvider)
+	, percentageProvider(std::move(percentageProvider))
 	, numberText(std::move(numberText))
 {
 }
 
-Bar::NumberText::NumberText(GenericESP::ESP* base, GenericESP::Bar::NumberText::Provider&& provider)
-	: numberTextProvider(provider)
+Bar::NumberText::NumberText(ESP* base, NumberText::Provider provider)
+	: numberTextProvider(std::move(provider))
 	, numberText(base, "Number text")
 	, hideWhenFull(false)
 {
+	id = numberText.id;
 }
 
 void Bar::NumberText::draw(ImDrawList* drawList, const EntityType* e, ImVec2 pos) const
@@ -58,6 +59,20 @@ void Bar::NumberText::renderGui()
 		// Hide when full will be rendered through the injected render method
 		ImGui::EndPopup();
 	}
+}
+
+SerializedTypeMap Bar::NumberText::serialize() const
+{
+	SerializedTypeMap map;
+	map.putSubtree("Number text", numberText.serialize());
+	map["Hide when full"] = hideWhenFull;
+	return map;
+}
+
+void Bar::NumberText::deserialize(const SerializedTypeMap& map)
+{
+	numberText.deserialize(map.getSubtree("Number text"));
+	hideWhenFull = map.get<bool>("Hide when full");
 }
 
 ImRect Bar::calculateNewRect(const EntityType* e, const ImRect& rect) const
@@ -171,7 +186,7 @@ Bar::HsvColor Bar::colorRGBtoHSV(ImColor color)
 
 ImColor Bar::colorHSVtoRGB(Bar::HsvColor hsv)
 {
-	ImColor rgb{0.0f, 0.0f, 0.0f, 1.0f};
+	ImColor rgb{ 0.0f, 0.0f, 0.0f, 1.0f };
 	ImGui::ColorConvertHSVtoRGB(hsv[0], hsv[1], hsv[2], rgb.Value.x, rgb.Value.y, rgb.Value.z);
 	return rgb;
 }
@@ -224,10 +239,10 @@ void Bar::draw(ImDrawList* drawList, const EntityType* e, UnionedRect& unionedRe
 
 		ImColor filledColor = this->filledColor(e);
 		ImColor emptyColor = this->emptyColor(e);
+#pragma clang diagnostic pop
 
 		if (gradient && flipped) // To prevent the parameters passed to AddRectFilledMultiColor from varying, just flip the colors once
 			std::swap(filledColor, emptyColor);
-#pragma clang diagnostic pop
 
 		const ImRect barRect = calculateBarRect(e, innerRect, flipped, clampedPercentage);
 		const ImRect complementBarRect = calculateBarRect(e, innerRect, !flipped, 1.0f - clampedPercentage);
@@ -324,19 +339,12 @@ void Bar::draw(ImDrawList* drawList, const EntityType* e, UnionedRect& unionedRe
 void Bar::renderGui()
 {
 	ImGui::PushID(id.c_str());
-	enabled.renderGui();
-	side.renderGui();
-	backgroundColor.renderGui();
-	spacing.renderGui();
-	width.renderGui();
-	filledColor.renderGui();
-	emptyColor.renderGui();
-	gradient.renderGui();
-	hueSteps.renderGui();
-	flipped.renderGui();
-	outlined.renderGui();
-	outlineColor.renderGui();
-	outlineThickness.renderGui();
+	for (Renderable* r : std::initializer_list<Renderable*>{
+			 &enabled, &side, &backgroundColor, &spacing,
+			 &width, &filledColor, &emptyColor, &gradient,
+			 &hueSteps, &flipped, &outlined, &outlineColor,
+			 &outlineThickness })
+		r->renderGui();
 	if (numberText.has_value())
 		numberText->renderGui();
 	ImGui::PopID();
@@ -345,20 +353,25 @@ void Bar::renderGui()
 SerializedTypeMap Bar::serialize() const
 {
 	SerializedTypeMap map;
-	map["Enabled"] = enabled.serialize();
-	side.renderGui();
-	backgroundColor.renderGui();
-	spacing.renderGui();
-	width.renderGui();
-	filledColor.renderGui();
-	emptyColor.renderGui();
-	gradient.renderGui();
-	hueSteps.renderGui();
-	flipped.renderGui();
-	outlined.renderGui();
-	outlineColor.renderGui();
-	outlineThickness.renderGui();
+	for (const MixableBase* mixable : std::initializer_list<const MixableBase*>{
+			 &enabled, &side, &backgroundColor, &spacing,
+			 &width, &filledColor, &emptyColor, &gradient,
+			 &hueSteps, &flipped, &outlined, &outlineColor,
+			 &outlineThickness })
+		mixable->serialize(map);
 	if (numberText.has_value())
-		numberText->renderGui();
+		map.putSubtree(numberText->id, numberText->serialize());
 	return map;
+}
+
+void Bar::deserialize(const SerializedTypeMap& map)
+{
+	for (MixableBase* mixable : std::initializer_list<MixableBase*>{
+			 &enabled, &side, &backgroundColor, &spacing,
+			 &width, &filledColor, &emptyColor, &gradient,
+			 &hueSteps, &flipped, &outlined, &outlineColor,
+			 &outlineThickness })
+		mixable->deserializeFromParent(map);
+	if (numberText.has_value() && map.contains(numberText->id))
+		numberText->deserialize(map.getSubtree(numberText->id));
 }

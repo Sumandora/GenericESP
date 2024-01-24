@@ -2,7 +2,7 @@
 
 using namespace GenericESP;
 
-Flag::Flag(GenericESP::ESP* base, std::string&& name, GenericESP::Flag::Remaps&& remaps, std::string&& defaultFormat)
+Flag::Flag(ESP* base, std::string name, Flag::Remaps remaps, std::string defaultFormat)
 	: name(std::move(name))
 	, textElement(base, "Text element")
 	, remaps(std::move(remaps))
@@ -38,4 +38,18 @@ void Flag::renderGui()
 		return 0;
 	}, &format); // from imgui_stdlib
 	ImGui::PopID();
+}
+
+SerializedTypeMap Flag::serialize() const
+{
+	SerializedTypeMap map;
+	map.putSubtree(textElement.id, textElement.serialize());
+	map["Format"] = format;
+	return map;
+}
+
+void Flag::deserialize(const SerializedTypeMap& map)
+{
+	textElement.deserialize(map.getSubtree(textElement.id));
+	format = map.get<std::string>("Format");
 }

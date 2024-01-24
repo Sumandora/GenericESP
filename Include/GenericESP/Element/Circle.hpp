@@ -6,16 +6,18 @@
 namespace GenericESP {
 
 	struct Circle : Element {
-		MixableConfigurableValue<ImColor> circleColor;
-		MixableConfigurableValue<float> radius;
-		MixableConfigurableValue<bool> outlined;
-		MixableConfigurableValue<ImColor> outlineColor;
-		MixableConfigurableValue<float> outlineRadius;
+		Mixable<ImColor> circleColor;
+		Mixable<float> radius;
+		Mixable<bool> outlined;
+		Mixable<ImColor> outlineColor;
+		Mixable<float> outlineRadius;
 
-		explicit Circle(ESP* base, std::string&& id);
+		explicit Circle(ESP* base, std::string id);
 
 		void draw(ImDrawList* drawList, const EntityType* e, const ImVec2& position) const;
-		void renderGui();
+		void renderGui() override;
+		[[nodiscard]] SerializedTypeMap serialize() const override;
+		void deserialize(const SerializedTypeMap& map) override;
 	};
 
 }

@@ -15,7 +15,7 @@ namespace GenericESP {
 		using NameProvider = std::function<std::string(const T&)>;
 		NameProvider nameProvider;
 
-		VectorOrdering(std::vector<T>& ref, NameProvider&& nameProvider)
+		VectorOrdering(std::vector<T>& ref, NameProvider nameProvider)
 			: ref(ref)
 			, nameProvider(std::move(nameProvider))
 		{

@@ -14,7 +14,7 @@ struct Entity {
 
 using namespace GenericESP;
 
-struct EntityESP : ESP {
+struct EntityESP : ESP, Renderable, Serializable {
 	Rectangle box{ this, "Box" };
 	Bar bar{
 		this,
@@ -63,34 +63,57 @@ struct EntityESP : ESP {
 
 	EntityESP()
 	{
-		box.color.addType("Health-based", DynamicConfig<ImColor>{ makeOpaque<ImColor, Entity>([this](const Entity* e) {
-																	 const float t = static_cast<float>(e->health) / static_cast<float>(e->maxHealth);
-																	 return ImColor{ ImLerp(deadColor.Value, aliveColor.Value, t) };
-																 }),
-											  [this](const std::string& id) {
-												  static auto displayColor = createColorRenderer();
-												  ImGui::PushID(id.c_str());
-												  displayColor("Alive color", aliveColor);
-												  displayColor("Dead color", deadColor);
-												  ImGui::PopID();
-											  },
-											  [this] -> SerializedType {
-												  return std::vector<AnyType>{ aliveColor, deadColor };
-											  },
-											  [this](const SerializedType& t) {
-												  auto vec = get<std::vector<AnyType>>(t);
-												  aliveColor = get<ImColor>(vec[0]);
-												  deadColor = get<ImColor>(vec[1]);
-											  } });
-		bar.filledColor.id = "Alive color";
-		bar.emptyColor.id = "Dead color";
+		box.color.addType(DynamicConfig<ImColor>{ "Health-based", makeOpaque<ImColor, Entity>([this](const Entity* e) {
+													 const float t = static_cast<float>(e->health) / static_cast<float>(e->maxHealth);
+													 return ImColor{
+														 deadColor.Value.x + (aliveColor.Value.x - deadColor.Value.x) * t,
+														 deadColor.Value.y + (aliveColor.Value.y - deadColor.Value.y) * t,
+														 deadColor.Value.z + (aliveColor.Value.z - deadColor.Value.z) * t,
+														 deadColor.Value.w + (aliveColor.Value.w - deadColor.Value.w) * t
+													 };
+												 }),
+			[this](const std::string& id) {
+				static auto displayColor = createColorRenderer();
+				ImGui::PushID(id.c_str());
+				displayColor("Alive color", aliveColor);
+				displayColor("Dead color", deadColor);
+				ImGui::PopID();
+			},
+			[this] -> SerializedTypeMap {
+				SerializedTypeMap map;
 
-		bar2.filledColor.id = "Alive color";
-		bar2.emptyColor.id = "Dead color";
+				map["Alive X"] = aliveColor.Value.x;
+				map["Alive Y"] = aliveColor.Value.y;
+				map["Alive Z"] = aliveColor.Value.z;
+				map["Alive W"] = aliveColor.Value.w;
 
-		GenericESP::StaticConfig<bool>& enabledCfg = circle.enabled.getSelected().getStaticConfig();
-		auto oldRenderer = enabledCfg.render;
-		enabledCfg.render = [this, oldRenderer](const std::string& id, bool& thing) {
+				map["Dead X"] = deadColor.Value.x;
+				map["Dead Y"] = deadColor.Value.y;
+				map["Dead Z"] = deadColor.Value.z;
+				map["Dead W"] = deadColor.Value.w;
+
+				return map;
+			},
+			[this](const SerializedTypeMap& map) {
+				aliveColor.Value.x = map.get<float>("Alive X");
+				aliveColor.Value.y = map.get<float>("Alive Y");
+				aliveColor.Value.z = map.get<float>("Alive Z");
+				aliveColor.Value.w = map.get<float>("Alive W");
+
+				deadColor.Value.x = map.get<float>("Dead X");
+				deadColor.Value.y = map.get<float>("Dead Y");
+				deadColor.Value.z = map.get<float>("Dead Z");
+				deadColor.Value.w = map.get<float>("Dead W");
+			} });
+		bar.filledColor.getSelected().rename("Alive color");
+		bar.emptyColor.getSelected().rename("Dead color");
+
+		bar2.filledColor.getSelected().rename("Alive color");
+		bar2.emptyColor.getSelected().rename("Dead color");
+
+		StaticConfig<bool>& enabledCfg = circle.enabled.getSelected().getStaticConfig();
+		auto oldRenderer = enabledCfg.renderer;
+		enabledCfg.renderer = [this, oldRenderer](const std::string& id, bool& thing) {
 			oldRenderer(id, thing);
 			if (thing) {
 				ImGui::SameLine();
@@ -105,9 +128,9 @@ struct EntityESP : ESP {
 		};
 	}
 
-	GenericESP::UnionedRect draw(ImDrawList* drawList, const Entity& e, const ImRect& rect) const
+	UnionedRect draw(ImDrawList* drawList, const Entity& e, const ImRect& rect) const
 	{
-		GenericESP::UnionedRect unionedRect{ rect };
+		UnionedRect unionedRect{ rect };
 
 		// Since the trail is kinda supposed to be a 3d object we render it first so that the 2d box overlaps the trail
 		std::vector<ImVec2> trail; // Let's imagine this to be a trail of previous positions
@@ -133,39 +156,36 @@ struct EntityESP : ESP {
 		return unionedRect;
 	}
 
-	void renderGui()
+	void renderGui() override
 	{
 		if (ImGui::BeginTabBar("Elements", ImGuiTabBarFlags_Reorderable)) {
-			if (ImGui::BeginTabItem(box.id.c_str())) {
-				box.renderGui();
-				ImGui::EndTabItem();
-			}
-			if (ImGui::BeginTabItem(bar.id.c_str())) {
-				bar.renderGui();
-				ImGui::EndTabItem();
-			}
-			if (ImGui::BeginTabItem(bar2.id.c_str())) {
-				bar2.renderGui();
-				ImGui::EndTabItem();
-			}
-			if (ImGui::BeginTabItem(line.id.c_str())) {
-				line.renderGui();
-				ImGui::EndTabItem();
-			}
-			if (ImGui::BeginTabItem(circle.id.c_str())) {
-				circle.renderGui();
-				ImGui::EndTabItem();
-			}
-			if (ImGui::BeginTabItem(name.id.c_str())) {
-				name.renderGui();
-				ImGui::EndTabItem();
-			}
-			if (ImGui::BeginTabItem(flags.id.c_str())) {
-				flags.renderGui();
-				ImGui::EndTabItem();
-			}
+			for (Element* e : std::initializer_list<Element*>{
+					 &box, &bar, &bar2, &line,
+					 &circle, &name, &flags })
+				if (ImGui::BeginTabItem(e->id.c_str())) {
+					e->renderGui();
+					ImGui::EndTabItem();
+				}
 			ImGui::EndTabBar();
 		}
+	}
+
+	SerializedTypeMap serialize() const override
+	{
+		SerializedTypeMap map;
+		for (const Element* e : std::initializer_list<const Element*>{
+				 &box, &bar, &bar2, &line,
+				 &circle, &name, &flags })
+			map.putSubtree(e->id, e->serialize());
+		return map;
+	}
+
+	void deserialize(const SerializedTypeMap& map) override
+	{
+		for (Element* e : std::initializer_list<Element*>{
+				 &box, &bar, &bar2, &line,
+				 &circle, &name, &flags })
+			e->deserialize(map.getSubtree(e->id));
 	}
 
 	std::function<void(const std::string&, bool&)> createBoolRenderer(const std::function<void()>& onChange = [] {}) override
@@ -293,6 +313,15 @@ void render()
 		if (ImGui::IsItemHovered()) {
 			ImGui::SetTooltip("May improve visibility through decreased anti aliasing");
 		}
+		static std::optional<SerializedTypeMap> serializedState = std::nullopt;
+		if (ImGui::Button("Save serialized state")) {
+			serializedState = e.serialize();
+		}
+		ImGui::BeginDisabled(!serializedState.has_value());
+		if (ImGui::Button("Load serialized state")) {
+			e.deserialize(serializedState.value());
+		}
+		ImGui::EndDisabled();
 		ImGui::EndChild();
 		ImGui::EndTable();
 	}

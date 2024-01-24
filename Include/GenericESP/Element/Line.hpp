@@ -6,16 +6,18 @@
 namespace GenericESP {
 
 	struct Line : Element {
-		MixableConfigurableValue<ImColor> lineColor;
-		MixableConfigurableValue<float> thickness;
-		MixableConfigurableValue<bool> outlined;
-		MixableConfigurableValue<ImColor> outlineColor;
-		MixableConfigurableValue<float> outlineThickness;
+		Mixable<ImColor> lineColor;
+		Mixable<float> thickness;
+		Mixable<bool> outlined;
+		Mixable<ImColor> outlineColor;
+		Mixable<float> outlineThickness;
 
-		explicit Line(ESP* base, std::string&& id);
+		explicit Line(ESP* base, std::string id);
 
 		void draw(ImDrawList* drawList, const EntityType* e, const std::vector<ImVec2>& points) const;
-		void renderGui();
+		void renderGui() override;
+		[[nodiscard]] SerializedTypeMap serialize() const override;
+		void deserialize(const SerializedTypeMap &map) override;
 	};
 
 }

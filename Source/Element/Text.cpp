@@ -2,16 +2,16 @@
 
 using namespace GenericESP;
 
-Text::Text(ESP* base, std::string&& id)
+Text::Text(ESP* base, std::string id)
 	: Element(base, std::move(id))
-	, fontScale{ "Font scale", StaticConfig<float>{ 1.0f, base->createFloatRenderer(0.0f, 10.0f, "%.2f") } }
-	, fontColor{ "Font color", StaticConfig<ImColor>{ { 1.0f, 1.0f, 1.0f, 1.0f }, base->createColorRenderer() } }
-	, shadow{ "Shadow", StaticConfig<bool>{ true, base->createBoolRenderer() } }
-	, shadowOffset{ "Shadow offset", StaticConfig<float>{ 1.0f, base->createFloatRenderer(0.0f, 10.0f, "%.2f") }, [this] {
+	, fontScale{ StaticConfig<float>{ "Font scale", 1.0f, base->createFloatRenderer(0.0f, 10.0f, "%.2f") } }
+	, fontColor{ StaticConfig<ImColor>{ "Font color", { 1.0f, 1.0f, 1.0f, 1.0f }, base->createColorRenderer() } }
+	, shadow{ StaticConfig<bool>{ "Shadow", true, base->createBoolRenderer() } }
+	, shadowOffset{ StaticConfig<float>{ "Shadow offset", 1.0f, base->createFloatRenderer(0.0f, 10.0f, "%.2f") }, [this] {
 					   const ConfigurableValue<bool>& selected = shadow.getSelected();
 					   return !selected.isStatic() || selected.getStaticConfig().thing;
 				   } }
-	, shadowColor{ "Shadow color", StaticConfig<ImColor>{ { 0.0f, 0.0f, 0.0f, 1.0f }, base->createColorRenderer() }, [this] {
+	, shadowColor{ StaticConfig<ImColor>{ "Shadow color", { 0.0f, 0.0f, 0.0f, 1.0f }, base->createColorRenderer() }, [this] {
 					  const ConfigurableValue<bool>& selected = shadow.getSelected();
 					  return !selected.isStatic() || selected.getStaticConfig().thing;
 				  } }
@@ -85,11 +85,27 @@ std::optional<ImVec2> Text::draw(ImDrawList* drawList, const EntityType* e, cons
 void Text::renderGui()
 {
 	ImGui::PushID(id.c_str());
-	enabled.renderGui();
-	fontScale.renderGui();
-	fontColor.renderGui();
-	shadow.renderGui();
-	shadowOffset.renderGui();
-	shadowColor.renderGui();
+	for (Renderable* r : std::initializer_list<Renderable*>{
+			 &enabled, &fontScale, &fontColor, &shadow,
+			 &shadowOffset, &shadowColor })
+		r->renderGui();
 	ImGui::PopID();
+}
+
+SerializedTypeMap Text::serialize() const
+{
+	SerializedTypeMap map;
+	for (const MixableBase* mixable : std::initializer_list<const MixableBase*>{
+			 &enabled, &fontScale, &fontColor, &shadow,
+			 &shadowOffset, &shadowColor })
+		mixable->serialize(map);
+	return map;
+}
+
+void Text::deserialize(const SerializedTypeMap& map)
+{
+	for (MixableBase* mixable : std::initializer_list<MixableBase*>{
+			 &enabled, &fontScale, &fontColor, &shadow,
+			 &shadowOffset, &shadowColor })
+		mixable->deserializeFromParent(map);
 }

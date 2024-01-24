@@ -2,13 +2,13 @@
 
 using namespace GenericESP;
 
-Circle::Circle(GenericESP::ESP* base, std::string&& id)
+Circle::Circle(ESP* base, std::string id)
 	: Element(base, std::move(id))
-	, circleColor{ "Circle color", StaticConfig<ImColor>{ { 1.0f, 1.0f, 1.0f, 1.0f }, base->createColorRenderer() } }
-	, radius{ "Radius", StaticConfig<float>{ 1.0f, base->createFloatRenderer(0.0f, 10.0f, "%.2f") } }
-	, outlined{ "Outlined", StaticConfig<bool>{ true, base->createBoolRenderer() } }
-	, outlineColor{ "Outline color", StaticConfig<ImColor>{ { 0.0f, 0.0f, 0.0f, 1.0f }, base->createColorRenderer() } }
-	, outlineRadius{ "Outline radius", StaticConfig<float>{ 2.0f, base->createFloatRenderer(0.0f, 10.0f, "%.2f") } }
+	, circleColor{ StaticConfig<ImColor>{ "Circle color", { 1.0f, 1.0f, 1.0f, 1.0f }, base->createColorRenderer() } }
+	, radius{ StaticConfig<float>{ "Radius", 1.0f, base->createFloatRenderer(0.0f, 10.0f, "%.2f") } }
+	, outlined{ StaticConfig<bool>{ "Outlined", true, base->createBoolRenderer() } }
+	, outlineColor{ StaticConfig<ImColor>{ "Outline color", { 0.0f, 0.0f, 0.0f, 1.0f }, base->createColorRenderer() } }
+	, outlineRadius{ StaticConfig<float>{ "Outline radius", 2.0f, base->createFloatRenderer(0.0f, 10.0f, "%.2f") } }
 {
 }
 
@@ -26,11 +26,27 @@ void Circle::draw(ImDrawList* drawList, const EntityType* e, const ImVec2& posit
 void Circle::renderGui()
 {
 	ImGui::PushID(id.c_str());
-	enabled.renderGui();
-	circleColor.renderGui();
-	radius.renderGui();
-	outlined.renderGui();
-	outlineColor.renderGui();
-	outlineRadius.renderGui();
+	for (Renderable* r : std::initializer_list<Renderable*>{
+			 &enabled, &circleColor, &radius, &outlined,
+			 &outlineColor, &outlineRadius })
+		r->renderGui();
 	ImGui::PopID();
+}
+
+SerializedTypeMap Circle::serialize() const
+{
+	SerializedTypeMap map;
+	for (const MixableBase* mixable : std::initializer_list<const MixableBase*>{
+			 &enabled, &circleColor, &radius, &outlined,
+			 &outlineColor, &outlineRadius })
+		mixable->serialize(map);
+	return map;
+}
+
+void Circle::deserialize(const SerializedTypeMap& map)
+{
+	for (MixableBase* mixable : std::initializer_list<MixableBase*>{
+			 &enabled, &circleColor, &radius, &outlined,
+			 &outlineColor, &outlineRadius })
+		mixable->deserializeFromParent(map);
 }

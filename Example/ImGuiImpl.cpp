@@ -57,8 +57,8 @@ int main(int, char**)
 		ImGui_ImplSDL2_NewFrame();
 		ImGui::NewFrame();
 
-		ImGui::SetNextWindowPos({ 0, 0 }, ImGuiCond_Once);
-		ImGui::SetNextWindowSize(ImGui::GetIO().DisplaySize, ImGuiCond_Once);
+		ImGui::SetNextWindowPos({ 0, 0 }, ImGuiCond_FirstUseEver);
+		ImGui::SetNextWindowSize(ImGui::GetIO().DisplaySize,  ImGuiCond_FirstUseEver);
 		if (ImGui::Begin("ESP")) {
 			render();
 		}

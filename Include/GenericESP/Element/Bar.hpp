@@ -7,37 +7,42 @@
 namespace GenericESP {
 
 	struct Bar : SidedElement {
-		MixableConfigurableValue<ImColor> backgroundColor;
-		MixableConfigurableValue<float> spacing;
-		MixableConfigurableValue<float> width;
-		MixableConfigurableValue<ImColor> filledColor;
-		MixableConfigurableValue<ImColor> emptyColor;
-		MixableConfigurableValue<bool> gradient;
-		MixableConfigurableValue<int> hueSteps;
-		MixableConfigurableValue<bool> flipped;
-		MixableConfigurableValue<bool> outlined;
-		MixableConfigurableValue<ImColor> outlineColor;
-		MixableConfigurableValue<float> outlineThickness;
+		Mixable<ImColor> backgroundColor;
+		Mixable<float> spacing;
+		Mixable<float> width;
+		Mixable<ImColor> filledColor;
+		Mixable<ImColor> emptyColor;
+		Mixable<bool> gradient;
+		Mixable<int> hueSteps;
+		Mixable<bool> flipped;
+		Mixable<bool> outlined;
+		Mixable<ImColor> outlineColor;
+		Mixable<float> outlineThickness;
 
 		using PercentageProvider = std::function<float(const EntityType*)>;
 		PercentageProvider percentageProvider;
 
-		struct NumberText {
+		struct NumberText : Serializable {
+			std::string id;
+
 			Text numberText;
 			bool hideWhenFull;
 
 			using Provider = std::function<std::string(const EntityType*)>;
 			Provider numberTextProvider;
 
-			explicit NumberText(ESP* base, Provider&& provider);
+			explicit NumberText(ESP* base, Provider provider);
 
 			void draw(ImDrawList* drawList, const EntityType* e, ImVec2 pos) const;
 			void renderGui();
+
+			[[nodiscard]] SerializedTypeMap serialize() const override;
+			void deserialize(const SerializedTypeMap& map) override;
 		};
 
 		std::optional<NumberText> numberText;
 
-		explicit Bar(ESP* base, std::string&& id, PercentageProvider&& percentageProvider, std::optional<NumberText>&& numberText = std::nullopt);
+		explicit Bar(ESP* base, std::string id, PercentageProvider percentageProvider, std::optional<NumberText> numberText = std::nullopt);
 
 		// --- Likely irrelevant for users ---
 		ImRect calculateNewRect(const EntityType* e, const ImRect& rect) const;
@@ -53,10 +58,9 @@ namespace GenericESP {
 		// --- Utility functions for color conversion ---
 
 		void draw(ImDrawList* drawList, const EntityType* e, UnionedRect& unionedRect) const;
-		void renderGui();
-
-		SerializedTypeMap serialize() const;
-		void deserialize(const SerializedTypeMap& map);
+		void renderGui() override;
+		[[nodiscard]] SerializedTypeMap serialize() const override;
+		void deserialize(const SerializedTypeMap& map) override;
 	};
 
 }

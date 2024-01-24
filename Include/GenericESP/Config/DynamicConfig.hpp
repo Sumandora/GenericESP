@@ -5,34 +5,47 @@
 #include <string>
 
 #include "../ESP.hpp"
-#include "../Serialization/Serialization.hpp"
+
+#include "../Abstract/Renderable.hpp"
+#include "../Abstract/Serializable.hpp"
 
 namespace GenericESP {
 	template <typename Configurable>
 	struct DynamicConfig : Renderable, Serializable {
+		std::string id;
+
 		std::function<Configurable(const EntityType*)> thing;
-		std::function<void(const std::string&)> render;
+		std::function<void(const std::string&)> renderer;
 		std::function<SerializedTypeMap()> serializer;
 		std::function<void(const SerializedTypeMap&)> deserializer;
 
 		DynamicConfig(
-			std::function<Configurable(const EntityType*)>&& thing,
-			std::function<void(const std::string&)>&& render,
-			std::function<SerializedTypeMap()>&& serializer,
-			std::function<void(const SerializedTypeMap&)>&& deserializer) : thing(std::move(thing)), render(std::move(render)), serializer(std::move(serializer)), deserializer(std::move(deserializer)){
-
+			std::string id,
+			std::function<Configurable(const EntityType*)> thing,
+			std::function<void(const std::string&)> renderer,
+			std::function<SerializedTypeMap()> serializer,
+			std::function<void(const SerializedTypeMap&)> deserializer)
+			: id(std::move(id))
+			, thing(std::move(thing))
+			, renderer(std::move(renderer))
+			, serializer(std::move(serializer))
+			, deserializer(std::move(deserializer))
+		{
 		}
 
-		void renderGui(const std::string &id) override {
-			return render(id);
+		void renderGui() override
+		{
+			return renderer(id);
 		}
 
-		SerializedTypeMap serialize() const override {
+		[[nodiscard]] SerializedTypeMap serialize() const override
+		{
 			return serializer();
 		}
 
-		void deserialize(const SerializedTypeMap& t) override {
-			return deserializer(t);
+		void deserialize(const SerializedTypeMap& map) override
+		{
+			return deserializer(map);
 		}
 	};
 }
