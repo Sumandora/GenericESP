@@ -6,6 +6,7 @@
 #include <optional>
 #include <string>
 #include <utility>
+#include <concepts>
 
 #include "../Abstract/Renderable.hpp"
 #include "../Abstract/Serializable.hpp"
@@ -21,40 +22,45 @@ namespace GenericESP {
 		std::function<SerializedTypeMap(const Configurable&)> serializer;
 		std::function<void(const SerializedTypeMap&, Configurable&)> deserializer;
 
+	private:
+		template <typename Variant, std::size_t Idx>
+		consteval static bool isInsideVariant() {
+			bool result = std::is_same_v<Configurable, std::variant_alternative_t<Idx-1, Variant>>;
+			if constexpr (Idx - 1 > 0)
+				return result && isInsideVariant<Variant, Idx-1>();
+			return result;
+		}
+	public:
+		template <typename = typename std::enable_if<isInsideVariant<SerializedType, std::variant_size_v<SerializedType>>()>>
 		StaticConfig(std::string id,
 			Configurable thing,
-			decltype(renderer) renderer,
-			std::optional<std::function<SerializedTypeMap(const Configurable&)>> serializer = std::nullopt,
-			std::optional<std::function<void(const SerializedTypeMap&, Configurable&)>> deserializer = std::nullopt)
+			decltype(renderer) renderer)
 			: id(std::move(id))
 			, thing(std::move(thing))
 			, renderer(std::move(renderer))
-			, serializer(serializer.has_value() ? serializer.value() : [](const Configurable& thing) {
+			, serializer([](const Configurable& thing) {
 				SerializedTypeMap map;
-				if constexpr (std::is_base_of_v<ImColor, Configurable>) {
-					// TODO
-					map["X"] = thing.Value.x;
-					map["Y"] = thing.Value.y;
-					map["Z"] = thing.Value.z;
-					map["W"] = thing.Value.w;
-				} else {
-					map["Value"] = thing;
-				}
+				map["Value"] = thing;
 				return map;
 			})
-			, deserializer(deserializer.has_value() ? deserializer.value() : [](const SerializedTypeMap& map, Configurable& thing) {
-				if constexpr (std::is_base_of_v<ImColor, Configurable>) {
-					// TODO
-					thing = ImColor{
-						map.get<float>("X"),
-						map.get<float>("Y"),
-						map.get<float>("Z"),
-						map.get<float>("W")
-					};
-				} else {
-					thing = map.get<Configurable>("Value");
-				}
+			, deserializer([](const SerializedTypeMap& map, Configurable& thing) {
+				auto opt = map.get<Configurable>("Value");
+				if(opt.has_value())
+					thing = opt.value();
 			})
+		{
+		}
+
+		StaticConfig(std::string id,
+			Configurable thing,
+			decltype(renderer) renderer,
+			std::function<SerializedTypeMap(const Configurable&)> serializer,
+			std::function<void(const SerializedTypeMap&, Configurable&)> deserializer)
+			: id(std::move(id))
+			, thing(std::move(thing))
+			, renderer(std::move(renderer))
+			, serializer(std::move(serializer))
+			, deserializer(std::move(deserializer))
 		{
 		}
 

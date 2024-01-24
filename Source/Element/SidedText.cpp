@@ -75,5 +75,7 @@ void SidedText::deserialize(const SerializedTypeMap& map)
 	for (MixableBase* mixable : std::initializer_list<MixableBase*>{
 			 &enabled, &side, &spacing })
 		mixable->deserializeFromParent(map);
-	textElement.deserialize(map.getSubtree(textElement.id));
+	auto opt = map.getSubtree(textElement.id);
+	if(opt.has_value())
+		textElement.deserialize(opt.value());
 }

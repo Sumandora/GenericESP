@@ -50,6 +50,10 @@ SerializedTypeMap Flag::serialize() const
 
 void Flag::deserialize(const SerializedTypeMap& map)
 {
-	textElement.deserialize(map.getSubtree(textElement.id));
-	format = map.get<std::string>("Format");
+	auto textOpt = map.getSubtree(textElement.id);
+	if(textOpt.has_value())
+		textElement.deserialize(textOpt.value());
+	auto formatOpt = map.get<std::string>("Format");
+	if(formatOpt.has_value())
+		format = formatOpt.value();
 }

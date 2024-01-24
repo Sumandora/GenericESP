@@ -2,15 +2,17 @@
 
 #include "GenericESP/Element/Rectangle.hpp"
 
+#include "GenericESP/Serialization/ImColorSerialization.hpp"
+
 using namespace GenericESP;
 
 Rectangle::Rectangle(ESP* base, std::string id)
 	: Element(base, std::move(id))
-	, color{ StaticConfig<ImColor>{ "Color", { 1.0f, 1.0f, 1.0f, 1.0f }, base->createColorRenderer() } }
+	, color{ StaticConfig<ImColor>{ "Color", { 1.0f, 1.0f, 1.0f, 1.0f }, base->createColorRenderer(), serializeImColor, deserializeImColor } }
 	, rounding{ StaticConfig<float>{ "Rounding", 0.0f, base->createFloatRenderer(0.0f, 10.0f, "%.2f") } }
 	, thickness{ StaticConfig<float>{ "Thickness", 1.0f, base->createFloatRenderer(0.0f, 10.0f, "%.2f") } }
 	, outlined{ StaticConfig<bool>{ "Outlined", true, base->createBoolRenderer() } }
-	, outlineColor{ StaticConfig<ImColor>{ "Outline color", { 0.0f, 0.0f, 0.0f, 1.0f }, base->createColorRenderer() }, [this] {
+	, outlineColor{ StaticConfig<ImColor>{ "Outline color", { 0.0f, 0.0f, 0.0f, 1.0f }, base->createColorRenderer(), serializeImColor, deserializeImColor }, [this] {
 					   const ConfigurableValue<bool>& selected = outlined.getSelected();
 					   return !selected.isStatic() || selected.getStaticConfig().thing;
 				   } }
@@ -19,7 +21,7 @@ Rectangle::Rectangle(ESP* base, std::string id)
 						   return !selected.isStatic() || selected.getStaticConfig().thing;
 					   } }
 	, fill{ StaticConfig<bool>{ "Fill", false, base->createBoolRenderer() } }
-	, fillColor{ StaticConfig<ImColor>{ "Fill color", { 1.0f, 1.0f, 1.0f, 1.0f }, base->createColorRenderer() }, [this] {
+	, fillColor{ StaticConfig<ImColor>{ "Fill color", { 1.0f, 1.0f, 1.0f, 1.0f }, base->createColorRenderer(), serializeImColor, deserializeImColor }, [this] {
 					const ConfigurableValue<bool>& selected = fill.getSelected();
 					return !selected.isStatic() || selected.getStaticConfig().thing;
 				} }

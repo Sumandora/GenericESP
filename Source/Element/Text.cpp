@@ -1,17 +1,19 @@
 #include "GenericESP/Element/Text.hpp"
 
+#include "GenericESP/Serialization/ImColorSerialization.hpp"
+
 using namespace GenericESP;
 
 Text::Text(ESP* base, std::string id)
 	: Element(base, std::move(id))
 	, fontScale{ StaticConfig<float>{ "Font scale", 1.0f, base->createFloatRenderer(0.0f, 10.0f, "%.2f") } }
-	, fontColor{ StaticConfig<ImColor>{ "Font color", { 1.0f, 1.0f, 1.0f, 1.0f }, base->createColorRenderer() } }
+	, fontColor{ StaticConfig<ImColor>{ "Font color", { 1.0f, 1.0f, 1.0f, 1.0f }, base->createColorRenderer(), serializeImColor, deserializeImColor } }
 	, shadow{ StaticConfig<bool>{ "Shadow", true, base->createBoolRenderer() } }
 	, shadowOffset{ StaticConfig<float>{ "Shadow offset", 1.0f, base->createFloatRenderer(0.0f, 10.0f, "%.2f") }, [this] {
 					   const ConfigurableValue<bool>& selected = shadow.getSelected();
 					   return !selected.isStatic() || selected.getStaticConfig().thing;
 				   } }
-	, shadowColor{ StaticConfig<ImColor>{ "Shadow color", { 0.0f, 0.0f, 0.0f, 1.0f }, base->createColorRenderer() }, [this] {
+	, shadowColor{ StaticConfig<ImColor>{ "Shadow color", { 0.0f, 0.0f, 0.0f, 1.0f }, base->createColorRenderer(), serializeImColor, deserializeImColor }, [this] {
 					  const ConfigurableValue<bool>& selected = shadow.getSelected();
 					  return !selected.isStatic() || selected.getStaticConfig().thing;
 				  } }

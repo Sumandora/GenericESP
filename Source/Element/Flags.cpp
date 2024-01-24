@@ -141,13 +141,19 @@ void Flags::deserialize(const SerializedTypeMap& map)
 	for (MixableBase* mixable : std::initializer_list<MixableBase*>{
 			 &enabled, &side, &spacing, &lineSpacing })
 		mixable->deserializeFromParent(map);
-	for (const std::unique_ptr<Flag>& flag : flags)
-		flag->deserialize(map.getSubtree(flag->name));
-	auto& order = map.getSubtree("Order");
-	for (const auto& [name, pos] : order) {
-		std::size_t i = std::get<std::size_t>(pos);
-		auto it = std::find_if(flags.begin(), flags.end(), [&name](const std::unique_ptr<Flag>& flag) { return flag->name == name; });
-		if(it != flags.end())
-			std::iter_swap(it, std::next(flags.begin(), static_cast<decltype(flags)::difference_type>(i)));
+	for (const std::unique_ptr<Flag>& flag : flags) {
+		auto opt = map.getSubtree(flag->name);
+		if(opt.has_value())
+			flag->deserialize(opt.value());
+	}
+	auto orderOpt = map.getSubtree("Order");
+	if(orderOpt.has_value()) {
+		auto& order = orderOpt.value().get();
+		for (const auto& [name, pos] : order) {
+			std::size_t i = std::get<std::size_t>(pos);
+			auto it = std::find_if(flags.begin(), flags.end(), [&name](const std::unique_ptr<Flag>& flag) { return flag->name == name; });
+			if(it != flags.end())
+				std::iter_swap(it, std::next(flags.begin(), static_cast<decltype(flags)::difference_type>(i)));
+		}
 	}
 }

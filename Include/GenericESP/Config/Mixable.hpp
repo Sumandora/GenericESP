@@ -26,7 +26,9 @@ namespace GenericESP {
 		}
 
 		void deserializeFromParent(const SerializedTypeMap& parent) {
-			deserialize(parent.getSubtree(id));
+			auto opt = parent.getSubtree(id);
+			if(opt.has_value())
+				deserialize(opt.value());
 		}
 
 		void renderGui() override = 0;
@@ -165,14 +167,20 @@ namespace GenericESP {
 		void deserialize(const SerializedTypeMap& map) override {
 			if (isMultiType()) {
 				auto& pair = std::get<MultiType>(options);
-				pair.first = map.get<std::size_t>("Selected Index");
+				auto indexOpt = map.get<std::size_t>("Selected Index");
+				if(indexOpt.has_value())
+					pair.first = indexOpt.value();
 
 				for (ConfigurableType& type : pair.second) {
-					type.deserialize(map.getSubtree(type.getId()));
+					auto typeOpt = map.getSubtree(type.getId());
+					if(typeOpt.has_value())
+						type.deserialize(typeOpt.value());
 				}
 			} else {
 				ConfigurableType& configuredType = std::get<ConfigurableType>(options);
-				configuredType.deserialize(map.getSubtree(configuredType.getId()));
+				auto opt = map.getSubtree(configuredType.getId());
+				if(opt.has_value())
+					configuredType.deserialize(opt.value());
 			}
 		}
 

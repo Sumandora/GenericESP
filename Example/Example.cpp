@@ -95,15 +95,15 @@ struct EntityESP : ESP, Renderable, Serializable {
 				return map;
 			},
 			[this](const SerializedTypeMap& map) {
-				aliveColor.Value.x = map.get<float>("Alive X");
-				aliveColor.Value.y = map.get<float>("Alive Y");
-				aliveColor.Value.z = map.get<float>("Alive Z");
-				aliveColor.Value.w = map.get<float>("Alive W");
+				aliveColor.Value.x = map.get<float>("Alive X").value_or(0.0f);
+				aliveColor.Value.y = map.get<float>("Alive Y").value_or(0.0f);
+				aliveColor.Value.z = map.get<float>("Alive Z").value_or(0.0f);
+				aliveColor.Value.w = map.get<float>("Alive W").value_or(0.0f);
 
-				deadColor.Value.x = map.get<float>("Dead X");
-				deadColor.Value.y = map.get<float>("Dead Y");
-				deadColor.Value.z = map.get<float>("Dead Z");
-				deadColor.Value.w = map.get<float>("Dead W");
+				deadColor.Value.x = map.get<float>("Dead X").value_or(0.0f);
+				deadColor.Value.y = map.get<float>("Dead Y").value_or(0.0f);
+				deadColor.Value.z = map.get<float>("Dead Z").value_or(0.0f);
+				deadColor.Value.w = map.get<float>("Dead W").value_or(0.0f);
 			} });
 		bar.filledColor.getSelected().rename("Alive color");
 		bar.emptyColor.getSelected().rename("Dead color");
@@ -170,7 +170,7 @@ struct EntityESP : ESP, Renderable, Serializable {
 		}
 	}
 
-	SerializedTypeMap serialize() const override
+	[[nodiscard]] SerializedTypeMap serialize() const override
 	{
 		SerializedTypeMap map;
 		for (const Element* e : std::initializer_list<const Element*>{
@@ -184,8 +184,11 @@ struct EntityESP : ESP, Renderable, Serializable {
 	{
 		for (Element* e : std::initializer_list<Element*>{
 				 &box, &bar, &bar2, &line,
-				 &circle, &name, &flags })
-			e->deserialize(map.getSubtree(e->id));
+				 &circle, &name, &flags }) {
+			auto opt = map.getSubtree(e->id);
+			if(opt.has_value())
+				e->deserialize(opt.value());
+		}
 	}
 
 	std::function<void(const std::string&, bool&)> createBoolRenderer(const std::function<void()>& onChange = [] {}) override

@@ -1,17 +1,19 @@
 #define IMGUI_DEFINE_MATH_OPERATORS
 
 #include "GenericESP/Element/Bar.hpp"
+#include "GenericESP/Serialization/ImColorSerialization.hpp"
+
 #include <utility>
 
 using namespace GenericESP;
 
 Bar::Bar(ESP* base, std::string id, Bar::PercentageProvider percentageProvider, std::optional<NumberText> numberText)
 	: SidedElement(base, std::move(id), Side::LEFT)
-	, backgroundColor{ StaticConfig<ImColor>{ "Background color", { 0.0f, 0.0f, 0.0f, 1.0f }, base->createColorRenderer() } }
+	, backgroundColor{ StaticConfig<ImColor>{ "Background color", { 0.0f, 0.0f, 0.0f, 1.0f }, base->createColorRenderer(), serializeImColor, deserializeImColor } }
 	, spacing{ StaticConfig<float>{ "Spacing", 1.0f, base->createFloatRenderer(0.0, 10.0f, "%.2f") } }
 	, width{ StaticConfig<float>{ "Width", 2.0f, base->createFloatRenderer(0.0, 10.0f, "%.2f") } }
-	, filledColor{ StaticConfig<ImColor>{ "Filled color", { 0.0f, 1.0f, 0.0f, 1.0f }, base->createColorRenderer() } }
-	, emptyColor{ StaticConfig<ImColor>{ "Empty color", { 1.0f, 0.0f, 0.0f, 1.0f }, base->createColorRenderer() } }
+	, filledColor{ StaticConfig<ImColor>{ "Filled color", { 0.0f, 1.0f, 0.0f, 1.0f }, base->createColorRenderer(), serializeImColor, deserializeImColor } }
+	, emptyColor{ StaticConfig<ImColor>{ "Empty color", { 1.0f, 0.0f, 0.0f, 1.0f }, base->createColorRenderer(), serializeImColor, deserializeImColor } }
 	, hueSteps{ StaticConfig<int>{ "Hue steps", 3, base->createIntRenderer(3, 10) }, [this] {
 				   const ConfigurableValue<bool>& selected = gradient.getSelected();
 				   return !selected.isStatic() || selected.getStaticConfig().thing;
@@ -19,7 +21,7 @@ Bar::Bar(ESP* base, std::string id, Bar::PercentageProvider percentageProvider, 
 	, flipped{ StaticConfig<bool>{ "Flipped", false, base->createBoolRenderer() } }
 	, gradient{ StaticConfig<bool>{ "Gradient", true, base->createBoolRenderer() } }
 	, outlined{ StaticConfig<bool>{ "Outlined", true, base->createBoolRenderer() } }
-	, outlineColor{ StaticConfig<ImColor>{ "Outline color", { 0.0f, 0.0f, 0.0f, 1.0f }, base->createColorRenderer() }, [this] {
+	, outlineColor{ StaticConfig<ImColor>{ "Outline color", { 0.0f, 0.0f, 0.0f, 1.0f }, base->createColorRenderer(), serializeImColor, deserializeImColor }, [this] {
 					   const ConfigurableValue<bool>& selected = outlined.getSelected();
 					   return !selected.isStatic() || selected.getStaticConfig().thing;
 				   } }
@@ -71,8 +73,12 @@ SerializedTypeMap Bar::NumberText::serialize() const
 
 void Bar::NumberText::deserialize(const SerializedTypeMap& map)
 {
-	numberText.deserialize(map.getSubtree("Number text"));
-	hideWhenFull = map.get<bool>("Hide when full");
+	auto numberTextOpt = map.getSubtree("Number text");
+	if(numberTextOpt.has_value())
+		numberText.deserialize(numberTextOpt.value());
+	auto hideWhenFullOpt = map.get<bool>("Hide when full");
+	if (hideWhenFullOpt.has_value())
+		hideWhenFull = hideWhenFullOpt.value();
 }
 
 ImRect Bar::calculateNewRect(const EntityType* e, const ImRect& rect) const
@@ -372,6 +378,9 @@ void Bar::deserialize(const SerializedTypeMap& map)
 			 &hueSteps, &flipped, &outlined, &outlineColor,
 			 &outlineThickness })
 		mixable->deserializeFromParent(map);
-	if (numberText.has_value() && map.contains(numberText->id))
-		numberText->deserialize(map.getSubtree(numberText->id));
+	if (numberText.has_value() && map.contains(numberText->id)) {
+		auto opt = map.getSubtree(numberText->id);
+		if(opt.has_value())
+			numberText->deserialize(opt.value());
+	}
 }

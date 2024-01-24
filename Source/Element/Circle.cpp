@@ -1,13 +1,15 @@
 #include "GenericESP/Element/Circle.hpp"
 
+#include "GenericESP/Serialization/ImColorSerialization.hpp"
+
 using namespace GenericESP;
 
 Circle::Circle(ESP* base, std::string id)
 	: Element(base, std::move(id))
-	, circleColor{ StaticConfig<ImColor>{ "Circle color", { 1.0f, 1.0f, 1.0f, 1.0f }, base->createColorRenderer() } }
+	, circleColor{ StaticConfig<ImColor>{ "Circle color", { 1.0f, 1.0f, 1.0f, 1.0f }, base->createColorRenderer(), serializeImColor, deserializeImColor } }
 	, radius{ StaticConfig<float>{ "Radius", 1.0f, base->createFloatRenderer(0.0f, 10.0f, "%.2f") } }
 	, outlined{ StaticConfig<bool>{ "Outlined", true, base->createBoolRenderer() } }
-	, outlineColor{ StaticConfig<ImColor>{ "Outline color", { 0.0f, 0.0f, 0.0f, 1.0f }, base->createColorRenderer() } }
+	, outlineColor{ StaticConfig<ImColor>{ "Outline color", { 0.0f, 0.0f, 0.0f, 1.0f }, base->createColorRenderer(), serializeImColor, deserializeImColor } }
 	, outlineRadius{ StaticConfig<float>{ "Outline radius", 2.0f, base->createFloatRenderer(0.0f, 10.0f, "%.2f") } }
 {
 }
