@@ -9,22 +9,24 @@
 #include "../Abstract/Renderable.hpp"
 #include "../Abstract/Serializable.hpp"
 
+#include "../OpaqueLambda.hpp"
+
 namespace GenericESP {
 	template <typename Configurable>
 	struct DynamicConfig : Renderable, Serializable {
 		std::string id;
 
-		std::function<Configurable(const EntityType*)> thing;
+		OpaqueLambda<Configurable> thing;
 		std::function<void(const std::string&)> renderer;
 		std::function<SerializedTypeMap()> serializer;
 		std::function<void(const SerializedTypeMap&)> deserializer;
 
 		DynamicConfig(
 			std::string id,
-			std::function<Configurable(const EntityType*)> thing,
-			std::function<void(const std::string&)> renderer,
-			std::function<SerializedTypeMap()> serializer,
-			std::function<void(const SerializedTypeMap&)> deserializer)
+			decltype(thing) thing,
+			decltype(renderer) renderer,
+			decltype(serializer) serializer,
+			decltype(deserializer) deserializer)
 			: id(std::move(id))
 			, thing(std::move(thing))
 			, renderer(std::move(renderer))

@@ -7,7 +7,7 @@
 
 using namespace GenericESP;
 
-Bar::Bar(ESP* base, std::string id, Bar::PercentageProvider percentageProvider, std::optional<NumberText> numberText)
+Bar::Bar(ESP* base, std::string id, Bar::PercentageProvider percentageProvider, std::optional<NumberText::Provider> numberTextProvider)
 	: SidedElement(base, std::move(id), Side::LEFT)
 	, backgroundColor{ StaticConfig<ImColor>{ "Background color", { 0.0f, 0.0f, 0.0f, 1.0f }, base->createColorRenderer(), serializeImColor, deserializeImColor } }
 	, spacing{ StaticConfig<float>{ "Spacing", 1.0f, base->createFloatRenderer(0.0, 10.0f, "%.2f") } }
@@ -30,7 +30,7 @@ Bar::Bar(ESP* base, std::string id, Bar::PercentageProvider percentageProvider, 
 						   return !selected.isStatic() || selected.getStaticConfig().thing;
 					   } }
 	, percentageProvider(std::move(percentageProvider))
-	, numberText(std::move(numberText))
+	, numberText{numberTextProvider.has_value() ? std::optional<NumberText>{ NumberText { base, std::move(numberTextProvider.value()) } } : std::nullopt}
 {
 }
 

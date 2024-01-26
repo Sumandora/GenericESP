@@ -122,7 +122,9 @@ The bar is typically used as a health or armor bar.
 	Bar bar{
 		this,
 		"Bar",
-		makeOpaque<float, Entity>([](const Entity* entity) { return static_cast<float>(entity->health) / static_cast<float>(entity->maxHealth); })
+		[](const Entity* entity) {
+			return static_cast<float>(entity->health) / static_cast<float>(entity->maxHealth);
+		}
 	};
 ```
 If you like a text which displays the number then add it using
@@ -130,8 +132,10 @@ If you like a text which displays the number then add it using
 	Bar bar{
 		this,
 		"Bar",
-		makeOpaque<float, Entity>([](const Entity* entity) { return static_cast<float>(entity->health) / static_cast<float>(entity->maxHealth); }),
-		Bar::NumberText{ this, makeOpaque<std::string, Entity>([](const Entity* entity) { return std::to_string(entity->health); }) }
+		[](const Entity* entity) {
+			return static_cast<float>(entity->health) / static_cast<float>(entity->maxHealth); }
+		),
+		[](const Entity* entity) { return std::to_string(entity->health); }
 	};
 ```
 
@@ -169,7 +173,7 @@ A flag can be defined using the following.
 				"My flag", // Id
 				{
 					// Formatting variables
-					{ "percentage", makeOpaque<std::string, Entity>([](const Entity* e) { return std::to_string(e->flagPercentage); }) }
+					{ "percentage", [](const Entity* e) { return std::to_string(e->flagPercentage); } }
 				},
 				"My flag: %percentage%" // Default formatting
 			}
@@ -179,7 +183,7 @@ A flag can be defined using the following.
 ```
 The flags element is then initialized like this:
 ```cpp
-	Flags flags{ this, "Flags", { new MyFlag(this) } };
+	Flags flags{ this, "Flags", { new MyFlag{ this } } };
 ```
 
 ## Terminology
@@ -189,7 +193,7 @@ When hacking around in the project you are likely going to stumble across the fo
 | Term            | Meaning                                                                                                                                           |
 |-----------------|---------------------------------------------------------------------------------------------------------------------------------------------------|
 | ESP             | ESPs are usually classes intended for one game object only, like players and weapons                                                              |
-| Opaque Lambdas  | In order to compress the resulting binary most lambdas are opaque, you can use `makeOpaque` to create a lambda that is typed                      |
+| Opaque Lambdas  | In order to compress the resulting binary most lambdas are opaque                                                                                 |
 | Mixable         | A type that wraps configurable types in a way that makes them easily extendable                                                                   |
 | Static Configs  | Configurable type that has no relation with entities and does not change based on the entity state. These types are portable                      |
 | Dynamic Configs | Configurable type that has clear relation with entities and does change based on the entity state. These types are not portable                   |

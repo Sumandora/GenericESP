@@ -3,6 +3,7 @@
 
 #include "SidedElement.hpp"
 #include "Text.hpp"
+#include "../OpaqueLambda.hpp"
 
 namespace GenericESP {
 
@@ -19,7 +20,7 @@ namespace GenericESP {
 		Mixable<ImColor> outlineColor;
 		Mixable<float> outlineThickness;
 
-		using PercentageProvider = std::function<float(const EntityType*)>;
+		using PercentageProvider = OpaqueLambda<float>;
 		PercentageProvider percentageProvider;
 
 		struct NumberText : Serializable {
@@ -28,7 +29,7 @@ namespace GenericESP {
 			Text numberText;
 			bool hideWhenFull;
 
-			using Provider = std::function<std::string(const EntityType*)>;
+			using Provider = OpaqueLambda<std::string>;
 			Provider numberTextProvider;
 
 			explicit NumberText(ESP* base, Provider provider);
@@ -42,7 +43,7 @@ namespace GenericESP {
 
 		std::optional<NumberText> numberText;
 
-		explicit Bar(ESP* base, std::string id, PercentageProvider percentageProvider, std::optional<NumberText> numberText = std::nullopt);
+		explicit Bar(ESP* base, std::string id, PercentageProvider percentageProvider, std::optional<NumberText::Provider> numberTextProvider = std::nullopt);
 
 		// --- Likely irrelevant for users ---
 		ImRect calculateNewRect(const EntityType* e, const ImRect& rect) const;

@@ -20,14 +20,13 @@ struct EntityESP : ESP {
 	Bar bar{
 		this,
 		"Bar",
-		makeOpaque<float, Entity>([](const Entity* entity) { return static_cast<float>(entity->health) / static_cast<float>(entity->maxHealth); }),
-		Bar::NumberText{ this, makeOpaque<std::string, Entity>([](const Entity* entity) { return std::to_string(entity->health); }) }
+		[](const Entity* entity) { return static_cast<float>(entity->health) / static_cast<float>(entity->maxHealth); }
 	};
 	Bar bar2{
 		this,
 		"Bar 2",
-		makeOpaque<float, Entity>([](const Entity* entity) { return static_cast<float>(entity->health) / static_cast<float>(entity->maxHealth); }),
-		Bar::NumberText{ this, makeOpaque<std::string, Entity>([](const Entity* entity) { return std::to_string(entity->health); }) }
+		[](const Entity* entity) { return static_cast<float>(entity->health) / static_cast<float>(entity->maxHealth); },
+		[](const Entity* entity) { return std::to_string(entity->health); }
 	};
 	Line line{ this, "Line" };
 	Circle circle{ this, "Circle" };
@@ -39,7 +38,7 @@ struct EntityESP : ESP {
 			: Flag{
 				base,
 				"My flag",
-				{ { "percentage", makeOpaque<std::string, Entity>([](const Entity* e) { return std::to_string(e->flagPercentage); }) } },
+				{ { "percentage", [](const Entity* e) { return std::to_string(e->flagPercentage); } } },
 				"My flag: %percentage%"
 			}
 		{
@@ -50,13 +49,13 @@ struct EntityESP : ESP {
 			: Flag{
 				base,
 				"Another flag",
-				{ { "percentage", makeOpaque<std::string, Entity>([](const Entity* e) { return std::to_string(e->anotherFlagPercentage); }) } },
+				{ { "percentage", [](const Entity* e) { return std::to_string(e->anotherFlagPercentage); } } },
 				"Another flag: %percentage%"
 			}
 		{
 		}
 	};
-	Flags flags{ this, "Flags", { new MyFlag(this), new AnotherFlag(this) } };
+	Flags flags{ this, "Flags", { new MyFlag{ this }, new AnotherFlag{ this } } };
 
 	// Injected health-based color
 	ImColor aliveColor{ 0.0f, 1.0f, 0.0f, 1.0f };
@@ -67,7 +66,7 @@ struct EntityESP : ESP {
 	EntityESP()
 	{
 		// Inject entirely new settings based on others
-		box.color.addType(DynamicConfig<ImColor>{ "Health-based", makeOpaque<ImColor, Entity>([this](const Entity* e) {
+		box.color.addType(DynamicConfig<ImColor>{ "Health-based", [this](const Entity* e) {
 													 const float t = static_cast<float>(e->health) / static_cast<float>(e->maxHealth);
 													 return ImColor{
 														 deadColor.Value.x + (aliveColor.Value.x - deadColor.Value.x) * t,
@@ -75,7 +74,7 @@ struct EntityESP : ESP {
 														 deadColor.Value.z + (aliveColor.Value.z - deadColor.Value.z) * t,
 														 deadColor.Value.w + (aliveColor.Value.w - deadColor.Value.w) * t
 													 };
-												 }),
+												 },
 			[this](const std::string& id) {
 				static auto displayColor = createColorRenderer();
 				ImGui::PushID(id.c_str());

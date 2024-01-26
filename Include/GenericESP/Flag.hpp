@@ -9,7 +9,7 @@ namespace GenericESP {
 		std::string name;
 		Text textElement;
 
-		using Provider = std::function<std::string(const EntityType*)>;
+		using Provider = OpaqueLambda<std::string>;
 		using Remaps = std::unordered_map<std::string, Provider>;
 
 		Remaps remaps;
