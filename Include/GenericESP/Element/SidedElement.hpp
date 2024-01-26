@@ -12,12 +12,7 @@ namespace GenericESP {
 		RIGHT
 	};
 
-	inline std::initializer_list<std::string> sideLocalization{
-		"Top",
-		"Left",
-		"Bottom",
-		"Right"
-	};
+	extern std::initializer_list<std::string> sideLocalization;
 
 	struct SidedElement : Element {
 		Mixable<std::size_t> side;

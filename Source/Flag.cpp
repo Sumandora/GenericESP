@@ -34,7 +34,10 @@ void Flag::renderGui()
 		auto* format = reinterpret_cast<std::string*>(data->UserData);
 #pragma clang diagnostic pop
 		format->resize(data->BufTextLen);
+#pragma clang diagnostic push
+#pragma ide diagnostic ignored "LocalValueEscapesScope"
 		data->Buf = (char*)format->c_str();
+#pragma clang diagnostic pop
 		return 0;
 	}, &format); // from imgui_stdlib
 	ImGui::PopID();

@@ -30,9 +30,8 @@ namespace GenericESP {
 		std::optional<ImVec2> draw(ImDrawList* drawList, const EntityType* e, const std::string& text, const ImVec2& pos,
 			TextAlignment horizontalAlignment, VerticalAlignment verticalAlignment) const;
 		[[nodiscard]] float getLineHeight(const EntityType* e) const;
-		void renderGui();
-
-		SerializedTypeMap serialize() const override;
+		void renderGui() override;
+		[[nodiscard]] SerializedTypeMap serialize() const override;
 		void deserialize(const SerializedTypeMap& map) override;
 	};
 
