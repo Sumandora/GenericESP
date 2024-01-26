@@ -309,7 +309,7 @@ void render()
 
 		ImGui::Checkbox("Show debug", &showDebug);
 		if (ImGui::IsItemHovered()) {
-			ImGui::SetTooltip("Green is the beginning box\nRed is the horizontally expanded one\nBlue is the vertically expanded one");
+			ImGui::SetTooltip("Green is the beginning box\nRed is the horizontally expanded box\nBlue is the vertically expanded box");
 		}
 		ImGui::Checkbox("Health sine", &healthSine);
 		ImGui::Checkbox("Align", &align);
