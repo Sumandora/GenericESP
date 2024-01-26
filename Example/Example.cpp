@@ -3,6 +3,7 @@
 #define IMGUI_DEFINE_MATH_OPERATORS
 
 #include "GenericESP.hpp"
+#include "GenericESP/Serialization/ImColorSerialization.hpp"
 
 struct Entity {
 	int health = 69;
@@ -14,7 +15,7 @@ struct Entity {
 
 using namespace GenericESP;
 
-struct EntityESP : ESP, Renderable, Serializable {
+struct EntityESP : ESP {
 	Rectangle box{ this, "Box" };
 	Bar bar{
 		this,
@@ -31,6 +32,8 @@ struct EntityESP : ESP, Renderable, Serializable {
 	Line line{ this, "Line" };
 	Circle circle{ this, "Circle" };
 	SidedText name{ this, "Name" };
+
+	// Custom flags
 	struct MyFlag : Flag {
 		explicit MyFlag(ESP* base)
 			: Flag{
@@ -63,6 +66,7 @@ struct EntityESP : ESP, Renderable, Serializable {
 
 	EntityESP()
 	{
+		// Inject entirely new settings based on others
 		box.color.addType(DynamicConfig<ImColor>{ "Health-based", makeOpaque<ImColor, Entity>([this](const Entity* e) {
 													 const float t = static_cast<float>(e->health) / static_cast<float>(e->maxHealth);
 													 return ImColor{
@@ -82,35 +86,34 @@ struct EntityESP : ESP, Renderable, Serializable {
 			[this] -> SerializedTypeMap {
 				SerializedTypeMap map;
 
-				map["Alive X"] = aliveColor.Value.x;
-				map["Alive Y"] = aliveColor.Value.y;
-				map["Alive Z"] = aliveColor.Value.z;
-				map["Alive W"] = aliveColor.Value.w;
-
-				map["Dead X"] = deadColor.Value.x;
-				map["Dead Y"] = deadColor.Value.y;
-				map["Dead Z"] = deadColor.Value.z;
-				map["Dead W"] = deadColor.Value.w;
+				map.putSubtree("Alive", serializeImColor(aliveColor));
+				map.putSubtree("Dead", serializeImColor(deadColor));
 
 				return map;
 			},
 			[this](const SerializedTypeMap& map) {
-				aliveColor.Value.x = map.get<float>("Alive X").value_or(0.0f);
-				aliveColor.Value.y = map.get<float>("Alive Y").value_or(0.0f);
-				aliveColor.Value.z = map.get<float>("Alive Z").value_or(0.0f);
-				aliveColor.Value.w = map.get<float>("Alive W").value_or(0.0f);
-
-				deadColor.Value.x = map.get<float>("Dead X").value_or(0.0f);
-				deadColor.Value.y = map.get<float>("Dead Y").value_or(0.0f);
-				deadColor.Value.z = map.get<float>("Dead Z").value_or(0.0f);
-				deadColor.Value.w = map.get<float>("Dead W").value_or(0.0f);
+				{
+					auto opt = map.getSubtree("Alive");
+					if (opt.has_value()) {
+						deserializeImColor(map, aliveColor);
+					}
+				}
+				{
+					auto opt = map.getSubtree("Dead");
+					if (opt.has_value()) {
+						deserializeImColor(map, deadColor);
+					}
+				}
 			} });
+
+		// Renaming settings
 		bar.filledColor.getSelected().rename("Alive color");
 		bar.emptyColor.getSelected().rename("Dead color");
 
 		bar2.filledColor.getSelected().rename("Alive color");
 		bar2.emptyColor.getSelected().rename("Dead color");
 
+		// Injecting settings rendering for GUIs
 		StaticConfig<bool>& enabledCfg = circle.enabled.getSelected().getStaticConfig();
 		auto oldRenderer = enabledCfg.renderer;
 		enabledCfg.renderer = [this, oldRenderer](const std::string& id, bool& thing) {
@@ -156,7 +159,7 @@ struct EntityESP : ESP, Renderable, Serializable {
 		return unionedRect;
 	}
 
-	void renderGui() override
+	void renderGui()
 	{
 		if (ImGui::BeginTabBar("Elements", ImGuiTabBarFlags_Reorderable)) {
 			for (Element* e : std::initializer_list<Element*>{
@@ -170,7 +173,7 @@ struct EntityESP : ESP, Renderable, Serializable {
 		}
 	}
 
-	[[nodiscard]] SerializedTypeMap serialize() const override
+	[[nodiscard]] SerializedTypeMap serialize() const
 	{
 		SerializedTypeMap map;
 		for (const Element* e : std::initializer_list<const Element*>{
@@ -180,7 +183,7 @@ struct EntityESP : ESP, Renderable, Serializable {
 		return map;
 	}
 
-	void deserialize(const SerializedTypeMap& map) override
+	void deserialize(const SerializedTypeMap& map)
 	{
 		for (Element* e : std::initializer_list<Element*>{
 				 &box, &bar, &bar2, &line,
