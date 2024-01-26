@@ -157,11 +157,11 @@ namespace GenericESP {
 				for (const ConfigurableType& type : pair.second) {
 					map.putSubtree(type.getId(), type.serialize());
 				}
-			} else {
-				const ConfigurableType& configuredType = std::get<ConfigurableType>(options);
-				map.putSubtree(configuredType.getId(), configuredType.serialize());
+				return map;
 			}
-			return map;
+
+			const ConfigurableType& configuredType = std::get<ConfigurableType>(options);
+			return configuredType.serialize();
 		}
 
 		void deserialize(const SerializedTypeMap& map) override {
@@ -176,12 +176,10 @@ namespace GenericESP {
 					if(typeOpt.has_value())
 						type.deserialize(typeOpt.value());
 				}
-			} else {
-				ConfigurableType& configuredType = std::get<ConfigurableType>(options);
-				auto opt = map.getSubtree(configuredType.getId());
-				if(opt.has_value())
-					configuredType.deserialize(opt.value());
+				return;
 			}
+			ConfigurableType& configuredType = std::get<ConfigurableType>(options);
+			configuredType.deserialize(map);
 		}
 
 		auto operator()(const EntityType* e) const

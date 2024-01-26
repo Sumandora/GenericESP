@@ -316,6 +316,24 @@ void render()
 		if (ImGui::IsItemHovered()) {
 			ImGui::SetTooltip("May improve visibility through decreased anti aliasing");
 		}
+		if (ImGui::Button("Print serialized state")) {
+			SerializedTypeMap map = e.serialize();
+			std::function<void(const SerializedTypeMap&, std::size_t)> iterativelyPrint = [&](const SerializedTypeMap& map, std::size_t depth) {
+				std::string indent(depth, '\t');
+
+				for(const auto& [name, type] : map)
+					std::visit([&](const auto& arg) {
+						if constexpr (std::is_same_v<std::remove_cvref_t<std::decay_t<decltype(arg)>>, std::unique_ptr<SerializedTypeMap>>) {
+							std::cout << indent << name << " {" << std::endl;
+							iterativelyPrint(*arg, depth + 1);
+							std::cout << indent << "}" << std::endl;
+						} else
+							std::cout << indent << name << ": " << arg << std::endl;
+					}, type);
+			};
+
+			iterativelyPrint(map, 0);
+		}
 		static std::optional<SerializedTypeMap> serializedState = std::nullopt;
 		if (ImGui::Button("Save serialized state")) {
 			serializedState = e.serialize();
