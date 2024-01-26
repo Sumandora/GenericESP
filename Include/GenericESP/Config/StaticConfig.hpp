@@ -23,15 +23,15 @@ namespace GenericESP {
 		std::function<void(const SerializedTypeMap&, Configurable&)> deserializer;
 
 	private:
-		template <typename Variant, std::size_t Idx>
+		template <typename Variant, std::size_t Idx = std::variant_size_v<Variant> - 1>
 		consteval static bool isInsideVariant() {
-			bool result = std::is_same_v<Configurable, std::variant_alternative_t<Idx-1, Variant>>;
-			if constexpr (Idx - 1 > 0)
-				return result && isInsideVariant<Variant, Idx-1>();
+			bool result = std::is_same_v<Configurable, std::variant_alternative_t<Idx, Variant>>;
+			if constexpr (Idx > 0)
+				return result || isInsideVariant<Variant, Idx - 1>();
 			return result;
 		}
 	public:
-		template <typename = typename std::enable_if<isInsideVariant<SerializedType, std::variant_size_v<SerializedType>>()>>
+		template <typename = std::enable_if<isInsideVariant<SerializedType>()>>
 		StaticConfig(std::string id,
 			Configurable thing,
 			decltype(renderer) renderer)
@@ -54,8 +54,8 @@ namespace GenericESP {
 		StaticConfig(std::string id,
 			Configurable thing,
 			decltype(renderer) renderer,
-			std::function<SerializedTypeMap(const Configurable&)> serializer,
-			std::function<void(const SerializedTypeMap&, Configurable&)> deserializer)
+			decltype(serializer) serializer,
+			decltype(deserializer) deserializer)
 			: id(std::move(id))
 			, thing(std::move(thing))
 			, renderer(std::move(renderer))
