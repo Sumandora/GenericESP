@@ -84,26 +84,26 @@ Generic ESP offers lots of elements, you can also combine them to make your own.
 #### The Bar
 The bar is typically used as a health or armor bar.
 ```cpp
-    Bar bar{
-        this,
-        "Bar",
-        [](const Entity* entity) {
-            return static_cast<float>(entity->health) / static_cast<float>(entity->maxHealth);
-        }
-    };
+Bar bar{
+    this,
+    "Bar",
+    [](const Entity* entity) {
+        return static_cast<float>(entity->health) / static_cast<float>(entity->maxHealth);
+    }
+};
 ```
 If you like a text which displays the number then add it using
 ```cpp
-    Bar bar{
-        this,
-        "Bar",
-        [](const Entity* entity) {
-            return static_cast<float>(entity->health) / static_cast<float>(entity->maxHealth); }
-        ),
-        [](const Entity* entity) {
-            return std::to_string(entity->health);
-        }
-    };
+Bar bar{
+    this,
+    "Bar",
+    [](const Entity* entity) {
+        return static_cast<float>(entity->health) / static_cast<float>(entity->maxHealth); }
+    ),
+    [](const Entity* entity) {
+        return std::to_string(entity->health);
+    }
+};
 ```
 
 #### The Line
