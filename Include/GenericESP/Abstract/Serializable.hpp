@@ -5,6 +5,8 @@
 
 namespace GenericESP {
 	struct Serializable {
+		virtual ~Serializable() = default;
+
 		[[nodiscard]] virtual SerializedTypeMap serialize() const = 0;
 		virtual void deserialize(const SerializedTypeMap& map) = 0;
 	};

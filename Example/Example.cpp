@@ -158,41 +158,6 @@ struct EntityESP : ESP {
 		return unionedRect;
 	}
 
-	void renderGui()
-	{
-		if (ImGui::BeginTabBar("Elements", ImGuiTabBarFlags_Reorderable)) {
-			for (Element* e : std::initializer_list<Element*>{
-					 &box, &bar, &bar2, &line,
-					 &circle, &name, &flags })
-				if (ImGui::BeginTabItem(e->id.c_str())) {
-					e->renderGui();
-					ImGui::EndTabItem();
-				}
-			ImGui::EndTabBar();
-		}
-	}
-
-	[[nodiscard]] SerializedTypeMap serialize() const
-	{
-		SerializedTypeMap map;
-		for (const Element* e : std::initializer_list<const Element*>{
-				 &box, &bar, &bar2, &line,
-				 &circle, &name, &flags })
-			map.putSubtree(e->id, e->serialize());
-		return map;
-	}
-
-	void deserialize(const SerializedTypeMap& map)
-	{
-		for (Element* e : std::initializer_list<Element*>{
-				 &box, &bar, &bar2, &line,
-				 &circle, &name, &flags }) {
-			auto opt = map.getSubtree(e->id);
-			if(opt.has_value())
-				e->deserialize(opt.value());
-		}
-	}
-
 	std::function<void(const std::string&, bool&)> createBoolRenderer(const std::function<void()>& onChange = [] {}) override
 	{
 		return [onChange](const std::string& id, bool& thing) {

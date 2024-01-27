@@ -7,11 +7,13 @@
 namespace GenericESP {
 
 	struct Element : Renderable, Serializable {
+		ESP* base;
 		std::string id;
 
 		Mixable<bool> enabled;
 
 		explicit Element(ESP* base, std::string id);
+		~Element() override;
 	};
 
 }

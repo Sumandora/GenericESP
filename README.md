@@ -26,7 +26,7 @@ struct EntityESP : ESP {
 	Rectangle box{ this, "Box" };
 };
 ```
-- Creating your `draw`-method
+- Create your `draw`-method
 ```cpp
 struct EntityESP : ESP {
 	// ...
@@ -35,53 +35,6 @@ struct EntityESP : ESP {
 	{
 		UnionedRect unionedRect{ rect };
 		box.draw(drawList, &e, unionedRect);
-	}
-};
-```
-- Create your `renderGui`-method
-```cpp
-struct EntityESP : ESP {
-	// ...
-	
-	void renderGui()
-	{
-		if (ImGui::BeginTabBar("Elements", ImGuiTabBarFlags_Reorderable)) {
-			for (Element* e : std::initializer_list<Element*>{
-				&box
-			})
-				if (ImGui::BeginTabItem(e->id.c_str())) {
-					e->renderGui();
-					ImGui::EndTabItem();
-				}
-			ImGui::EndTabBar();
-		}
-	}
-};
-```
-- Create your `serialize`- and `deserialize`-method
-```cpp
-struct EntityESP : ESP {
-	// ...
-	
-	SerializedTypeMap serialize() const
-	{
-		SerializedTypeMap map;
-		for (const Element* e : std::initializer_list<const Element*>{
-			&box
-		})
-			map.putSubtree(e->id, e->serialize());
-		return map;
-	}
-
-	void deserialize(const SerializedTypeMap& map)
-	{
-		for (Element* e : std::initializer_list<Element*>{
-			&box
-		}) {
-			auto opt = map.getSubtree(e->id);
-			if(opt.has_value())
-				e->deserialize(opt.value());
-		}
 	}
 };
 ```
