@@ -167,19 +167,9 @@ struct EntityESP : ESP {
 	};
 	ColorRenderer createColorRenderer(const ChangeCallback& onChange = [] {}) override
 	{
-		static ImColor colorClipboard; // You probably want to replace this with a global color clipboard
 		return [onChange](const std::string& id, ImColor& thing) {
 			ImGui::PushID(id.c_str());
 			const bool clicked = ImGui::ColorButton(id.c_str(), thing.Value, ImGuiColorEditFlags_None, ImVec2(0, 0));
-			if (ImGui::BeginPopupContextItem()) {
-				if (ImGui::Selectable("Copy")) {
-					colorClipboard = thing;
-				}
-				if (ImGui::Selectable("Paste")) {
-					thing = colorClipboard;
-				}
-				ImGui::EndPopup();
-			}
 			ImGui::SameLine();
 			ImGui::Text("%s", id.c_str());
 
