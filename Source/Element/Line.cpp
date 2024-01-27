@@ -6,7 +6,7 @@ using namespace GenericESP;
 
 Line::Line(ESP* base, std::string id, bool topLevel)
 	: Element(base, std::move(id), topLevel)
-	, lineColor{ StaticConfig<ImColor>{ "Line color", { 1.0f, 1.0f, 1.0f, 1.0f }, base->createColorRenderer(), serializeImColor, deserializeImColor } }
+	, color{ StaticConfig<ImColor>{ "Color", { 1.0f, 1.0f, 1.0f, 1.0f }, base->createColorRenderer(), serializeImColor, deserializeImColor } }
 	, thickness{ StaticConfig<float>{ "Thickness", 1.0f, base->createFloatRenderer(0.0f, 10.0f, "%.2f") } }
 	, outlined{ StaticConfig<bool>{ "Outlined", true, base->createBoolRenderer() } }
 	, outlineColor{ StaticConfig<ImColor>{ "Outline color", { 0.0f, 0.0f, 0.0f, 1.0f }, base->createColorRenderer(), serializeImColor, deserializeImColor } }
@@ -22,14 +22,14 @@ void Line::draw(ImDrawList* drawList, const EntityType* e, const std::vector<ImV
 	if (outlined(e))
 		drawList->AddPolyline(points.data(), (int)points.size(), outlineColor(e), ImDrawFlags_None, outlineThickness(e));
 
-	drawList->AddPolyline(points.data(), (int)points.size(), lineColor(e), ImDrawFlags_None, thickness(e));
+	drawList->AddPolyline(points.data(), (int)points.size(), color(e), ImDrawFlags_None, thickness(e));
 }
 
 void Line::renderGui()
 {
 	ImGui::PushID(id.c_str());
 	for (Renderable* r : std::initializer_list<Renderable*>{
-			 &enabled, &lineColor, &thickness, &outlined,
+			 &enabled, &color, &thickness, &outlined,
 			 &outlineColor, &outlineThickness })
 		r->renderGui();
 	ImGui::PopID();
@@ -39,7 +39,7 @@ SerializedTypeMap Line::serialize() const
 {
 	SerializedTypeMap map;
 	for (const MixableBase* mixable : std::initializer_list<const MixableBase*>{
-			 &enabled, &lineColor, &thickness, &outlined,
+			 &enabled, &color, &thickness, &outlined,
 			 &outlineColor, &outlineThickness })
 		mixable->serialize(map);
 	return map;
@@ -48,7 +48,7 @@ SerializedTypeMap Line::serialize() const
 void Line::deserialize(const SerializedTypeMap& map)
 {
 	for (MixableBase* mixable : std::initializer_list<MixableBase*>{
-			 &enabled, &lineColor, &thickness, &outlined,
+			 &enabled, &color, &thickness, &outlined,
 			 &outlineColor, &outlineThickness })
 		mixable->deserializeFromParent(map);
 }

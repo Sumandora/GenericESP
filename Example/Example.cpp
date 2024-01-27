@@ -158,14 +158,14 @@ struct EntityESP : ESP {
 		return unionedRect;
 	}
 
-	std::function<void(const std::string&, bool&)> createBoolRenderer(const std::function<void()>& onChange = [] {}) override
+	BoolRenderer createBoolRenderer(const ChangeCallback& onChange = [] {}) override
 	{
 		return [onChange](const std::string& id, bool& thing) {
 			if (ImGui::Checkbox(id.c_str(), &thing))
 				onChange();
 		};
 	};
-	std::function<void(const std::string&, ImColor&)> createColorRenderer(const std::function<void()>& onChange = [] {}) override
+	ColorRenderer createColorRenderer(const ChangeCallback& onChange = [] {}) override
 	{
 		static ImColor colorClipboard; // You probably want to replace this with a global color clipboard
 		return [onChange](const std::string& id, ImColor& thing) {
@@ -197,7 +197,7 @@ struct EntityESP : ESP {
 			ImGui::PopID();
 		};
 	};
-	std::function<void(const std::string&, std::size_t&)> createComboRenderer(const std::initializer_list<std::string>& localization, const std::function<void()>& onChange = [] {}) override
+	ComboRenderer createComboRenderer(const std::initializer_list<std::string>& localization, const ChangeCallback& onChange = [] {}) override
 	{
 		return [&localization, onChange](const std::string& id, std::size_t& thing) {
 			const char* names[localization.size()];
@@ -214,14 +214,14 @@ struct EntityESP : ESP {
 			}
 		};
 	}
-	std::function<void(const std::string&, float&)> createFloatRenderer(float min, float max, const char* fmt, const std::function<void()>& onChange = [] {}) override
+	FloatRenderer createFloatRenderer(float min, float max, const char* fmt, const ChangeCallback& onChange = [] {}) override
 	{
 		return [min, max, fmt, onChange](const std::string& id, float& thing) {
 			if (ImGui::SliderFloat(id.c_str(), &thing, min, max, fmt))
 				onChange();
 		};
 	}
-	std::function<void(const std::string&, int&)> createIntRenderer(int min, int max, const std::function<void()>& onChange = [] {}) override
+	IntRenderer createIntRenderer(int min, int max, const ChangeCallback& onChange = [] {}) override
 	{
 		return [min, max, onChange](const std::string& id, int& thing) {
 			if (ImGui::SliderInt(id.c_str(), &thing, min, max))

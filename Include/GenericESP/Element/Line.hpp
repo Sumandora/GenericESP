@@ -6,7 +6,7 @@
 namespace GenericESP {
 
 	struct Line : Element {
-		Mixable<ImColor> lineColor;
+		Mixable<ImColor> color;
 		Mixable<float> thickness;
 		Mixable<bool> outlined;
 		Mixable<ImColor> outlineColor;

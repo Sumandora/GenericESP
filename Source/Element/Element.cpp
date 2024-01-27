@@ -8,7 +8,6 @@ GenericESP::Element::Element(ESP* base, std::string id, bool topLevel)
 	, topLevel(topLevel)
 	, enabled(StaticConfig<bool>{ "Enabled", false, base->createBoolRenderer() })
 {
-	std::cout << this->id.c_str() << " " << topLevel << std::endl;
 	if(topLevel)
 		base->elements.emplace_back(this);
 }

@@ -22,16 +22,15 @@ namespace GenericESP {
 		std::function<SerializedTypeMap(const Configurable&)> serializer;
 		std::function<void(const SerializedTypeMap&, Configurable&)> deserializer;
 
-	private:
-		template <typename Variant, std::size_t Idx = std::variant_size_v<Variant> - 1>
-		consteval static bool isInsideVariant() {
-			bool result = std::is_same_v<Configurable, std::variant_alternative_t<Idx, Variant>>;
+		template <std::size_t Idx = std::variant_size_v<SerializedType> - 1>
+		consteval static bool canUseDefaultSerializers() {
+			bool result = std::is_same_v<Configurable, std::variant_alternative_t<Idx, SerializedType>>;
 			if constexpr (Idx > 0)
-				return result || isInsideVariant<Variant, Idx - 1>();
+				return result || canUseDefaultSerializers<Idx - 1>();
 			return result;
 		}
-	public:
-		template <typename = std::enable_if<isInsideVariant<SerializedType>()>>
+
+		template <typename = std::enable_if<canUseDefaultSerializers()>>
 		StaticConfig(std::string id,
 			Configurable thing,
 			decltype(renderer) renderer)

@@ -30,7 +30,7 @@ Bar::Bar(ESP* base, std::string id, Bar::PercentageProvider percentageProvider, 
 						   return !selected.isStatic() || selected.getStaticConfig().thing;
 					   } }
 	, percentageProvider(std::move(percentageProvider))
-	, numberText{numberTextProvider.has_value() ? std::optional<NumberText>{ NumberText { base, "Number text", std::move(numberTextProvider.value()), false } } : std::nullopt}
+	, numberText(numberTextProvider.has_value() ? std::optional<std::unique_ptr<NumberText>>{ std::make_unique<NumberText>(base, "Number text", std::move(numberTextProvider.value()), false) } : std::nullopt)
 {
 }
 
@@ -40,6 +40,15 @@ Bar::NumberText::NumberText(ESP* base, std::string id, NumberText::Provider prov
 	, numberText(base, "Number text", false)
 	, hideWhenFull(false)
 {
+	auto& enabledCfg = numberText.enabled.getSelected().getStaticConfig();
+	enabledCfg.renderer = [this, origRenderer = enabledCfg.renderer](const std::string& id, bool& thing) {
+		origRenderer(id, thing);
+		if(thing) {
+			static auto newRenderer = this->base->createBoolRenderer();
+			ImGui::SameLine();
+			newRenderer("Hide when full", hideWhenFull);
+		}
+	};
 }
 
 void Bar::NumberText::draw(ImDrawList* drawList, const EntityType* e, ImVec2 pos) const
@@ -322,7 +331,11 @@ void Bar::draw(ImDrawList* drawList, const EntityType* e, UnionedRect& unionedRe
 			drawList->AddRectFilled(barRect.Min, barRect.Max, middleColor);
 		}
 
-		if (numberText.has_value() && numberText->numberText.enabled(e))
+		if (numberText.has_value()) {
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wshadow"
+			const auto& numberText = this->numberText.value();
+#pragma clang diagnostic pop
 			if (!numberText->hideWhenFull || clampedPercentage < 1.0f) {
 				auto textPosition = [&]() -> ImVec2 {
 					switch (side) {
@@ -339,6 +352,7 @@ void Bar::draw(ImDrawList* drawList, const EntityType* e, UnionedRect& unionedRe
 				}();
 				numberText->draw(drawList, e, textPosition);
 			}
+		}
 	}
 }
 
@@ -351,8 +365,13 @@ void Bar::renderGui()
 			 &hueSteps, &flipped, &outlined, &outlineColor,
 			 &outlineThickness })
 		r->renderGui();
-	if (numberText.has_value())
+	if (numberText.has_value()) {
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wshadow"
+		auto& numberText = this->numberText.value();
+#pragma clang diagnostic pop
 		numberText->renderGui();
+	}
 	ImGui::PopID();
 }
 
@@ -365,8 +384,13 @@ SerializedTypeMap Bar::serialize() const
 			 &hueSteps, &flipped, &outlined, &outlineColor,
 			 &outlineThickness })
 		mixable->serialize(map);
-	if (numberText.has_value())
+	if (numberText.has_value()) {
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wshadow"
+		auto& numberText = this->numberText.value();
+#pragma clang diagnostic pop
 		map.putSubtree(numberText->id, numberText->serialize());
+	}
 	return map;
 }
 
@@ -378,9 +402,15 @@ void Bar::deserialize(const SerializedTypeMap& map)
 			 &hueSteps, &flipped, &outlined, &outlineColor,
 			 &outlineThickness })
 		mixable->deserializeFromParent(map);
-	if (numberText.has_value() && map.contains(numberText->id)) {
-		auto opt = map.getSubtree(numberText->id);
-		if(opt.has_value())
-			numberText->deserialize(opt.value());
+	if (numberText.has_value()) {
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wshadow"
+		auto& numberText = this->numberText.value();
+#pragma clang diagnostic pop
+		if(map.contains(numberText->id)) {
+			auto opt = map.getSubtree(numberText->id);
+			if(opt.has_value())
+				numberText->deserialize(opt.value());
+		}
 	}
 }

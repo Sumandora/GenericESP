@@ -6,7 +6,7 @@
 namespace GenericESP {
 
 	struct Circle : Element {
-		Mixable<ImColor> circleColor;
+		Mixable<ImColor> color;
 		Mixable<float> radius;
 		Mixable<bool> outlined;
 		Mixable<ImColor> outlineColor;
