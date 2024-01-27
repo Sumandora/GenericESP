@@ -20,7 +20,7 @@ namespace GenericESP {
 		// The renderer which is later replaced by the list renderer
 		std::function<void(const std::string&, std::size_t&)> comboRenderer;
 
-		explicit SidedElement(ESP* base, std::string id, Side defaultSide);
+		explicit SidedElement(ESP* base, std::string id, Side defaultSide, bool topLevel);
 
 		Side getSide(const EntityType* e) const;
 

@@ -12,7 +12,7 @@ namespace GenericESP {
 		Mixable<ImColor> outlineColor;
 		Mixable<float> outlineRadius;
 
-		explicit Circle(ESP* base, std::string id);
+		explicit Circle(ESP* base, std::string id, bool topLevel = true);
 
 		void draw(ImDrawList* drawList, const EntityType* e, const ImVec2& position) const;
 		void renderGui() override;

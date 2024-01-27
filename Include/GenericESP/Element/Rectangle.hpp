@@ -16,7 +16,7 @@ namespace GenericESP {
 		Mixable<bool> fill;
 		Mixable<ImColor> fillColor;
 
-		explicit Rectangle(ESP* base, std::string id);
+		explicit Rectangle(ESP* base, std::string id, bool topLevel = true);
 
 		void draw(ImDrawList* drawList, const EntityType* e, UnionedRect& rect) const;
 		void renderGui() override;

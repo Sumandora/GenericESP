@@ -4,8 +4,8 @@
 
 using namespace GenericESP;
 
-Text::Text(ESP* base, std::string id)
-	: Element(base, std::move(id))
+Text::Text(ESP* base, std::string id, bool topLevel)
+	: Element(base, std::move(id), topLevel)
 	, fontScale{ StaticConfig<float>{ "Font scale", 1.0f, base->createFloatRenderer(0.0f, 10.0f, "%.2f") } }
 	, fontColor{ StaticConfig<ImColor>{ "Font color", { 1.0f, 1.0f, 1.0f, 1.0f }, base->createColorRenderer(), serializeImColor, deserializeImColor } }
 	, shadow{ StaticConfig<bool>{ "Shadow", true, base->createBoolRenderer() } }

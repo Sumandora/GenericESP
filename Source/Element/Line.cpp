@@ -4,8 +4,8 @@
 
 using namespace GenericESP;
 
-Line::Line(ESP* base, std::string id)
-	: Element(base, std::move(id))
+Line::Line(ESP* base, std::string id, bool topLevel)
+	: Element(base, std::move(id), topLevel)
 	, lineColor{ StaticConfig<ImColor>{ "Line color", { 1.0f, 1.0f, 1.0f, 1.0f }, base->createColorRenderer(), serializeImColor, deserializeImColor } }
 	, thickness{ StaticConfig<float>{ "Thickness", 1.0f, base->createFloatRenderer(0.0f, 10.0f, "%.2f") } }
 	, outlined{ StaticConfig<bool>{ "Outlined", true, base->createBoolRenderer() } }

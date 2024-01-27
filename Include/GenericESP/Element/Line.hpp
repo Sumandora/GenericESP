@@ -12,7 +12,7 @@ namespace GenericESP {
 		Mixable<ImColor> outlineColor;
 		Mixable<float> outlineThickness;
 
-		explicit Line(ESP* base, std::string id);
+		explicit Line(ESP* base, std::string id, bool topLevel = true);
 
 		void draw(ImDrawList* drawList, const EntityType* e, const std::vector<ImVec2>& points) const;
 		void renderGui() override;

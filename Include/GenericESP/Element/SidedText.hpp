@@ -10,7 +10,7 @@ namespace GenericESP {
 		Mixable<float> spacing;
 		Text textElement;
 
-		explicit SidedText(ESP* base, std::string id);
+		explicit SidedText(ESP* base, std::string id, Side side, bool topLevel = true);
 
 		void draw(ImDrawList* drawList, const EntityType* e, const std::string& text, UnionedRect& unionedRect) const;
 		void renderGui() override;

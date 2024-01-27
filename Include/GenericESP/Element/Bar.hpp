@@ -23,19 +23,17 @@ namespace GenericESP {
 		using PercentageProvider = OpaqueLambda<float>;
 		PercentageProvider percentageProvider;
 
-		struct NumberText : Serializable {
-			std::string id;
-
+		struct NumberText : Element {
 			Text numberText;
 			bool hideWhenFull;
 
 			using Provider = OpaqueLambda<std::string>;
 			Provider numberTextProvider;
 
-			explicit NumberText(ESP* base, Provider provider);
+			explicit NumberText(ESP* base, std::string id, Provider provider, bool topLevel = true);
 
 			void draw(ImDrawList* drawList, const EntityType* e, ImVec2 pos) const;
-			void renderGui();
+			void renderGui() override;
 
 			[[nodiscard]] SerializedTypeMap serialize() const override;
 			void deserialize(const SerializedTypeMap& map) override;
@@ -43,7 +41,7 @@ namespace GenericESP {
 
 		std::optional<NumberText> numberText;
 
-		explicit Bar(ESP* base, std::string id, PercentageProvider percentageProvider, std::optional<NumberText::Provider> numberTextProvider = std::nullopt);
+		explicit Bar(ESP* base, std::string id, PercentageProvider percentageProvider, std::optional<NumberText::Provider> numberTextProvider = std::nullopt, bool topLevel = true);
 
 		// --- Likely irrelevant for users ---
 		ImRect calculateNewRect(const EntityType* e, const ImRect& rect) const;

@@ -2,8 +2,8 @@
 
 using namespace GenericESP;
 
-Flags::Flags(ESP* base, std::string id, std::initializer_list<Flag*> flags)
-	: SidedElement(base, std::move(id), Side::RIGHT)
+Flags::Flags(ESP* base, std::string id, std::initializer_list<Flag*> flags, bool topLevel)
+	: SidedElement(base, std::move(id), Side::RIGHT, topLevel)
 	, spacing{ StaticConfig<float>{ "Spacing", 1.0f, base->createFloatRenderer(0.0, 10.0f, "%.2f") } }
 	, lineSpacing{ StaticConfig<float>{ "Line spacing", 1.0f, base->createFloatRenderer(0.0, 2.0f, "%.2f") } }
 	, flagOrder{ this->flags, [](const std::unique_ptr<Flag>& flag) { return flag->name; } }

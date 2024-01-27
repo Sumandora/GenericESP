@@ -6,8 +6,8 @@
 
 using namespace GenericESP;
 
-Rectangle::Rectangle(ESP* base, std::string id)
-	: Element(base, std::move(id))
+Rectangle::Rectangle(ESP* base, std::string id, bool topLevel)
+	: Element(base, std::move(id), topLevel)
 	, color{ StaticConfig<ImColor>{ "Color", { 1.0f, 1.0f, 1.0f, 1.0f }, base->createColorRenderer(), serializeImColor, deserializeImColor } }
 	, rounding{ StaticConfig<float>{ "Rounding", 0.0f, base->createFloatRenderer(0.0f, 10.0f, "%.2f") } }
 	, thickness{ StaticConfig<float>{ "Thickness", 1.0f, base->createFloatRenderer(0.0f, 10.0f, "%.2f") } }

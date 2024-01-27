@@ -7,8 +7,8 @@
 
 using namespace GenericESP;
 
-Bar::Bar(ESP* base, std::string id, Bar::PercentageProvider percentageProvider, std::optional<NumberText::Provider> numberTextProvider)
-	: SidedElement(base, std::move(id), Side::LEFT)
+Bar::Bar(ESP* base, std::string id, Bar::PercentageProvider percentageProvider, std::optional<NumberText::Provider> numberTextProvider, bool topLevel)
+	: SidedElement(base, std::move(id), Side::LEFT, topLevel)
 	, backgroundColor{ StaticConfig<ImColor>{ "Background color", { 0.0f, 0.0f, 0.0f, 1.0f }, base->createColorRenderer(), serializeImColor, deserializeImColor } }
 	, spacing{ StaticConfig<float>{ "Spacing", 1.0f, base->createFloatRenderer(0.0, 10.0f, "%.2f") } }
 	, width{ StaticConfig<float>{ "Width", 2.0f, base->createFloatRenderer(0.0, 10.0f, "%.2f") } }
@@ -30,16 +30,16 @@ Bar::Bar(ESP* base, std::string id, Bar::PercentageProvider percentageProvider, 
 						   return !selected.isStatic() || selected.getStaticConfig().thing;
 					   } }
 	, percentageProvider(std::move(percentageProvider))
-	, numberText{numberTextProvider.has_value() ? std::optional<NumberText>{ NumberText { base, std::move(numberTextProvider.value()) } } : std::nullopt}
+	, numberText{numberTextProvider.has_value() ? std::optional<NumberText>{ NumberText { base, "Number text", std::move(numberTextProvider.value()), false } } : std::nullopt}
 {
 }
 
-Bar::NumberText::NumberText(ESP* base, NumberText::Provider provider)
-	: numberTextProvider(std::move(provider))
-	, numberText(base, "Number text")
+Bar::NumberText::NumberText(ESP* base, std::string id, NumberText::Provider provider, bool topLevel)
+	: Element(base, std::move(id), topLevel)
+	, numberTextProvider(std::move(provider))
+	, numberText(base, "Number text", false)
 	, hideWhenFull(false)
 {
-	id = numberText.id;
 }
 
 void Bar::NumberText::draw(ImDrawList* drawList, const EntityType* e, ImVec2 pos) const

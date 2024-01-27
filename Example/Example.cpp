@@ -30,7 +30,7 @@ struct EntityESP : ESP {
 	};
 	Line line{ this, "Line" };
 	Circle circle{ this, "Circle" };
-	SidedText name{ this, "Name" };
+	SidedText name{ this, "Name", Side::TOP };
 
 	// Custom flags
 	struct MyFlag : Flag {

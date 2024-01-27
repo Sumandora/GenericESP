@@ -27,7 +27,7 @@ namespace GenericESP {
 	using IntRenderer	= std::function<void(const std::string&, int&)>;
 
 	struct ESP {
-		std::vector<Element*> elements;
+		std::vector<std::unique_ptr<Element>> elements;
 
 		virtual BoolRenderer	createBoolRenderer(const std::function<void()>& onChange = [] {}) = 0;
 		virtual ColorRenderer	createColorRenderer(const std::function<void()>& onChange = [] {}) = 0;

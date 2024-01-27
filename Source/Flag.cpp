@@ -4,7 +4,7 @@ using namespace GenericESP;
 
 Flag::Flag(ESP* base, std::string name, Flag::Remaps remaps, std::string defaultFormat)
 	: name(std::move(name))
-	, textElement(base, "Text element")
+	, textElement(base, "Text element", false)
 	, remaps(std::move(remaps))
 	, format(std::move(defaultFormat))
 {

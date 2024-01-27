@@ -25,7 +25,7 @@ namespace GenericESP {
 		Mixable<float> shadowOffset;
 		Mixable<ImColor> shadowColor;
 
-		explicit Text(ESP* base, std::string id);
+		explicit Text(ESP* base, std::string id, bool topLevel = true);
 
 		std::optional<ImVec2> draw(ImDrawList* drawList, const EntityType* e, const std::string& text, const ImVec2& pos,
 			TextAlignment horizontalAlignment, VerticalAlignment verticalAlignment) const;

@@ -2,10 +2,10 @@
 
 using namespace GenericESP;
 
-SidedText::SidedText(ESP* base, std::string id)
-	: SidedElement(base, std::move(id), Side::TOP)
+SidedText::SidedText(ESP* base, std::string id, Side defaultSide, bool topLevel)
+	: SidedElement(base, std::move(id), defaultSide, topLevel)
 	, spacing{ StaticConfig<float>{ "Spacing", 1.0f, base->createFloatRenderer(0.0, 10.0f, "%.2f") } }
-	, textElement(base, "Text")
+	, textElement(base, "Text", false)
 {
 	auto& textEnabled = textElement.enabled.getSelected();
 	textEnabled.thing = DynamicConfig<bool>{ textEnabled.getStaticConfig().id, [this](const EntityType* e) -> bool { return this->enabled(e); }, [](const std::string&) {}, [] -> SerializedTypeMap { return {}; }, [](const SerializedTypeMap&) {} };
