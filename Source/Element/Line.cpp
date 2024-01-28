@@ -1,16 +1,17 @@
 #include "GenericESP/Element/Line.hpp"
 
+#include "GenericESP/RendererFactory.hpp"
 #include "GenericESP/Serialization/ImColorSerialization.hpp"
 
 using namespace GenericESP;
 
 Line::Line(ESP* base, std::string id, bool topLevel)
 	: Element(base, std::move(id), topLevel)
-	, color{ StaticConfig<ImColor>{ "Color", { 1.0f, 1.0f, 1.0f, 1.0f }, base->createColorRenderer(), serializeImColor, deserializeImColor } }
-	, thickness{ StaticConfig<float>{ "Thickness", 1.0f, base->createFloatRenderer(0.0f, 10.0f, "%.2f") } }
-	, outlined{ StaticConfig<bool>{ "Outlined", true, base->createBoolRenderer() } }
-	, outlineColor{ StaticConfig<ImColor>{ "Outline color", { 0.0f, 0.0f, 0.0f, 1.0f }, base->createColorRenderer(), serializeImColor, deserializeImColor } }
-	, outlineThickness{ StaticConfig<float>{ "Outline thickness", 2.0f, base->createFloatRenderer(0.0f, 10.0f, "%.2f") } }
+	, color{ StaticConfig<ImColor>{ "Color", { 1.0f, 1.0f, 1.0f, 1.0f }, rendererFactory->createColorRenderer(), serializeImColor, deserializeImColor } }
+	, thickness{ StaticConfig<float>{ "Thickness", 1.0f, rendererFactory->createFloatRenderer(0.0f, 10.0f, "%.2f") } }
+	, outlined{ StaticConfig<bool>{ "Outlined", true, rendererFactory->createBoolRenderer() } }
+	, outlineColor{ StaticConfig<ImColor>{ "Outline color", { 0.0f, 0.0f, 0.0f, 1.0f }, rendererFactory->createColorRenderer(), serializeImColor, deserializeImColor } }
+	, outlineThickness{ StaticConfig<float>{ "Outline thickness", 2.0f, rendererFactory->createFloatRenderer(0.0f, 10.0f, "%.2f") } }
 {
 }
 

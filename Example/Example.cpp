@@ -3,6 +3,8 @@
 #define IMGUI_DEFINE_MATH_OPERATORS
 
 #include "GenericESP.hpp"
+#include "GenericESP/DefaultRenderers.hpp"
+#include "GenericESP/RendererFactory.hpp"
 #include "GenericESP/Serialization/ImColorSerialization.hpp"
 
 struct Entity {
@@ -14,6 +16,8 @@ struct Entity {
 };
 
 using namespace GenericESP;
+
+RendererFactory* const GenericESP::rendererFactory = new DefaultRenderers;
 
 struct EntityESP : ESP {
 	Rectangle box{ this, "Box" };
@@ -76,7 +80,7 @@ struct EntityESP : ESP {
 													 };
 												 },
 			[this](const std::string& id) {
-				static auto displayColor = createColorRenderer();
+				static auto displayColor = GenericESP::rendererFactory->createColorRenderer();
 				ImGui::PushID(id.c_str());
 				displayColor("Alive color", aliveColor);
 				displayColor("Dead color", deadColor);
@@ -156,67 +160,6 @@ struct EntityESP : ESP {
 		circle.draw(drawList, &e, ImVec2{ rect.Min.x + (rect.Max.x - rect.Min.x) * 0.5f, rect.Min.y + (rect.Max.y - rect.Min.y) * 0.25f } + circleOffset); // Let's imagine this to be a head dot
 
 		return unionedRect;
-	}
-
-	BoolRenderer createBoolRenderer(const ChangeCallback& onChange = [] {}) override
-	{
-		return [onChange](const std::string& id, bool& thing) {
-			if (ImGui::Checkbox(id.c_str(), &thing))
-				onChange();
-		};
-	};
-	ColorRenderer createColorRenderer(const ChangeCallback& onChange = [] {}) override
-	{
-		return [onChange](const std::string& id, ImColor& thing) {
-			ImGui::PushID(id.c_str());
-			const bool clicked = ImGui::ColorButton(id.c_str(), thing.Value, ImGuiColorEditFlags_None, ImVec2(0, 0));
-			ImGui::SameLine();
-			ImGui::Text("%s", id.c_str());
-
-			if (clicked)
-				ImGui::OpenPopup("##Picker");
-
-			if (ImGui::BeginPopup("##Picker")) {
-				float color[] = { thing.Value.x, thing.Value.y, thing.Value.z, thing.Value.w };
-				if (ImGui::ColorPicker4(id.c_str(), color, 0)) {
-					thing.Value = ImVec4(color[0], color[1], color[2], color[3]);
-					onChange();
-				}
-				ImGui::EndPopup();
-			}
-			ImGui::PopID();
-		};
-	};
-	ComboRenderer createComboRenderer(const std::initializer_list<std::string>& localization, const ChangeCallback& onChange = [] {}) override
-	{
-		return [&localization, onChange](const std::string& id, std::size_t& thing) {
-			const char* names[localization.size()];
-			std::size_t idx = 0;
-			for (const auto& local : localization) {
-				names[idx] = local.c_str();
-				idx++;
-			}
-
-			int i = static_cast<int>(thing);
-			if (ImGui::Combo(id.c_str(), &i, names, IM_ARRAYSIZE(names))) {
-				thing = static_cast<std::size_t>(i);
-				onChange();
-			}
-		};
-	}
-	FloatRenderer createFloatRenderer(float min, float max, const char* fmt, const ChangeCallback& onChange = [] {}) override
-	{
-		return [min, max, fmt, onChange](const std::string& id, float& thing) {
-			if (ImGui::SliderFloat(id.c_str(), &thing, min, max, fmt))
-				onChange();
-		};
-	}
-	IntRenderer createIntRenderer(int min, int max, const ChangeCallback& onChange = [] {}) override
-	{
-		return [min, max, onChange](const std::string& id, int& thing) {
-			if (ImGui::SliderInt(id.c_str(), &thing, min, max))
-				onChange();
-		};
 	}
 };
 

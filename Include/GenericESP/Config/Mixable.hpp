@@ -9,11 +9,11 @@
 #include <vector>
 #include <memory>
 
-#include "ConfigurableValue.hpp"
-#include "GenericESP/Serialization/Serialization.hpp"
-#include "imgui.h"
-
 #include "../Abstract/Renderable.hpp"
+#include "../RendererFactory.hpp"
+#include "../Serialization/Serialization.hpp"
+#include "ConfigurableValue.hpp"
+#include "imgui.h"
 
 namespace GenericESP {
 	struct MixableBase : Renderable, Serializable {
@@ -41,16 +41,20 @@ namespace GenericESP {
 		using ConfigurableType = ConfigurableValue<Type>;
 		using TypeList = std::vector<ConfigurableType>;
 		using MultiType = std::pair<std::size_t /*selected index*/, TypeList>;
-		std::variant<ConfigurableType, MultiType> options;
+		std::variant<ConfigurableType, MultiType> options; // When editing directly make sure to call rebuildRenderer
 
 		using IsVisible = std::function<bool()>;
 		IsVisible isVisible; // This can also be changed later
+
+		ComboRenderer renderer;
+		std::vector<std::string> ids;
 
 		explicit Mixable(ConfigurableType t, IsVisible isVisible = [] { return true; })
 			: MixableBase(t.getId())
 			, options(std::move(t))
 			, isVisible(std::move(isVisible))
 		{
+			rebuildRenderer();
 		}
 
 		explicit Mixable(std::string id, MultiType multiType, IsVisible isVisible = [] { return true; })
@@ -58,11 +62,31 @@ namespace GenericESP {
 			, options(std::move(multiType))
 			, isVisible(std::move(isVisible))
 		{
+			rebuildRenderer();
 		}
 
 		explicit Mixable(std::string id, TypeList typeList, IsVisible isVisible = [] { return true; })
 			: Mixable(id, MultiType{ 0, std::move(typeList) }, std::move(isVisible))
 		{
+		}
+
+		void rebuildIds() {
+			ids.clear();
+			if(isMultiType()) {
+				auto& multi = std::get<MultiType>(options);
+				ids.reserve(multi.second.size());
+				for (const ConfigurableType& type : multi.second) {
+					ids.push_back(type.getId());
+				}
+			} else {
+				auto& single = std::get<ConfigurableType>(options);
+				ids.push_back(single.getId());
+			}
+		}
+
+		void rebuildRenderer() {
+			rebuildIds();
+			renderer = rendererFactory->createComboRenderer(ids);
 		}
 
 		[[nodiscard]] bool isSingleType() const
@@ -112,6 +136,7 @@ namespace GenericESP {
 
 			auto& pair = std::get<MultiType>(options);
 			pair.second.emplace_back(type);
+			rebuildRenderer();
 		}
 
 		void renderGui() override
@@ -124,16 +149,7 @@ namespace GenericESP {
 			if (isMultiType()) {
 				auto& pair = std::get<MultiType>(options);
 
-				const char* names[pair.second.size()];
-				size_t idx = 0;
-				for (const ConfigurableType& type : pair.second) {
-					names[idx] = type.getId().c_str();
-					idx++;
-				}
-
-				int i = pair.first;
-				ImGui::Combo("Selector", &i, names, IM_ARRAYSIZE(names));
-				pair.first = i;
+				renderer("Selector", pair.first);
 
 				ImGui::PushID("Mixable types");
 				ConfigurableType& configuredType = *std::next(pair.second.begin(), pair.first);

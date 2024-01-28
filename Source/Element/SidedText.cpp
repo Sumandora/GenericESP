@@ -1,10 +1,12 @@
 #include "GenericESP/Element/SidedText.hpp"
 
+#include "GenericESP/RendererFactory.hpp"
+
 using namespace GenericESP;
 
 SidedText::SidedText(ESP* base, std::string id, Side defaultSide, bool topLevel)
 	: SidedElement(base, std::move(id), defaultSide, topLevel)
-	, spacing{ StaticConfig<float>{ "Spacing", 1.0f, base->createFloatRenderer(0.0, 10.0f, "%.2f") } }
+	, spacing{ StaticConfig<float>{ "Spacing", 1.0f, rendererFactory->createFloatRenderer(0.0, 10.0f, "%.2f") } }
 	, textElement(base, "Text", false)
 {
 	auto& textEnabled = textElement.enabled.getSelected();

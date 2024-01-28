@@ -39,9 +39,9 @@ target_include_directories(GenericESP PUBLIC "${PROJECT_SOURCE_DIR}/Include")
 target_compile_features(GenericESP PUBLIC cxx_std_23)
 
 if(PROJECT_IS_TOP_LEVEL)
-
+    add_subdirectory("Extensions/DefaultRenderers")
     add_executable(GenericESPExample "Example/Example.cpp" "Example/ImGuiImpl.cpp")
     target_compile_features(GenericESPExample PUBLIC cxx_std_23)
-    target_link_libraries(GenericESPExample GenericESP imgui SDL2)
+    target_link_libraries(GenericESPExample GenericESP imgui SDL2 GenericESPDefaultRenderers)
 endif()
 

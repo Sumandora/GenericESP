@@ -1,12 +1,14 @@
 #include "GenericESP/Element/Element.hpp"
 
+#include "GenericESP/RendererFactory.hpp"
+
 #include <algorithm>
 
 GenericESP::Element::Element(ESP* base, std::string id, bool topLevel)
 	: base(base)
 	, id(std::move(id))
 	, topLevel(topLevel)
-	, enabled(StaticConfig<bool>{ "Enabled", false, base->createBoolRenderer() })
+	, enabled(StaticConfig<bool>{ "Enabled", false, rendererFactory->createBoolRenderer() })
 {
 	if(topLevel)
 		base->elements.emplace_back(this);
@@ -15,5 +17,5 @@ GenericESP::Element::Element(ESP* base, std::string id, bool topLevel)
 GenericESP::Element::~Element()
 {
 	if(topLevel)
-		std::ranges::remove_if(base->elements, [this](const std::unique_ptr<Element>& e) { return e.get() == this; });
+		std::ranges::remove(base->elements, this);
 }

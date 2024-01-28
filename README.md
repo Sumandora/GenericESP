@@ -1,5 +1,5 @@
 # Generic ESP
-This library provides a generic implementation of an [ESP (Extra Sensory Perception)](https://en.wikipedia.org/wiki/Cheating_in_online_games#/media/File:AssaultCube_wallhacks_(cropped).png). The goal of this library is to provide a reusable foundation for creating custom ESP hacks with ImGui. It includes elements such as boxes, bars, text labels, circles, lines, and flags that can be easily configured and extended.
+This library provides a generic implementation of an [ESP (Extra Sensory Perception)](https://en.wikipedia.org/wiki/Cheating_in_online_games#/media/File:AssaultCube_wallhacks_(cropped).png). The goal of this library is to provide a reusable foundation for creating custom ESP hacks with Dear ImGui. It includes elements such as boxes, bars, text labels, circles, lines, and flags that can be easily configured and extended.
 
 ## Features
 - Fully configurable boxes, bars, lines, circles, and text labels
@@ -13,32 +13,14 @@ This library provides a generic implementation of an [ESP (Extra Sensory Percept
 
 ## Implementation
 - Include the header files: Add `#include "GenericESP.hpp"` to include the main header file in your project. The following steps will expect `using namespace GenericESP;` for shorter code.
+- Define your renderers. You can add default renderers to your project using the `Extensions/DefaultRenderers` submodule. You can also use them as a reference for your own renderers to add a stylized look to all menus.
+```cpp
+RendererFactory* const GenericESP::rendererFactory = new DefaultRenderers;
+```
 - Create a new struct that extends from `ESP`
 ```cpp
 struct EntityESP : ESP {
 
-};
-```
-- Create your renderers. You should probably replace these, but if you need a point to start then checkout the Example in the `Example` folder
-```cpp
-struct EntityESP : ESP {
-    // ...
-    
-    BoolRenderer createBoolRenderer(const ChangeCallback& onChange) override {
-        //...
-    }
-    ColorRenderer createColorRenderer(const ChangeCallback& onChange) override {
-        //...
-    }
-    ComboRenderer createComboRenderer(const std::initializer_list<std::string>& localization, const ChangeCallback& onChange) override {
-        //...
-    }
-    FloatRenderer createFloatRenderer(float min, float max, const char* fmt, const ChangeCallback& onChange) override {
-        //...
-    }
-    IntRenderer createIntRenderer(int min, int max, const ChangeCallback& onChange) override {
-        //...
-    }
 };
 ```
 - Define each element of this ESP. This example will only use one element for space reasons. For a more complete example check the `Example` folder
@@ -233,4 +215,4 @@ Flags flags{ this, "Flags", { new MyFlag{ this } } };
 
 
 ## Credits
-- [imgui](https://github.com/ocornut/imgui) by ocornut
+- [Dear ImGui](https://github.com/ocornut/imgui) by ocornut
