@@ -107,7 +107,7 @@ Circle circle{ this, "Circle" };
 ```
 
 #### Text labels and their attached-to-side counterpart
-Text labels can have many purposes, for example the name of the player or the weapon they are holding.
+Text labels can have many purposes, for example showing the name of the player or the weapon they are holding.
 ```cpp
 SidedText name{ this, "Name" };
 ```
