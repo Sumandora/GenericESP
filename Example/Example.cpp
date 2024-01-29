@@ -17,7 +17,8 @@ struct Entity {
 
 using namespace GenericESP;
 
-RendererFactory* const GenericESP::rendererFactory = new DefaultRenderers;
+DefaultRenderers defaultRenderers;
+RendererFactory* const GenericESP::rendererFactory = &defaultRenderers;
 
 struct EntityESP : ESP {
 	Rectangle box{ this, "Box" };
