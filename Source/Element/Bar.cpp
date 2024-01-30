@@ -10,23 +10,23 @@ using namespace GenericESP;
 
 Bar::Bar(ESP* base, std::string id, Bar::PercentageProvider percentageProvider, std::optional<NumberText::Provider> numberTextProvider, bool topLevel)
 	: SidedElement(base, std::move(id), Side::LEFT, topLevel)
-	, backgroundColor{ StaticConfig<ImColor>{ "Background color", { 0.0f, 0.0f, 0.0f, 1.0f }, rendererFactory->createColorRenderer(), serializeImColor, deserializeImColor } }
-	, spacing{ StaticConfig<float>{ "Spacing", 1.0f, rendererFactory->createFloatRenderer(0.0, 10.0f, "%.2f") } }
-	, width{ StaticConfig<float>{ "Width", 2.0f, rendererFactory->createFloatRenderer(0.0, 10.0f, "%.2f") } }
-	, filledColor{ StaticConfig<ImColor>{ "Filled color", { 0.0f, 1.0f, 0.0f, 1.0f }, rendererFactory->createColorRenderer(), serializeImColor, deserializeImColor } }
-	, emptyColor{ StaticConfig<ImColor>{ "Empty color", { 1.0f, 0.0f, 0.0f, 1.0f }, rendererFactory->createColorRenderer(), serializeImColor, deserializeImColor } }
-	, hueSteps{ StaticConfig<int>{ "Hue steps", 3, rendererFactory->createIntRenderer(3, 10) }, [this] {
+	, backgroundColor{ StaticConfig<ImColor>{ "Background color", { 0.0f, 0.0f, 0.0f, 1.0f }, rendererFactory.createColorRenderer(), serializeImColor, deserializeImColor } }
+	, spacing{ StaticConfig<float>{ "Spacing", 1.0f, rendererFactory.createFloatRenderer(0.0, 10.0f, "%.2f") } }
+	, width{ StaticConfig<float>{ "Width", 2.0f, rendererFactory.createFloatRenderer(0.0, 10.0f, "%.2f") } }
+	, filledColor{ StaticConfig<ImColor>{ "Filled color", { 0.0f, 1.0f, 0.0f, 1.0f }, rendererFactory.createColorRenderer(), serializeImColor, deserializeImColor } }
+	, emptyColor{ StaticConfig<ImColor>{ "Empty color", { 1.0f, 0.0f, 0.0f, 1.0f }, rendererFactory.createColorRenderer(), serializeImColor, deserializeImColor } }
+	, hueSteps{ StaticConfig<int>{ "Hue steps", 3, rendererFactory.createIntRenderer(3, 10) }, [this] {
 				   const ConfigurableValue<bool>& selected = gradient.getSelected();
 				   return !selected.isStatic() || selected.getStaticConfig().thing;
 			   } }
-	, flipped{ StaticConfig<bool>{ "Flipped", false, rendererFactory->createBoolRenderer() } }
-	, gradient{ StaticConfig<bool>{ "Gradient", true, rendererFactory->createBoolRenderer() } }
-	, outlined{ StaticConfig<bool>{ "Outlined", true, rendererFactory->createBoolRenderer() } }
-	, outlineColor{ StaticConfig<ImColor>{ "Outline color", { 0.0f, 0.0f, 0.0f, 1.0f }, rendererFactory->createColorRenderer(), serializeImColor, deserializeImColor }, [this] {
+	, flipped{ StaticConfig<bool>{ "Flipped", false, rendererFactory.createBoolRenderer() } }
+	, gradient{ StaticConfig<bool>{ "Gradient", true, rendererFactory.createBoolRenderer() } }
+	, outlined{ StaticConfig<bool>{ "Outlined", true, rendererFactory.createBoolRenderer() } }
+	, outlineColor{ StaticConfig<ImColor>{ "Outline color", { 0.0f, 0.0f, 0.0f, 1.0f }, rendererFactory.createColorRenderer(), serializeImColor, deserializeImColor }, [this] {
 					   const ConfigurableValue<bool>& selected = outlined.getSelected();
 					   return !selected.isStatic() || selected.getStaticConfig().thing;
 				   } }
-	, outlineThickness{ StaticConfig<float>{ "Outline thickness", 1.0f, rendererFactory->createFloatRenderer(0.0, 10.0f, "%.2f") }, [this] {
+	, outlineThickness{ StaticConfig<float>{ "Outline thickness", 1.0f, rendererFactory.createFloatRenderer(0.0, 10.0f, "%.2f") }, [this] {
 						   const ConfigurableValue<bool>& selected = outlined.getSelected();
 						   return !selected.isStatic() || selected.getStaticConfig().thing;
 					   } }
@@ -45,7 +45,7 @@ Bar::NumberText::NumberText(ESP* base, std::string id, NumberText::Provider prov
 	enabledCfg.renderer = [this, origRenderer = enabledCfg.renderer](const std::string& id, bool& thing) {
 		origRenderer(id, thing);
 		if(thing) {
-			static auto newRenderer = rendererFactory->createBoolRenderer();
+			static auto newRenderer = rendererFactory.createBoolRenderer();
 			ImGui::SameLine();
 			newRenderer("Hide when full", hideWhenFull);
 		}

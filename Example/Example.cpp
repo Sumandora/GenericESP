@@ -18,7 +18,7 @@ struct Entity {
 using namespace GenericESP;
 
 DefaultRenderers defaultRenderers;
-RendererFactory* const GenericESP::rendererFactory = &defaultRenderers;
+RendererFactory& GenericESP::rendererFactory = defaultRenderers;
 
 struct EntityESP : ESP {
 	Rectangle box{ this, "Box" };
@@ -81,7 +81,7 @@ struct EntityESP : ESP {
 													 };
 												 },
 			[this](const std::string& id) {
-				static auto displayColor = GenericESP::rendererFactory->createColorRenderer();
+				static auto displayColor = GenericESP::rendererFactory.createColorRenderer();
 				ImGui::PushID(id.c_str());
 				displayColor("Alive color", aliveColor);
 				displayColor("Dead color", deadColor);

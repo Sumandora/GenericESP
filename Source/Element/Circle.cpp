@@ -7,11 +7,11 @@ using namespace GenericESP;
 
 Circle::Circle(ESP* base, std::string id, bool topLevel)
 	: Element(base, std::move(id), topLevel)
-	, color{ StaticConfig<ImColor>{ "Color", { 1.0f, 1.0f, 1.0f, 1.0f }, rendererFactory->createColorRenderer(), serializeImColor, deserializeImColor } }
-	, radius{ StaticConfig<float>{ "Radius", 1.0f, rendererFactory->createFloatRenderer(0.0f, 10.0f, "%.2f") } }
-	, outlined{ StaticConfig<bool>{ "Outlined", true, rendererFactory->createBoolRenderer() } }
-	, outlineColor{ StaticConfig<ImColor>{ "Outline color", { 0.0f, 0.0f, 0.0f, 1.0f }, rendererFactory->createColorRenderer(), serializeImColor, deserializeImColor } }
-	, outlineRadius{ StaticConfig<float>{ "Outline radius", 2.0f, rendererFactory->createFloatRenderer(0.0f, 10.0f, "%.2f") } }
+	, color{ StaticConfig<ImColor>{ "Color", { 1.0f, 1.0f, 1.0f, 1.0f }, rendererFactory.createColorRenderer(), serializeImColor, deserializeImColor } }
+	, radius{ StaticConfig<float>{ "Radius", 1.0f, rendererFactory.createFloatRenderer(0.0f, 10.0f, "%.2f") } }
+	, outlined{ StaticConfig<bool>{ "Outlined", true, rendererFactory.createBoolRenderer() } }
+	, outlineColor{ StaticConfig<ImColor>{ "Outline color", { 0.0f, 0.0f, 0.0f, 1.0f }, rendererFactory.createColorRenderer(), serializeImColor, deserializeImColor } }
+	, outlineRadius{ StaticConfig<float>{ "Outline radius", 2.0f, rendererFactory.createFloatRenderer(0.0f, 10.0f, "%.2f") } }
 {
 }
 

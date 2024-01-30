@@ -35,7 +35,7 @@ namespace GenericESP {
 	};
 
 	// Set this pointer to an instance of Renderers which will then be used to render contents
-	extern RendererFactory* const rendererFactory;
+	extern RendererFactory& rendererFactory;
 
 }
 

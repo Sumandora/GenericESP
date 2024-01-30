@@ -9,20 +9,20 @@ using namespace GenericESP;
 
 Rectangle::Rectangle(ESP* base, std::string id, bool topLevel)
 	: Element(base, std::move(id), topLevel)
-	, color{ StaticConfig<ImColor>{ "Color", { 1.0f, 1.0f, 1.0f, 1.0f }, rendererFactory->createColorRenderer(), serializeImColor, deserializeImColor } }
-	, rounding{ StaticConfig<float>{ "Rounding", 0.0f, rendererFactory->createFloatRenderer(0.0f, 10.0f, "%.2f") } }
-	, thickness{ StaticConfig<float>{ "Thickness", 1.0f, rendererFactory->createFloatRenderer(0.0f, 10.0f, "%.2f") } }
-	, outlined{ StaticConfig<bool>{ "Outlined", true, rendererFactory->createBoolRenderer() } }
-	, outlineColor{ StaticConfig<ImColor>{ "Outline color", { 0.0f, 0.0f, 0.0f, 1.0f }, rendererFactory->createColorRenderer(), serializeImColor, deserializeImColor }, [this] {
+	, color{ StaticConfig<ImColor>{ "Color", { 1.0f, 1.0f, 1.0f, 1.0f }, rendererFactory.createColorRenderer(), serializeImColor, deserializeImColor } }
+	, rounding{ StaticConfig<float>{ "Rounding", 0.0f, rendererFactory.createFloatRenderer(0.0f, 10.0f, "%.2f") } }
+	, thickness{ StaticConfig<float>{ "Thickness", 1.0f, rendererFactory.createFloatRenderer(0.0f, 10.0f, "%.2f") } }
+	, outlined{ StaticConfig<bool>{ "Outlined", true, rendererFactory.createBoolRenderer() } }
+	, outlineColor{ StaticConfig<ImColor>{ "Outline color", { 0.0f, 0.0f, 0.0f, 1.0f }, rendererFactory.createColorRenderer(), serializeImColor, deserializeImColor }, [this] {
 					   const ConfigurableValue<bool>& selected = outlined.getSelected();
 					   return !selected.isStatic() || selected.getStaticConfig().thing;
 				   } }
-	, outlineThickness{ StaticConfig<float>{ "Outline thickness", 2.0f, rendererFactory->createFloatRenderer(0.0f, 10.0f, "%.2f") }, [this] {
+	, outlineThickness{ StaticConfig<float>{ "Outline thickness", 2.0f, rendererFactory.createFloatRenderer(0.0f, 10.0f, "%.2f") }, [this] {
 						   const ConfigurableValue<bool>& selected = outlined.getSelected();
 						   return !selected.isStatic() || selected.getStaticConfig().thing;
 					   } }
-	, fill{ StaticConfig<bool>{ "Fill", false, rendererFactory->createBoolRenderer() } }
-	, fillColor{ StaticConfig<ImColor>{ "Fill color", { 1.0f, 1.0f, 1.0f, 1.0f }, rendererFactory->createColorRenderer(), serializeImColor, deserializeImColor }, [this] {
+	, fill{ StaticConfig<bool>{ "Fill", false, rendererFactory.createBoolRenderer() } }
+	, fillColor{ StaticConfig<ImColor>{ "Fill color", { 1.0f, 1.0f, 1.0f, 1.0f }, rendererFactory.createColorRenderer(), serializeImColor, deserializeImColor }, [this] {
 					const ConfigurableValue<bool>& selected = fill.getSelected();
 					return !selected.isStatic() || selected.getStaticConfig().thing;
 				} }

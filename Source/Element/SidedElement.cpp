@@ -13,7 +13,7 @@ std::initializer_list<std::string> GenericESP::sideLocalization{
 
 SidedElement::SidedElement(ESP* base, std::string id, Side defaultSide, bool topLevel)
 	: Element(base, std::move(id), topLevel)
-	, side{ StaticConfig<std::size_t>{ "Side", static_cast<std::size_t>(defaultSide), rendererFactory->createComboRenderer(sideLocalization) } }
+	, side{ StaticConfig<std::size_t>{ "Side", static_cast<std::size_t>(defaultSide), rendererFactory.createComboRenderer(sideLocalization) } }
 {
 }
 

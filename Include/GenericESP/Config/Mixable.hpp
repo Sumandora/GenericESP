@@ -86,7 +86,7 @@ namespace GenericESP {
 
 		void rebuildRenderer() {
 			rebuildIds();
-			renderer = rendererFactory->createComboRenderer(ids);
+			renderer = rendererFactory.createComboRenderer(ids);
 		}
 
 		[[nodiscard]] bool isSingleType() const

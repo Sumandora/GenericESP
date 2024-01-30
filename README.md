@@ -16,7 +16,7 @@ This library provides a generic implementation of an [ESP (Extra Sensory Percept
 - Define your renderers. You can add default renderers to your project using the `Extensions/DefaultRenderers` submodule. You can also use them as a reference for your own renderers to add a stylized look to all menus.
 ```cpp
 DefaultRenderers defaultRenderers;
-RendererFactory* const GenericESP::rendererFactory = &defaultRenderers;
+RendererFactory& GenericESP::rendererFactory = defaultRenderers;
 ```
 - Create a new struct that extends from `ESP`
 ```cpp

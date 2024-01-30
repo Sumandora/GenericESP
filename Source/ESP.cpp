@@ -9,8 +9,6 @@ using namespace GenericESP;
 
 void ESP::renderGui()
 {
-	if(rendererFactory == nullptr)
-		throw std::logic_error("Renderers are undefined");
 	if (ImGui::BeginTabBar("Elements", ImGuiTabBarFlags_Reorderable)) {
 		for (Element* e : elements)
 			if (ImGui::BeginTabItem(e->id.c_str())) {
