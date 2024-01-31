@@ -23,6 +23,17 @@ namespace GenericESP {
 	struct ESP {
 		std::vector<Element*> elements;
 
+		/**
+		 * True if there is no way that any element draws (Always false when Element#enabled is a DynamicConfig)
+		 * This can be used to prevent unnecessary loops through all entities to check if any of them have an enabled config
+		 */
+		[[nodiscard]] bool isDefinitelyDisabled() const;
+		/**
+		 * True if 'e' has elements that want to render on them
+		 * This can be used to check if the ESP would have effect on an entity
+		 */
+		[[nodiscard]] bool isEnabled(const EntityType* e) const;
+
 		void renderGui();
 		[[nodiscard]] SerializedTypeMap serialize() const;
 		void deserialize(const SerializedTypeMap& map);

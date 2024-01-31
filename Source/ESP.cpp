@@ -1,11 +1,23 @@
 #include "GenericESP/ESP.hpp"
 
 #include "GenericESP/Element/Element.hpp"
-#include "GenericESP/RendererFactory.hpp"
 
 #include "imgui.h"
 
+#include <algorithm>
+
 using namespace GenericESP;
+
+bool ESP::isDefinitelyDisabled() const {
+	return std::ranges::all_of(elements, [](const Element* element) {
+		auto selected = element->enabled.getSelected();
+		return selected.isStatic() && !selected.getStaticConfig().thing;
+	});
+}
+
+bool ESP::isEnabled(const EntityType* e) const {
+	return std::ranges::any_of(elements, [e](const Element* element) { return element->enabled.getSelected().getConfigurable(e); });
+}
 
 void ESP::renderGui()
 {
