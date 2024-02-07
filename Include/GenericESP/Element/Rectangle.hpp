@@ -9,6 +9,22 @@ namespace GenericESP {
 	struct Rectangle : Element {
 		Mixable<ImColor> color;
 		Mixable<float> rounding;
+
+		struct RoundedEdges : Element {
+			Mixable<bool> topLeft;
+			Mixable<bool> topRight;
+			Mixable<bool> bottomLeft;
+			Mixable<bool> bottomRight;
+
+			RoundedEdges(ESP* base, std::string id, bool topLevel = true);
+
+			ImDrawFlags getRoundingFlags(const EntityType* e) const;
+
+			void renderGui() override;
+			[[nodiscard]] SerializedTypeMap serialize() const override;
+			void deserialize(const SerializedTypeMap &map) override;
+		} roundedEdges;
+
 		Mixable<float> thickness;
 		Mixable<bool> outlined;
 		Mixable<ImColor> outlineColor;
