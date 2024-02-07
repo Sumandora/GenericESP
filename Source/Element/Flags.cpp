@@ -8,15 +8,19 @@ Flags::Flags(ESP* base, std::string id, std::initializer_list<Flag*> flags, bool
 	: SidedElement(base, std::move(id), Side::RIGHT, topLevel)
 	, spacing{ StaticConfig<float>{ "Spacing", 1.0f, rendererFactory.createFloatRenderer(0.0, 10.0f, "%.2f") } }
 	, lineSpacing{ StaticConfig<float>{ "Line spacing", 1.0f, rendererFactory.createFloatRenderer(0.0, 2.0f, "%.2f") } }
-	, flagOrder{ this->flags, [](const std::unique_ptr<Flag>& flag) { return flag->name; } }
+	, flagOrder{ this->flags, [](const Flag* flag) { return flag->name; } }
 {
 	this->flags.reserve(flags.size());
-	for (Flag* flagPtr : flags) {
-		this->flags.emplace_back(std::unique_ptr<Flag>(flagPtr));
-	}
+	for (Flag* flagPtr : flags)
+		this->flags.emplace_back(flagPtr);
 }
 
-ImVec2 Flags::drawEntry(ImDrawList* drawList, const EntityType* e, ImRect& rect, const std::unique_ptr<Flag>& flag, float yOffset) const
+Flags::~Flags() {
+	for(Flag* flagPtr : flags)
+		delete flagPtr;
+}
+
+ImVec2 Flags::drawEntry(ImDrawList* drawList, const EntityType* e, ImRect& rect, const Flag* flag, float yOffset) const
 {
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wshadow"
@@ -68,7 +72,7 @@ void Flags::draw(ImDrawList* drawList, const EntityType* e, UnionedRect& unioned
 
 	Side side = getSide(e);
 
-	auto process = [&](const std::unique_ptr<Flag>& flag) {
+	auto process = [&](const Flag* flag) {
 		ImVec2 offset = drawEntry(drawList, e, rect, flag, yOffset);
 		if (offset.x > biggestOffset)
 			biggestOffset = offset.x;
@@ -107,7 +111,7 @@ void Flags::renderGui()
 			 &enabled, &side, &spacing, &lineSpacing })
 		r->renderGui();
 	if (ImGui::BeginTabBar("Flags", ImGuiTabBarFlags_Reorderable)) {
-		for (std::unique_ptr<Flag>& flag : flags) {
+		for (Flag* flag : flags) {
 			if (ImGui::BeginTabItem(flag->name.c_str())) {
 				flag->renderGui();
 				ImGui::EndTabItem();
@@ -128,7 +132,7 @@ SerializedTypeMap Flags::serialize() const
 	for (const MixableBase* mixable : std::initializer_list<const MixableBase*>{
 			 &enabled, &side, &spacing, &lineSpacing })
 		mixable->serialize(map);
-	for (const std::unique_ptr<Flag>& flag : flags)
+	for (const Flag* flag : flags)
 		map.putSubtree(flag->name, flag->serialize());
 	SerializedTypeMap order;
 	for(std::size_t i = 0; i < flags.size(); i++) {
@@ -143,7 +147,7 @@ void Flags::deserialize(const SerializedTypeMap& map)
 	for (MixableBase* mixable : std::initializer_list<MixableBase*>{
 			 &enabled, &side, &spacing, &lineSpacing })
 		mixable->deserializeFromParent(map);
-	for (const std::unique_ptr<Flag>& flag : flags) {
+	for (Flag* flag : flags) {
 		auto opt = map.getSubtree(flag->name);
 		if(opt.has_value())
 			flag->deserialize(opt.value());
@@ -153,7 +157,7 @@ void Flags::deserialize(const SerializedTypeMap& map)
 		auto& order = orderOpt.value().get();
 		for (const auto& [name, pos] : order) {
 			std::size_t i = std::get<std::size_t>(pos);
-			auto it = std::find_if(flags.begin(), flags.end(), [&name](const std::unique_ptr<Flag>& flag) { return flag->name == name; });
+			auto it = std::find_if(flags.begin(), flags.end(), [&name](const Flag* flag) { return flag->name == name; });
 			if(it != flags.end())
 				std::iter_swap(it, std::next(flags.begin(), static_cast<decltype(flags)::difference_type>(i)));
 		}
