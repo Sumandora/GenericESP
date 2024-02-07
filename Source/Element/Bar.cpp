@@ -31,7 +31,7 @@ Bar::Bar(ESP* base, std::string id, Bar::PercentageProvider percentageProvider, 
 						   return !selected.isStatic() || selected.getStaticConfig().thing;
 					   } }
 	, percentageProvider(std::move(percentageProvider))
-	, numberText(numberTextProvider.has_value() ? std::optional<std::unique_ptr<NumberText>>{ std::make_unique<NumberText>(base, "Number text", std::move(numberTextProvider.value()), false) } : std::nullopt)
+	, numberText(numberTextProvider.has_value() ? std::make_optional<NumberText>(base, "Number text", std::move(numberTextProvider.value()), false) : std::nullopt)
 {
 }
 
@@ -337,7 +337,7 @@ void Bar::draw(ImDrawList* drawList, const EntityType* e, UnionedRect& unionedRe
 #pragma clang diagnostic ignored "-Wshadow"
 			const auto& numberText = this->numberText.value();
 #pragma clang diagnostic pop
-			if (!numberText->hideWhenFull || clampedPercentage < 1.0f) {
+			if (!numberText.hideWhenFull || clampedPercentage < 1.0f) {
 				auto textPosition = [&]() -> ImVec2 {
 					switch (side) {
 					case Side::TOP:
@@ -351,7 +351,7 @@ void Bar::draw(ImDrawList* drawList, const EntityType* e, UnionedRect& unionedRe
 					}
 					std::unreachable();
 				}();
-				numberText->draw(drawList, e, textPosition);
+				numberText.draw(drawList, e, textPosition);
 			}
 		}
 	}
@@ -367,10 +367,6 @@ void Bar::renderGui()
 			 &outlineThickness })
 		r->renderGui();
 	if (numberText.has_value()) {
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wshadow"
-		auto& numberText = this->numberText.value();
-#pragma clang diagnostic pop
 		numberText->renderGui();
 	}
 	ImGui::PopID();
@@ -386,10 +382,6 @@ SerializedTypeMap Bar::serialize() const
 			 &outlineThickness })
 		mixable->serialize(map);
 	if (numberText.has_value()) {
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wshadow"
-		auto& numberText = this->numberText.value();
-#pragma clang diagnostic pop
 		map.putSubtree(numberText->id, numberText->serialize());
 	}
 	return map;
@@ -404,10 +396,6 @@ void Bar::deserialize(const SerializedTypeMap& map)
 			 &outlineThickness })
 		mixable->deserializeFromParent(map);
 	if (numberText.has_value()) {
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wshadow"
-		auto& numberText = this->numberText.value();
-#pragma clang diagnostic pop
 		if(map.contains(numberText->id)) {
 			auto opt = map.getSubtree(numberText->id);
 			if(opt.has_value())

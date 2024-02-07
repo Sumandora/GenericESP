@@ -39,7 +39,7 @@ namespace GenericESP {
 			void deserialize(const SerializedTypeMap& map) override;
 		};
 
-		std::optional<std::unique_ptr<NumberText>> numberText;
+		std::optional<NumberText> numberText;
 
 		explicit Bar(ESP* base, std::string id, PercentageProvider percentageProvider, std::optional<NumberText::Provider> numberTextProvider = std::nullopt, bool topLevel = true);
 
