@@ -17,3 +17,6 @@ FloatRenderer RendererFactory::createFloatRenderer(float min, float max, const c
 IntRenderer RendererFactory::createIntRenderer(int min, int max, const ChangeCallback& onChange) {
 	return this->_createIntRenderer(min, max, onChange);
 }
+TextRenderer RendererFactory::createTextRenderer(const GenericESP::ChangeCallback& onChange) {
+	return this->_createTextRenderer(onChange);
+}

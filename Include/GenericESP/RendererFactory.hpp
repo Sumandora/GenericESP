@@ -13,6 +13,7 @@ namespace GenericESP {
 	using ComboRenderer	= std::function<void(const std::string&, std::size_t&)>;
 	using FloatRenderer	= std::function<void(const std::string&, float&)>;
 	using IntRenderer	= std::function<void(const std::string&, int&)>;
+	using TextRenderer	= std::function<void(const std::string&, std::string&)>;
 
 	using ChangeCallback = std::function<void()>;
 
@@ -24,6 +25,7 @@ namespace GenericESP {
 		virtual ComboRenderer _createComboRenderer(const std::vector<std::string>& localization, const ChangeCallback& onChange) = 0;
 		virtual FloatRenderer _createFloatRenderer(float min, float max, const char* fmt, const ChangeCallback& onChange) = 0;
 		virtual IntRenderer _createIntRenderer(int min, int max, const ChangeCallback& onChange) = 0;
+		virtual TextRenderer _createTextRenderer(const ChangeCallback& onChange) = 0;
 
 		// Default parameters
 		BoolRenderer createBoolRenderer(const ChangeCallback& onChange = [] {});
@@ -31,6 +33,7 @@ namespace GenericESP {
 		ComboRenderer createComboRenderer(const std::vector<std::string>& localization, const ChangeCallback& onChange = [] {});
 		FloatRenderer createFloatRenderer(float min, float max, const char* fmt, const ChangeCallback& onChange = [] {});
 		IntRenderer createIntRenderer(int min, int max, const ChangeCallback& onChange = [] {});
+		TextRenderer createTextRenderer(const ChangeCallback& onChange = [] {});
 
 	};
 

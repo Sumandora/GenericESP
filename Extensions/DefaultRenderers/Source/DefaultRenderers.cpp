@@ -66,3 +66,21 @@ IntRenderer DefaultRenderers::_createIntRenderer(int min, int max, const ChangeC
 			onChange();
 	};
 }
+
+TextRenderer DefaultRenderers::_createTextRenderer(const GenericESP::ChangeCallback& onChange) {
+	return [onChange](const std::string& id, std::string& thing) {
+		if(ImGui::InputText("Formatting", (char*)thing.c_str(), thing.capacity() + 1, ImGuiInputTextFlags_CallbackResize, [](ImGuiInputTextCallbackData* data) {
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wshadow"
+			auto* thing = reinterpret_cast<std::string*>(data->UserData);
+#pragma clang diagnostic pop
+			thing->resize(data->BufTextLen);
+#pragma clang diagnostic push
+#pragma ide diagnostic ignored "LocalValueEscapesScope"
+			data->Buf = (char*)thing->c_str();
+#pragma clang diagnostic pop
+			return 0;
+		}, &thing)) // from imgui_stdlib
+			onChange();
+	};
+}

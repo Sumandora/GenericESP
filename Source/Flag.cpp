@@ -7,6 +7,7 @@ Flag::Flag(ESP* base, std::string name, Flag::Remaps remaps, std::string default
 	, textElement(base, "Text element", false)
 	, remaps(std::move(remaps))
 	, format(std::move(defaultFormat))
+	, formattingRenderer(rendererFactory.createTextRenderer())
 {
 }
 
@@ -28,18 +29,7 @@ void Flag::renderGui()
 {
 	ImGui::PushID(name.c_str());
 	textElement.renderGui();
-	ImGui::InputText("Formatting", (char*)format.c_str(), format.capacity() + 1, ImGuiInputTextFlags_CallbackResize, [](ImGuiInputTextCallbackData* data) {
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wshadow"
-		auto* format = reinterpret_cast<std::string*>(data->UserData);
-#pragma clang diagnostic pop
-		format->resize(data->BufTextLen);
-#pragma clang diagnostic push
-#pragma ide diagnostic ignored "LocalValueEscapesScope"
-		data->Buf = (char*)format->c_str();
-#pragma clang diagnostic pop
-		return 0;
-	}, &format); // from imgui_stdlib
+	formattingRenderer("Formatting", format);
 	ImGui::PopID();
 }
 
