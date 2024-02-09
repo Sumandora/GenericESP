@@ -39,14 +39,18 @@ namespace GenericESP {
 			ImGui::SameLine();
 			ImGui::BeginDisabled(currentIdx == 0);
 			if (ImGui::Button("Up")) {
-				std::iter_swap(std::next(ref.begin(), currentIdx), std::next(ref.begin(), currentIdx - 1));
+				auto prev = std::next(ref.begin(), currentIdx - 1);
+				auto curr = prev + 1;
+				std::iter_swap(curr, prev);
 				currentIdx--;
 			}
 			ImGui::EndDisabled();
 			ImGui::SameLine();
 			ImGui::BeginDisabled(currentIdx == ref.size() - 1);
 			if (ImGui::Button("Down")) {
-				std::iter_swap(std::next(ref.begin(), currentIdx), std::next(ref.begin(), currentIdx + 1));
+				auto curr = std::next(ref.begin(), currentIdx);
+				auto next = curr + 1;
+				std::iter_swap(curr, next);
 				currentIdx++;
 			}
 			ImGui::EndDisabled();
