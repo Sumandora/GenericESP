@@ -157,7 +157,7 @@ void Flags::deserialize(const SerializedTypeMap& map)
 		auto& order = orderOpt.value().get();
 		for (const auto& [name, pos] : order) {
 			std::size_t i = std::get<std::size_t>(pos);
-			auto it = std::find_if(flags.begin(), flags.end(), [&name](const Flag* flag) { return flag->name == name; });
+			auto it = std::ranges::find_if(flags, [&name](const Flag* flag) { return flag->name == name; });
 			if(it != flags.end())
 				std::iter_swap(it, std::next(flags.begin(), static_cast<decltype(flags)::difference_type>(i)));
 		}
