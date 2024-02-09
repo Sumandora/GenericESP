@@ -15,6 +15,9 @@ namespace GenericESP {
 		using NameProvider = std::function<std::string(const T&)>;
 		NameProvider nameProvider;
 
+		ButtonRenderer upButton = rendererFactory.createButtonRenderer();
+		ButtonRenderer downButton = rendererFactory.createButtonRenderer();
+
 		VectorOrdering(std::vector<T>& ref, NameProvider nameProvider)
 			: ref(ref)
 			, nameProvider(std::move(nameProvider))
@@ -38,7 +41,7 @@ namespace GenericESP {
 			}
 			ImGui::SameLine();
 			ImGui::BeginDisabled(currentIdx == 0);
-			if (ImGui::Button("Up")) {
+			if(upButton("Up")) {
 				auto prev = std::next(ref.begin(), currentIdx - 1);
 				auto curr = prev + 1;
 				std::iter_swap(curr, prev);
@@ -47,7 +50,7 @@ namespace GenericESP {
 			ImGui::EndDisabled();
 			ImGui::SameLine();
 			ImGui::BeginDisabled(currentIdx == ref.size() - 1);
-			if (ImGui::Button("Down")) {
+			if(downButton("Down")) {
 				auto curr = std::next(ref.begin(), currentIdx);
 				auto next = curr + 1;
 				std::iter_swap(curr, next);

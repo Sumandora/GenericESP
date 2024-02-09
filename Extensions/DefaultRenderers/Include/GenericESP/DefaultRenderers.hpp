@@ -14,9 +14,8 @@ namespace GenericESP {
 		FloatRenderer _createFloatRenderer(float min, float max, const char* fmt, const ChangeCallback& onChange) override;
 		IntRenderer _createIntRenderer(int min, int max, const ChangeCallback& onChange) override;
 		TextRenderer _createTextRenderer(const GenericESP::ChangeCallback &onChange) override;
+		ButtonRenderer _createButtonRenderer() override;
 	};
-
-
 
 }
 

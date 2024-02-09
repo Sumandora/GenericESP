@@ -20,3 +20,6 @@ IntRenderer RendererFactory::createIntRenderer(int min, int max, const ChangeCal
 TextRenderer RendererFactory::createTextRenderer(const GenericESP::ChangeCallback& onChange) {
 	return this->_createTextRenderer(onChange);
 }
+ButtonRenderer RendererFactory::createButtonRenderer() {
+	return this->_createButtonRenderer();
+}

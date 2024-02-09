@@ -84,3 +84,9 @@ TextRenderer DefaultRenderers::_createTextRenderer(const GenericESP::ChangeCallb
 			onChange();
 	};
 }
+
+ButtonRenderer DefaultRenderers::_createButtonRenderer() {
+	return [](const std::string& id) {
+		return ImGui::Button(id.c_str());
+	};
+}
