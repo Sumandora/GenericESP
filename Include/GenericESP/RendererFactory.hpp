@@ -15,6 +15,7 @@ namespace GenericESP {
 	using IntRenderer	= std::function<void(const std::string&, int&)>;
 	using TextRenderer	= std::function<void(const std::string&, std::string&)>;
 	using ButtonRenderer= std::function<bool(const std::string&)>;
+	using PopupRenderer = std::function<void(const std::string&, const std::function<void()>&)>;
 
 	using ChangeCallback = std::function<void()>;
 
@@ -28,6 +29,7 @@ namespace GenericESP {
 		virtual IntRenderer _createIntRenderer(int min, int max, const ChangeCallback& onChange) = 0;
 		virtual TextRenderer _createTextRenderer(const ChangeCallback& onChange) = 0;
 		virtual ButtonRenderer _createButtonRenderer() = 0;
+		virtual PopupRenderer _createPopupRenderer() = 0;
 
 		// Default parameters
 		BoolRenderer createBoolRenderer(const ChangeCallback& onChange = [] {});
@@ -37,6 +39,7 @@ namespace GenericESP {
 		IntRenderer createIntRenderer(int min, int max, const ChangeCallback& onChange = [] {});
 		TextRenderer createTextRenderer(const ChangeCallback& onChange = [] {});
 		ButtonRenderer createButtonRenderer(); // syntax sugar
+		PopupRenderer createPopupRenderer(); // syntax sugar
 
 	};
 

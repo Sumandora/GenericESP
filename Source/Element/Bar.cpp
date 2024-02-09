@@ -40,6 +40,7 @@ Bar::NumberText::NumberText(ESP* base, std::string id, NumberText::Provider prov
 	, numberTextProvider(std::move(provider))
 	, numberText(base, "Number text", false)
 	, hideWhenFull(false)
+	, popupRenderer(std::move(rendererFactory.createPopupRenderer()))
 {
 	auto& enabledCfg = numberText.enabled.getSelected().getStaticConfig();
 	enabledCfg.renderer = [this, origRenderer = enabledCfg.renderer](const std::string& id, bool& thing) {
@@ -59,18 +60,12 @@ void Bar::NumberText::draw(ImDrawList* drawList, const EntityType* e, ImVec2 pos
 
 void Bar::NumberText::renderGui()
 {
-	const auto popupLabel = numberText.id + "##Popup";
-
-	ImGui::Text("%s", numberText.id.c_str());
-	ImGui::SameLine();
-	if (ImGui::Button("..."))
-		ImGui::OpenPopup(popupLabel.c_str());
-
-	if (ImGui::BeginPopup(popupLabel.c_str())) {
-		numberText.renderGui();
+	ImGui::PushID(id.c_str());
+	popupRenderer(numberText.id, [this]() {
 		// Hide when full will be rendered through the injected render method
-		ImGui::EndPopup();
-	}
+		numberText.renderGui();
+	});
+	ImGui::PopID();
 }
 
 SerializedTypeMap Bar::NumberText::serialize() const

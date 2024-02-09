@@ -13,6 +13,7 @@ Rectangle::RoundedEdges::RoundedEdges(ESP* base, std::string id, bool topLevel)
 	, topRight{ StaticConfig<bool>{ "Top right", true, rendererFactory.createBoolRenderer() } }
 	, bottomLeft{ StaticConfig<bool>{ "Bottom left", true, rendererFactory.createBoolRenderer() } }
 	, bottomRight{ StaticConfig<bool>{ "Bottom right", true, rendererFactory.createBoolRenderer() } }
+	, popupRenderer(std::move(rendererFactory.createPopupRenderer()))
 {
 }
 
@@ -38,16 +39,10 @@ ImDrawFlags Rectangle::RoundedEdges::getRoundingFlags(const EntityType* e) const
 void Rectangle::RoundedEdges::renderGui()
 {
 	ImGui::PushID(id.c_str());
-	ImGui::Text("%s", id.c_str());
-	ImGui::SameLine();
-	if (ImGui::Button("..."))
-		ImGui::OpenPopup("##Popup");
-
-	if (ImGui::BeginPopup("##Popup")) {
+	popupRenderer(id, [this]() {
 		topLeft.renderGui(); ImGui::SameLine(); topRight.renderGui();
 		bottomLeft.renderGui(); ImGui::SameLine(); bottomRight.renderGui();
-		ImGui::EndPopup();
-	}
+	});
 	ImGui::PopID();
 }
 

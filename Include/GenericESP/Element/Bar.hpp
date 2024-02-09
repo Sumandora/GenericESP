@@ -30,6 +30,8 @@ namespace GenericESP {
 			using Provider = OpaqueLambda<std::string>;
 			Provider numberTextProvider;
 
+			PopupRenderer popupRenderer;
+
 			explicit NumberText(ESP* base, std::string id, Provider provider, bool topLevel = true);
 
 			void draw(ImDrawList* drawList, const EntityType* e, ImVec2 pos) const;

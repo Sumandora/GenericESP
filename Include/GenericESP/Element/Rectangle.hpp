@@ -16,6 +16,8 @@ namespace GenericESP {
 			Mixable<bool> bottomLeft;
 			Mixable<bool> bottomRight;
 
+			PopupRenderer popupRenderer;
+
 			RoundedEdges(ESP* base, std::string id, bool topLevel = true);
 
 			ImDrawFlags getRoundingFlags(const EntityType* e) const;

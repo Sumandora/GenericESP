@@ -23,3 +23,6 @@ TextRenderer RendererFactory::createTextRenderer(const GenericESP::ChangeCallbac
 ButtonRenderer RendererFactory::createButtonRenderer() {
 	return this->_createButtonRenderer();
 }
+PopupRenderer RendererFactory::createPopupRenderer() {
+	return this->_createPopupRenderer();
+}

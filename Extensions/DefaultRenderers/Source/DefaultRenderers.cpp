@@ -90,3 +90,20 @@ ButtonRenderer DefaultRenderers::_createButtonRenderer() {
 		return ImGui::Button(id.c_str());
 	};
 }
+
+PopupRenderer DefaultRenderers::_createPopupRenderer() {
+	return [this](const std::string& id, const std::function<void()>& inner) {
+		static const auto button =  _createButtonRenderer();
+		static const auto popupLabel = id + "##Popup";
+
+		ImGui::Text("%s", id.c_str());
+		ImGui::SameLine();
+		if (ImGui::Button("..."))
+			ImGui::OpenPopup(popupLabel.c_str());
+
+		if (ImGui::BeginPopup(popupLabel.c_str())) {
+			inner();
+			ImGui::EndPopup();
+		}
+	};
+}

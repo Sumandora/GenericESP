@@ -15,6 +15,7 @@ namespace GenericESP {
 		IntRenderer _createIntRenderer(int min, int max, const ChangeCallback& onChange) override;
 		TextRenderer _createTextRenderer(const GenericESP::ChangeCallback &onChange) override;
 		ButtonRenderer _createButtonRenderer() override;
+		PopupRenderer _createPopupRenderer() override;
 	};
 
 }
