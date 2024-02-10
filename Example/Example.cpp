@@ -17,7 +17,8 @@ struct Entity {
 
 using namespace GenericESP;
 
-DefaultRenderers defaultRenderers;
+ImColor clipboard;
+DefaultRenderers defaultRenderers{&clipboard};
 RendererFactory& GenericESP::rendererFactory = defaultRenderers;
 
 struct EntityESP : ESP {

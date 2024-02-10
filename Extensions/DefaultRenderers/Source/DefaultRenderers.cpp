@@ -2,6 +2,11 @@
 
 using namespace GenericESP;
 
+DefaultRenderers::DefaultRenderers(ImColor* colorClipboard)
+: colorClipboard(colorClipboard) {
+
+}
+
 BoolRenderer DefaultRenderers::_createBoolRenderer(const ChangeCallback& onChange)
 {
 	return [onChange](const std::string& id, bool& thing) {
@@ -12,9 +17,18 @@ BoolRenderer DefaultRenderers::_createBoolRenderer(const ChangeCallback& onChang
 
 ColorRenderer DefaultRenderers::_createColorRenderer(const ChangeCallback& onChange)
 {
-	return [onChange](const std::string& id, ImColor& thing) {
+	return [this, onChange](const std::string& id, ImColor& thing) {
 		ImGui::PushID(id.c_str());
 		const bool clicked = ImGui::ColorButton(id.c_str(), thing.Value, ImGuiColorEditFlags_None, ImVec2(0, 0));
+		if (colorClipboard && ImGui::BeginPopupContextItem()) {
+			if (ImGui::Selectable("Copy")) {
+				*colorClipboard = thing;
+			}
+			if (ImGui::Selectable("Paste")) {
+				thing = *colorClipboard;
+			}
+			ImGui::EndPopup();
+		}
 		ImGui::SameLine();
 		ImGui::Text("%s", id.c_str());
 
