@@ -73,7 +73,7 @@ Rectangle::Rectangle(ESP* base, std::string id, bool topLevel)
 					   const ConfigurableValue<bool>& selected = outlined.getSelected();
 					   return !selected.isStatic() || selected.getStaticConfig().thing;
 				   } }
-	, outlineThickness{ StaticConfig<float>{ "Outline thickness", 2.0f, rendererFactory.createFloatRenderer(0.0f, 10.0f, "%.2f") }, [this] {
+	, outlineThickness{ StaticConfig<float>{ "Outline thickness", 1.0f, rendererFactory.createFloatRenderer(0.0f, 10.0f, "%.2f") }, [this] {
 						   const ConfigurableValue<bool>& selected = outlined.getSelected();
 						   return !selected.isStatic() || selected.getStaticConfig().thing;
 					   } }
@@ -99,19 +99,17 @@ void Rectangle::draw(ImDrawList* drawList, const EntityType* e, UnionedRect& rec
 	const float outlineThickness = this->outlineThickness(e);
 #pragma clang diagnostic pop
 
-	const float totalWidth = outlined ? std::max(thickness, outlineThickness) : thickness;
+	const float totalWidth = outlined ? thickness + outlineThickness : thickness;
 	const float halfWidth = totalWidth / 2;
 
 	const ImVec2 min = rect.getMin();
 	const ImVec2 max = rect.getMax();
 
 	if (outlined)
-		drawList->AddRect(min, max, outlineColor(e), rounding, roundedEdges.getRoundingFlags(e), outlineThickness);
+		drawList->AddRect(min, max, outlineColor(e), rounding, roundedEdges.getRoundingFlags(e), thickness + outlineThickness);
 
 	if (fill(e)) {
-		const float halfThickness = thickness / 2.0f;
-		const ImVec2 rectWidth{ halfThickness, halfThickness };
-		drawList->AddRectFilled(min + rectWidth, max - rectWidth, fillColor(e), rounding, roundedEdges.getRoundingFlags(e));
+		drawList->AddRectFilled(min, max, fillColor(e), rounding, roundedEdges.getRoundingFlags(e));
 	}
 
 	drawList->AddRect(min, max, color(e), rounding, roundedEdges.getRoundingFlags(e), thickness);

@@ -11,7 +11,7 @@ Line::Line(ESP* base, std::string id, bool topLevel)
 	, thickness{ StaticConfig<float>{ "Thickness", 1.0f, rendererFactory.createFloatRenderer(0.0f, 10.0f, "%.2f") } }
 	, outlined{ StaticConfig<bool>{ "Outlined", true, rendererFactory.createBoolRenderer() } }
 	, outlineColor{ StaticConfig<ImColor>{ "Outline color", { 0.0f, 0.0f, 0.0f, 1.0f }, rendererFactory.createColorRenderer(), serializeImColor, deserializeImColor } }
-	, outlineThickness{ StaticConfig<float>{ "Outline thickness", 2.0f, rendererFactory.createFloatRenderer(0.0f, 10.0f, "%.2f") } }
+	, outlineThickness{ StaticConfig<float>{ "Outline thickness", 1.0f, rendererFactory.createFloatRenderer(0.0f, 10.0f, "%.2f") } }
 {
 }
 
@@ -20,10 +20,15 @@ void Line::draw(ImDrawList* drawList, const EntityType* e, const std::vector<ImV
 	if (!enabled(e))
 		return;
 
-	if (outlined(e))
-		drawList->AddPolyline(points.data(), (int)points.size(), outlineColor(e), ImDrawFlags_None, outlineThickness(e));
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wshadow"
+	const float thickness = this->thickness(e);
+#pragma clang diagnostic pop
 
-	drawList->AddPolyline(points.data(), (int)points.size(), color(e), ImDrawFlags_None, thickness(e));
+	if (outlined(e))
+		drawList->AddPolyline(points.data(), (int)points.size(), outlineColor(e), ImDrawFlags_None, thickness + outlineThickness(e));
+
+	drawList->AddPolyline(points.data(), (int)points.size(), color(e), ImDrawFlags_None, thickness);
 }
 
 void Line::renderGui()

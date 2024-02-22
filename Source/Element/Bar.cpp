@@ -12,7 +12,7 @@ Bar::Bar(ESP* base, std::string id, Bar::PercentageProvider percentageProvider, 
 	: SidedElement(base, std::move(id), Side::LEFT, topLevel)
 	, backgroundColor{ StaticConfig<ImColor>{ "Background color", { 0.0f, 0.0f, 0.0f, 1.0f }, rendererFactory.createColorRenderer(), serializeImColor, deserializeImColor } }
 	, spacing{ StaticConfig<float>{ "Spacing", 1.0f, rendererFactory.createFloatRenderer(0.0, 10.0f, "%.2f") } }
-	, width{ StaticConfig<float>{ "Width", 2.0f, rendererFactory.createFloatRenderer(0.0, 10.0f, "%.2f") } }
+	, width{ StaticConfig<float>{ "Width", 1.0f, rendererFactory.createFloatRenderer(0.0, 10.0f, "%.2f") } }
 	, filledColor{ StaticConfig<ImColor>{ "Filled color", { 0.0f, 1.0f, 0.0f, 1.0f }, rendererFactory.createColorRenderer(), serializeImColor, deserializeImColor } }
 	, emptyColor{ StaticConfig<ImColor>{ "Empty color", { 1.0f, 0.0f, 0.0f, 1.0f }, rendererFactory.createColorRenderer(), serializeImColor, deserializeImColor } }
 	, hueSteps{ StaticConfig<int>{ "Hue steps", 3, rendererFactory.createIntRenderer(3, 10) }, [this] {
@@ -90,9 +90,13 @@ ImRect Bar::calculateNewRect(const EntityType* e, const ImRect& rect) const
 {
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wshadow"
-	const float width = this->width(e);
+	float width = this->width(e);
 	const float spacing = this->spacing(e);
 #pragma clang diagnostic pop
+
+	if(outlined(e)) {
+		width += outlineThickness(e);
+	}
 
 	switch (getSide(e)) {
 	case Side::TOP:
@@ -133,7 +137,7 @@ std::optional<ImRect> Bar::calculateInnerRect(const EntityType* e, const ImRect&
 	if (this->outlined(e)) {
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wshadow"
-		const float outlineThickness = this->outlineThickness(e) / 2.0f;
+		const float outlineThickness = this->outlineThickness(e);
 #pragma clang diagnostic pop
 
 		const ImVec2 shrinkage{

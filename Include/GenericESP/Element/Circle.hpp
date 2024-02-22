@@ -10,7 +10,7 @@ namespace GenericESP {
 		Mixable<float> radius;
 		Mixable<bool> outlined;
 		Mixable<ImColor> outlineColor;
-		Mixable<float> outlineRadius;
+		Mixable<float> outlineThickness;
 
 		explicit Circle(ESP* base, std::string id, bool topLevel = true);
 
