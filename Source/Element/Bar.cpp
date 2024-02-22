@@ -95,7 +95,7 @@ ImRect Bar::calculateNewRect(const EntityType* e, const ImRect& rect) const
 #pragma clang diagnostic pop
 
 	if(outlined(e)) {
-		width += outlineThickness(e);
+		width += outlineThickness(e) * 2.0f;
 	}
 
 	switch (getSide(e)) {
@@ -147,7 +147,7 @@ std::optional<ImRect> Bar::calculateInnerRect(const EntityType* e, const ImRect&
 		const ImVec2 topLeft = rect.Min + shrinkage;
 		const ImVec2 bottomRight = rect.Max - shrinkage;
 
-		if (topLeft.x > bottomRight.x || topLeft.y > bottomRight.y) // If overlapped
+		if (topLeft.x >= bottomRight.x || topLeft.y >= bottomRight.y) // If overlapped
 			return std::nullopt;
 
 		return ImRect{ topLeft, bottomRight };
@@ -229,16 +229,11 @@ void Bar::draw(ImDrawList* drawList, const EntityType* e, UnionedRect& unionedRe
 	if (outlined(e)) {
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wshadow"
+		const float width = this->width(e);
 		float outlineThickness = this->outlineThickness(e);
-		if (const float width = this->width(e); outlineThickness > width)
 #pragma clang diagnostic pop
-			outlineThickness = width;
-		const ImVec2 shrinkage{
-			outlineThickness / 2.0f,
-			outlineThickness / 2.0f
-		};
-		drawList->AddRect(newRect.Min + shrinkage, newRect.Max - shrinkage, outlineColor(e), 0.0f,
-			ImDrawFlags_None, outlineThickness);
+		drawList->AddRect(newRect.Min, newRect.Max, outlineColor(e), 0.0f,
+			ImDrawFlags_None, width + outlineThickness * 2.0f);
 	}
 
 	if (innerRectOpt.has_value()) {
