@@ -224,19 +224,20 @@ void Bar::draw(ImDrawList* drawList, const EntityType* e, UnionedRect& unionedRe
 			std::max(rect.Max.y, newRect.Max.y) },
 	};
 
-	const std::optional<ImRect> innerRectOpt = calculateInnerRect(e, newRect);
-
 	if (outlined(e)) {
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wshadow"
-		const float width = this->width(e);
 		float outlineThickness = this->outlineThickness(e);
 #pragma clang diagnostic pop
-		drawList->AddRect(newRect.Min, newRect.Max, outlineColor(e), 0.0f,
-			ImDrawFlags_None, width + outlineThickness * 2.0f);
+		ImVec2 shrinkage{
+			outlineThickness / 2.0f,
+			outlineThickness / 2.0f
+		};
+		drawList->AddRect(newRect.Min + shrinkage, newRect.Max - shrinkage, outlineColor(e), 0.0f,
+			ImDrawFlags_None, outlineThickness);
 	}
 
-	if (innerRectOpt.has_value()) {
+	if (const std::optional<ImRect> innerRectOpt = calculateInnerRect(e, newRect); innerRectOpt.has_value()) {
 		const ImRect innerRect = innerRectOpt.value();
 
 		const float percentage = percentageProvider(e);
