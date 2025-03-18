@@ -36,7 +36,6 @@ file(GLOB_RECURSE GENERIC_ESP_FILES "Source/*.cpp")
 add_library(GenericESP STATIC ${GENERIC_ESP_FILES})
 target_link_libraries(GenericESP PUBLIC ${IMGUI_DEPENDENCY_OVERRIDE})
 target_include_directories(GenericESP PUBLIC "${PROJECT_SOURCE_DIR}/Include")
-target_compile_options(GenericESP PRIVATE "-Ofast")
 target_compile_features(GenericESP PUBLIC cxx_std_23)
 
 if(PROJECT_IS_TOP_LEVEL)
