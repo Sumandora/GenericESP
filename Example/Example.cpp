@@ -165,10 +165,10 @@ struct EntityESP : ESP {
 	}
 };
 
-EntityESP e;
-
 void render()
 {
+	static EntityESP e;
+
 	if (ImGui::BeginTable("Table", 2, ImGuiTableFlags_Resizable | ImGuiTableFlags_BordersInnerV)) {
 		ImGui::TableNextColumn();
 		ImGui::BeginChild("Left");
@@ -180,6 +180,7 @@ void render()
 		static bool showDebug = false;
 		static bool healthSine = false;
 		static bool align = false;
+		static float alpha = 1.0f;
 
 		static Entity myEntity{};
 
@@ -198,7 +199,10 @@ void render()
 				{ std::roundf(rect.Max.x), std::roundf(rect.Max.y) }
 			};
 		}
+
+		ImGui::PushStyleVar(ImGuiStyleVar_Alpha, alpha);
 		const auto newUnionedRect = e.draw(ImGui::GetWindowDrawList(), myEntity, rect);
+		ImGui::PopStyleVar();
 
 		if (showDebug) {
 			static ImColor green{ 0.0f, 1.0f, 0.0f, 1.0f };
@@ -245,6 +249,7 @@ void render()
 			e.deserialize(serializedState.value());
 		}
 		ImGui::EndDisabled();
+		ImGui::SliderFloat("Alpha", &alpha, 0.0f, 1.0f);
 		ImGui::EndChild();
 		ImGui::EndTable();
 	}

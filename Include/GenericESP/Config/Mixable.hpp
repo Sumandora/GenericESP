@@ -200,7 +200,15 @@ namespace GenericESP {
 
 		auto operator()(const EntityType* e) const
 		{
-			return this->getSelected().getConfigurable(e);
+			auto o = this->getSelected().getConfigurable(e);
+
+			if constexpr(std::is_same_v<Type, ImColor>) {
+				// This means that overlapping shapes don't look as good as they could,
+				// but this seems to be the best thing I can do with ImGui.
+				o.Value.w *= ImGui::GetStyle().Alpha;
+			}
+
+			return o;
 		}
 	};
 
