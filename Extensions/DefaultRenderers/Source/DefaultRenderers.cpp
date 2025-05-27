@@ -2,9 +2,9 @@
 
 using namespace GenericESP;
 
-DefaultRenderers::DefaultRenderers(ImColor* colorClipboard)
-: colorClipboard(colorClipboard) {
-
+DefaultRenderers::DefaultRenderers(ImColor* colorClipboard) noexcept
+	: colorClipboard(colorClipboard)
+{
 }
 
 BoolRenderer DefaultRenderers::_createBoolRenderer(const ChangeCallback& onChange)
@@ -81,9 +81,10 @@ IntRenderer DefaultRenderers::_createIntRenderer(int min, int max, const ChangeC
 	};
 }
 
-TextRenderer DefaultRenderers::_createTextRenderer(const GenericESP::ChangeCallback& onChange) {
+TextRenderer DefaultRenderers::_createTextRenderer(const GenericESP::ChangeCallback& onChange)
+{
 	return [onChange](const std::string& id, std::string& thing) {
-		if(ImGui::InputText("Formatting", (char*)thing.c_str(), thing.capacity() + 1, ImGuiInputTextFlags_CallbackResize, [](ImGuiInputTextCallbackData* data) {
+		if (ImGui::InputText("Formatting", (char*)thing.c_str(), thing.capacity() + 1, ImGuiInputTextFlags_CallbackResize, [](ImGuiInputTextCallbackData* data) {
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wshadow"
 			auto* thing = reinterpret_cast<std::string*>(data->UserData);
@@ -93,21 +94,22 @@ TextRenderer DefaultRenderers::_createTextRenderer(const GenericESP::ChangeCallb
 #pragma ide diagnostic ignored "LocalValueEscapesScope"
 			data->Buf = (char*)thing->c_str();
 #pragma clang diagnostic pop
-			return 0;
-		}, &thing)) // from imgui_stdlib
+			return 0; }, &thing)) // from imgui_stdlib
 			onChange();
 	};
 }
 
-ButtonRenderer DefaultRenderers::_createButtonRenderer() {
+ButtonRenderer DefaultRenderers::_createButtonRenderer()
+{
 	return [](const std::string& id) {
 		return ImGui::Button(id.c_str());
 	};
 }
 
-PopupRenderer DefaultRenderers::_createPopupRenderer() {
+PopupRenderer DefaultRenderers::_createPopupRenderer()
+{
 	return [this](const std::string& id, const std::function<void()>& inner) {
-		static const auto button =  _createButtonRenderer();
+		static const auto button = _createButtonRenderer();
 		static const auto popupLabel = id + "##Popup";
 
 		ImGui::Text("%s", id.c_str());

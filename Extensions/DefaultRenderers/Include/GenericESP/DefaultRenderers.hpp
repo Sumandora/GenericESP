@@ -8,7 +8,7 @@ namespace GenericESP {
 	struct DefaultRenderers : RendererFactory {
 		ImColor* colorClipboard;
 
-		explicit DefaultRenderers(ImColor* colorClipboard = nullptr);
+		explicit DefaultRenderers(ImColor* colorClipboard = nullptr) noexcept;
 
 		BoolRenderer _createBoolRenderer(const ChangeCallback& onChange) override;
 		ColorRenderer _createColorRenderer(const ChangeCallback& onChange) override;
