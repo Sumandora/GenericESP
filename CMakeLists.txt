@@ -17,7 +17,7 @@ if(PROJECT_IS_TOP_LEVEL)
     FetchContent_Declare(${IMGUI_DEPENDENCY_OVERRIDE}
             GIT_REPOSITORY https://github.com/ocornut/imgui
             GIT_PROGRESS TRUE
-            GIT_TAG v1.90
+            GIT_TAG v1.91.9b
             BUILD_COMMAND ""
             INSTALL_COMMAND "")
     FetchContent_MakeAvailable(${IMGUI_DEPENDENCY_OVERRIDE})
