@@ -1,6 +1,6 @@
-#include <chrono>
-
 #define IMGUI_DEFINE_MATH_OPERATORS
+#include "imgui.h"
+#include <chrono>
 
 #include "GenericESP.hpp"
 #include "GenericESP/DefaultRenderers.hpp"
@@ -18,7 +18,7 @@ struct Entity {
 using namespace GenericESP;
 
 ImColor clipboard;
-DefaultRenderers defaultRenderers{&clipboard};
+DefaultRenderers defaultRenderers{ &clipboard };
 RendererFactory& GenericESP::rendererFactory = defaultRenderers;
 
 struct EntityESP : ESP {
@@ -79,8 +79,7 @@ struct EntityESP : ESP {
 														 deadColor.Value.y + (aliveColor.Value.y - deadColor.Value.y) * t,
 														 deadColor.Value.z + (aliveColor.Value.z - deadColor.Value.z) * t,
 														 deadColor.Value.w + (aliveColor.Value.w - deadColor.Value.w) * t
-													 };
-												 },
+													 }; },
 			[this](const std::string& id) {
 				static auto displayColor = GenericESP::rendererFactory.createColorRenderer();
 				ImGui::PushID(id.c_str());
@@ -201,7 +200,10 @@ void render()
 		}
 
 		ImGui::PushStyleVar(ImGuiStyleVar_Alpha, alpha);
-		const auto newUnionedRect = e.draw(ImGui::GetWindowDrawList(), myEntity, rect);
+		ImDrawList* drawList = ImGui::GetWindowDrawList();
+		drawList->Flags |= ImDrawListFlags_AntiAliasedLines;
+		drawList->Flags |= ImDrawListFlags_AntiAliasedFill;
+		const auto newUnionedRect = e.draw(drawList, myEntity, rect);
 		ImGui::PopStyleVar();
 
 		if (showDebug) {
@@ -227,7 +229,7 @@ void render()
 			std::function<void(const SerializedTypeMap&, std::size_t)> iterativelyPrint = [&](const SerializedTypeMap& map, std::size_t depth) {
 				std::string indent(depth, '\t');
 
-				for(const auto& [name, type] : map)
+				for (const auto& [name, type] : map)
 					std::visit([&](const auto& arg) {
 						if constexpr (std::is_same_v<std::remove_cvref_t<std::decay_t<decltype(arg)>>, std::unique_ptr<SerializedTypeMap>>) {
 							std::cout << indent << name << " {" << std::endl;
@@ -235,7 +237,8 @@ void render()
 							std::cout << indent << "}" << std::endl;
 						} else
 							std::cout << indent << name << ": " << arg << std::endl;
-					}, type);
+					},
+						type);
 			};
 
 			iterativelyPrint(map, 0);
