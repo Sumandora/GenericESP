@@ -207,7 +207,7 @@ struct DemoBar : Bar {
 	DEFINE_BASIC_FORWARD(bool, number_text_hide_when_full, true);
 
 	using Bar::Bar;
-	virtual ~DemoBar() = default;
+	~DemoBar() override = default;
 
 	void render_gui()
 	{

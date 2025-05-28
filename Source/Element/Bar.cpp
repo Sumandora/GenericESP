@@ -27,10 +27,6 @@ Bar::NumberText::NumberText(Bar& parent, NumberText::Provider provider)
 {
 }
 
-bool Bar::NumberText::get_enabled(const EntityType* e) const
-{
-	return bar.get_number_text_enabled(e);
-}
 float Bar::NumberText::get_font_scale(const EntityType* e) const
 {
 	return bar.get_number_text_font_scale(e);
@@ -50,10 +46,6 @@ float Bar::NumberText::get_shadow_offset(const EntityType* e) const
 ImColor Bar::NumberText::get_shadow_color(const EntityType* e) const
 {
 	return bar.get_number_text_shadow_color(e);
-}
-bool Bar::NumberText::get_hide_when_full(const EntityType* e) const
-{
-	return bar.get_number_text_hide_when_full(e);
 }
 
 void Bar::NumberText::draw(ImDrawList* draw_list, const EntityType* e, ImVec2 pos) const
@@ -282,7 +274,7 @@ void Bar::draw(ImDrawList* draw_list, const EntityType* e, UnionedRect& unioned_
 
 		if (number_text.has_value()) {
 			const auto& number_text = this->number_text.value();
-			if (!number_text.get_hide_when_full(e) || clamped_percentage < 1.0F) {
+			if (!get_number_text_hide_when_full(e) || clamped_percentage < 1.0F) {
 				auto text_position = [&]() -> ImVec2 {
 					switch (side) {
 					case Side::TOP:

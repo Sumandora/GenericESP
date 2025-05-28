@@ -43,15 +43,11 @@ namespace GenericESP {
 
 			void draw(ImDrawList* draw_list, const EntityType* e, ImVec2 pos) const;
 
-			virtual bool get_enabled(const EntityType* e) const;
-
 			float get_font_scale(const EntityType* e) const override;
 			ImColor get_font_color(const EntityType* e) const override;
 			bool get_shadow(const EntityType* e) const override;
 			float get_shadow_offset(const EntityType* e) const override;
 			ImColor get_shadow_color(const EntityType* e) const override;
-
-			virtual bool get_hide_when_full(const EntityType* e) const;
 		};
 
 		GENERICESP_SETTING(bool, number_text_enabled);
