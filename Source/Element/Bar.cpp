@@ -1,3 +1,4 @@
+#include <cmath>
 #define IMGUI_DEFINE_MATH_OPERATORS
 #include "GenericESP/Element/Element.hpp"
 #include "GenericESP/Element/SidedElement.hpp"
@@ -120,9 +121,9 @@ Bar::HsvColor Bar::color_rgb_to_hsv(ImColor color)
 	return hsv;
 }
 
-ImColor Bar::color_hsv_to_rgb(Bar::HsvColor hsv)
+ImColor Bar::color_hsv_to_rgb(Bar::HsvColor hsv, const float alpha)
 {
-	ImColor rgb{ 0.0F, 0.0F, 0.0F, 1.0F };
+	ImColor rgb{ 0.0F, 0.0F, 0.0F, alpha };
 	ImGui::ColorConvertHSVtoRGB(hsv[0], hsv[1], hsv[2], rgb.Value.x, rgb.Value.y, rgb.Value.z);
 	return rgb;
 }
@@ -197,7 +198,7 @@ void Bar::draw(ImDrawList* draw_list, const EntityType* e, UnionedRect& unioned_
 				const auto middle_hsv = color_lerp(filled_hsv, empty_hsv, t);
 				const float alpha = filled_color.Value.w + (empty_color.Value.w - filled_color.Value.w) * t;
 
-				const auto middle_rgb = color_hsv_to_rgb(middle_hsv);
+				const auto middle_rgb = color_hsv_to_rgb(middle_hsv, std::lerp(filled_color.Value.w, empty_color.Value.w, t));
 				const ImColor middle_color(middle_rgb.Value.x, middle_rgb.Value.y, middle_rgb.Value.z, alpha);
 
 				switch (side) {
@@ -231,12 +232,9 @@ void Bar::draw(ImDrawList* draw_list, const EntityType* e, UnionedRect& unioned_
 
 		} else {
 			const auto middle_hsv = color_lerp(empty_hsv, filled_hsv, clamped_percentage);
-			const auto middle_rgb = color_hsv_to_rgb(middle_hsv);
-			const float alpha = filled_color.Value.w + (empty_color.Value.w - filled_color.Value.w) * clamped_percentage;
+			const auto middle_rgb = color_hsv_to_rgb(middle_hsv, std::lerp(empty_color.Value.w, filled_color.Value.w, clamped_percentage));
 
-			const ImColor middle_color(middle_rgb.Value.x, middle_rgb.Value.y, middle_rgb.Value.z, alpha);
-
-			draw_list->AddRectFilled(bar_rect.Min, bar_rect.Max, middle_color);
+			draw_list->AddRectFilled(bar_rect.Min, bar_rect.Max, middle_rgb);
 		}
 
 		if (has_text) {

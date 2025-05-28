@@ -47,7 +47,7 @@ namespace GenericESP {
 		using HsvColor = std::array<float, 3>;
 		static HsvColor color_lerp(const HsvColor& from, const HsvColor& to, float t);
 		static HsvColor color_rgb_to_hsv(ImColor color);
-		static ImColor color_hsv_to_rgb(HsvColor hsv);
+		static ImColor color_hsv_to_rgb(HsvColor hsv, float alpha);
 		// --- Utility functions for color conversion ---
 
 		void draw(ImDrawList* draw_list, const EntityType* e, UnionedRect& unioned_rect) const;
