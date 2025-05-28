@@ -198,13 +198,6 @@ struct DemoBar : Bar {
 	DEFINE_BASIC_FORWARD(bool, outlined, true);
 	DEFINE_BASIC_FORWARD(ImColor, outline_color, { 0.0F, 0.0F, 0.0F, 1.0F });
 	DEFINE_BASIC_FORWARD(float, outline_thickness, 1.0F);
-	DEFINE_BASIC_FORWARD(bool, number_text_enabled, false);
-	DEFINE_BASIC_FORWARD(float, number_text_font_scale, 1.0F);
-	DEFINE_BASIC_FORWARD(ImColor, number_text_font_color, { 1.0F, 1.0F, 1.0F, 1.0F });
-	DEFINE_BASIC_FORWARD(bool, number_text_shadow, true);
-	DEFINE_BASIC_FORWARD(float, number_text_shadow_offset, 1.0F);
-	DEFINE_BASIC_FORWARD(ImColor, number_text_shadow_color, { 0.0F, 0.0F, 0.0F, 1.0F });
-	DEFINE_BASIC_FORWARD(bool, number_text_hide_when_full, true);
 
 	using Bar::Bar;
 	~DemoBar() override = default;
@@ -230,15 +223,66 @@ struct DemoBar : Bar {
 		render_bool("Outlined", outlined);
 		render_color("Outline color", outline_color);
 		render_float("Outline thickness", outline_thickness, 0.0F, 10.0F);
+	}
+};
+
+struct DemoBarWithText : BarWithText {
+	bool enabled = false;
+
+	DEFINE_BASIC_FORWARD(Side, side, Side::LEFT);
+	DEFINE_BASIC_FORWARD(ImColor, background_color, { 0.0F, 0.0F, 0.0F, 1.0F });
+	DEFINE_BASIC_FORWARD(float, spacing, 1.0F);
+	DEFINE_BASIC_FORWARD(float, width, 1.0F);
+	DEFINE_BASIC_FORWARD(ImColor, filled_color, { 0.0F, 1.0F, 0.0F, 1.0F });
+	DEFINE_BASIC_FORWARD(ImColor, empty_color, { 1.0F, 0.0F, 0.0F, 1.0F });
+	DEFINE_BASIC_FORWARD(bool, gradient, false);
+	DEFINE_BASIC_FORWARD(int, hue_steps, 3);
+	DEFINE_BASIC_FORWARD(bool, flipped, false);
+	DEFINE_BASIC_FORWARD(bool, outlined, true);
+	DEFINE_BASIC_FORWARD(ImColor, outline_color, { 0.0F, 0.0F, 0.0F, 1.0F });
+	DEFINE_BASIC_FORWARD(float, outline_thickness, 1.0F);
+
+	DEFINE_BASIC_FORWARD(bool, text_enabled, false);
+	DEFINE_BASIC_FORWARD(float, font_scale, 1.0F);
+	DEFINE_BASIC_FORWARD(ImColor, font_color, { 1.0F, 1.0F, 1.0F, 1.0F });
+	DEFINE_BASIC_FORWARD(bool, shadow, true);
+	DEFINE_BASIC_FORWARD(float, shadow_offset, 1.0F);
+	DEFINE_BASIC_FORWARD(ImColor, shadow_color, { 0.0F, 0.0F, 0.0F, 1.0F });
+	DEFINE_BASIC_FORWARD(bool, hide_when_full, true);
+
+	using BarWithText::BarWithText;
+	~DemoBarWithText() override = default;
+
+	void render_gui()
+	{
+		render_combo("Side", *reinterpret_cast<std::size_t*>(&side),
+			{
+				"Top",
+				"Left",
+				"Bottom",
+				"Right",
+			});
+		render_color("Background color", background_color);
+		render_float("Spacing", spacing, 0.0F, 10.0F);
+		render_float("Width", width, 0.0F, 10.0F);
+		// Renaming settings
+		render_color("Alive color", filled_color);
+		render_color("Dead color", empty_color);
+		render_bool("Gradient", gradient);
+		render_int("Hue steps", hue_steps, 0, 10);
+		render_bool("Flipped", flipped);
+		render_bool("Outlined", outlined);
+		render_color("Outline color", outline_color);
+		render_float("Outline thickness", outline_thickness, 0.0F, 10.0F);
 
 		render_popup("Number text", [this]() {
-			render_bool("Enabled", number_text_enabled);
-			render_float("Font scale", number_text_font_scale, 0.0F, 10.0F);
-			render_color("Font color", number_text_font_color);
-			render_bool("Shadow", number_text_shadow);
-			render_float("Shadow offset", number_text_shadow_offset, 0.0F, 10.0F);
-			render_color("Shadow color", number_text_shadow_color);
-			render_bool("Hide when full", number_text_hide_when_full);
+			render_bool("Enabled", text_enabled);
+			render_float("Font scale", font_scale, 0.0F, 10.0F);
+			render_color("Font color", font_color);
+			render_bool("Shadow", shadow);
+			render_float("Shadow offset", shadow_offset, 0.0F, 10.0F);
+			render_color("Shadow color", shadow_color);
+			render_bool("Hide when full", hide_when_full);
 		});
 	}
 };
@@ -423,7 +467,7 @@ struct EntityESP {
 	DemoBar bar{
 		[](const Entity* entity) { return static_cast<float>(entity->health) / static_cast<float>(entity->max_health); }
 	};
-	DemoBar bar2{
+	DemoBarWithText bar2{
 		[](const Entity* entity) { return static_cast<float>(entity->health) / static_cast<float>(entity->max_health); },
 		[](const Entity* entity) { return std::to_string(entity->health); }
 	};

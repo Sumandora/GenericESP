@@ -15,42 +15,9 @@
 
 using namespace GenericESP;
 
-Bar::Bar(Bar::PercentageProvider percentage_provider, std::optional<NumberText::Provider> number_text_provider)
+Bar::Bar(Bar::PercentageProvider percentage_provider)
 	: percentage_provider(std::move(percentage_provider))
-	, number_text(number_text_provider.has_value() ? std::make_optional<NumberText>(*this, std::move(number_text_provider.value())) : std::nullopt)
 {
-}
-
-Bar::NumberText::NumberText(Bar& parent, NumberText::Provider provider)
-	: bar(parent)
-	, number_text_provider(std::move(provider))
-{
-}
-
-float Bar::NumberText::get_font_scale(const EntityType* e) const
-{
-	return bar.get_number_text_font_scale(e);
-}
-ImColor Bar::NumberText::get_font_color(const EntityType* e) const
-{
-	return bar.get_number_text_font_color(e);
-}
-bool Bar::NumberText::get_shadow(const EntityType* e) const
-{
-	return bar.get_number_text_shadow(e);
-}
-float Bar::NumberText::get_shadow_offset(const EntityType* e) const
-{
-	return bar.get_number_text_shadow_offset(e);
-}
-ImColor Bar::NumberText::get_shadow_color(const EntityType* e) const
-{
-	return bar.get_number_text_shadow_color(e);
-}
-
-void Bar::NumberText::draw(ImDrawList* draw_list, const EntityType* e, ImVec2 pos) const
-{
-	Text::draw(draw_list, e, number_text_provider(e), pos, TextAlignment::CENTERED, VerticalAlignment::CENTERED);
 }
 
 ImRect Bar::calculate_new_rect(const EntityType* e, const ImRect& rect) const
@@ -272,24 +239,45 @@ void Bar::draw(ImDrawList* draw_list, const EntityType* e, UnionedRect& unioned_
 			draw_list->AddRectFilled(bar_rect.Min, bar_rect.Max, middle_color);
 		}
 
-		if (number_text.has_value()) {
-			const auto& number_text = this->number_text.value();
-			if (!get_number_text_hide_when_full(e) || clamped_percentage < 1.0F) {
-				auto text_position = [&]() -> ImVec2 {
-					switch (side) {
-					case Side::TOP:
-					case Side::BOTTOM: {
-						return { flipped ? bar_rect.Max.x : bar_rect.Min.x, bar_rect.Min.y + (bar_rect.Max.y - bar_rect.Min.y) * 0.5F };
-					}
-					case Side::LEFT:
-					case Side::RIGHT: {
-						return { bar_rect.Min.x + (bar_rect.Max.x - bar_rect.Min.x) * 0.5F, flipped ? bar_rect.Max.y : bar_rect.Min.y };
-					}
-					}
-					std::unreachable();
-				}();
-				number_text.draw(draw_list, e, text_position);
-			}
+		if (has_text) {
+			const auto* bar_with_text = static_cast<const BarWithText*>(this);
+			bar_with_text->draw_number(draw_list, e, bar_rect, clamped_percentage);
 		}
 	}
+}
+
+BarWithText::BarWithText(PercentageProvider percentage_provider, Provider text_provider)
+	: Bar(std::move(percentage_provider))
+	, text_provider(std::move(text_provider))
+{
+	has_text = true; // This is not very extendable, however I don't think there will be another user in the same fashion as this one.
+}
+
+void BarWithText::draw_number(ImDrawList* draw_list, const EntityType* e, const ImRect& bar_rect, float clamped_percentage) const
+{
+	if (!get_text_enabled(e))
+		return;
+
+	if (get_hide_when_full(e) && clamped_percentage == 1.0F)
+		return;
+
+	const bool flipped = get_flipped(e);
+
+	ImVec2 text_position;
+	switch (get_side(e)) {
+	case Side::TOP:
+	case Side::BOTTOM: {
+		text_position = { flipped ? bar_rect.Max.x : bar_rect.Min.x, bar_rect.Min.y + (bar_rect.Max.y - bar_rect.Min.y) * 0.5F };
+		break;
+	}
+	case Side::LEFT:
+	case Side::RIGHT: {
+		text_position = { bar_rect.Min.x + (bar_rect.Max.x - bar_rect.Min.x) * 0.5F, flipped ? bar_rect.Max.y : bar_rect.Min.y };
+		break;
+	}
+	default:
+		std::unreachable();
+	}
+
+	Text::draw(draw_list, e, text_provider(e), text_position, TextAlignment::CENTERED, VerticalAlignment::CENTERED);
 }

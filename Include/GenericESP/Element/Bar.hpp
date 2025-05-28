@@ -32,37 +32,9 @@ namespace GenericESP {
 		using PercentageProvider = OpaqueLambda<float>;
 		PercentageProvider percentage_provider;
 
-		struct NumberText : Text {
-			Bar& bar;
+		bool has_text = false; // True, when inherited by BarWithText
 
-			using Provider = OpaqueLambda<std::string>;
-			Provider number_text_provider;
-
-			explicit NumberText(Bar& parent, Provider provider);
-			~NumberText() override = default;
-
-			void draw(ImDrawList* draw_list, const EntityType* e, ImVec2 pos) const;
-
-			float get_font_scale(const EntityType* e) const override;
-			ImColor get_font_color(const EntityType* e) const override;
-			bool get_shadow(const EntityType* e) const override;
-			float get_shadow_offset(const EntityType* e) const override;
-			ImColor get_shadow_color(const EntityType* e) const override;
-		};
-
-		GENERICESP_SETTING(bool, number_text_enabled);
-
-		GENERICESP_SETTING(float, number_text_font_scale);
-		GENERICESP_SETTING(ImColor, number_text_font_color);
-		GENERICESP_SETTING(bool, number_text_shadow);
-		GENERICESP_SETTING(float, number_text_shadow_offset);
-		GENERICESP_SETTING(ImColor, number_text_shadow_color);
-
-		GENERICESP_SETTING(bool, number_text_hide_when_full);
-
-		std::optional<NumberText> number_text;
-
-		explicit Bar(PercentageProvider percentage_provider, std::optional<NumberText::Provider> number_text_provider = std::nullopt);
+		explicit Bar(PercentageProvider percentage_provider);
 		~Bar() override = default;
 
 		// --- Likely irrelevant for users ---
@@ -79,6 +51,26 @@ namespace GenericESP {
 		// --- Utility functions for color conversion ---
 
 		void draw(ImDrawList* draw_list, const EntityType* e, UnionedRect& unioned_rect) const;
+	};
+
+	struct BarWithText : Bar, Text {
+		GENERICESP_SETTING(bool, text_enabled);
+		GENERICESP_SETTING(bool, hide_when_full);
+
+		using Provider = OpaqueLambda<std::string>;
+		Provider text_provider;
+
+		explicit BarWithText(PercentageProvider percentage_provider, Provider text_provider);
+		~BarWithText() override = default;
+
+		void draw_number(ImDrawList* draw_list, const EntityType* e, const ImRect& bar_rect, float clamped_percentage) const;
+		using Bar::draw;
+
+		float get_font_scale(const EntityType* e) const override = 0;
+		ImColor get_font_color(const EntityType* e) const override = 0;
+		bool get_shadow(const EntityType* e) const override = 0;
+		float get_shadow_offset(const EntityType* e) const override = 0;
+		ImColor get_shadow_color(const EntityType* e) const override = 0;
 	};
 
 }
