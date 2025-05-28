@@ -11,11 +11,11 @@ namespace GenericESP {
 
 		explicit UnionedRect(ImRect rect);
 
-		[[nodiscard]] ImVec2 getMin() const;
-		[[nodiscard]] ImVec2 getMax() const;
+		[[nodiscard]] ImVec2 get_min() const;
+		[[nodiscard]] ImVec2 get_max() const;
 
-		void expandHorizontally(float amount);
-		void expandVertically(float amount);
+		void expand_horizontally(float amount);
+		void expand_vertically(float amount);
 		void expand(float amount);
 	};
 

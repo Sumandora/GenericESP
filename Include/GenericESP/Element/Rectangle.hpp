@@ -3,6 +3,7 @@
 
 #include "../UnionedRect.hpp"
 #include "Element.hpp"
+#include "imgui.h"
 
 namespace GenericESP {
 
@@ -22,9 +23,11 @@ namespace GenericESP {
 		GENERICESP_SETTING(bool, fill);
 		GENERICESP_SETTING(ImColor, fill_color);
 
-		ImDrawFlags getRoundingFlags(const EntityType* e) const;
+		virtual ~Rectangle() = default;
 
-		void draw(ImDrawList* drawList, const EntityType* e, UnionedRect& rect) const;
+		ImDrawFlags get_rounding_flags(const EntityType* e) const;
+
+		void draw(ImDrawList* draw_list, const EntityType* e, UnionedRect& rect) const;
 	};
 
 }

@@ -1,5 +1,11 @@
 #include "GenericESP/Flag.hpp"
 
+#include "GenericESP/Element/Element.hpp"
+
+#include <cstddef>
+#include <string>
+#include <utility>
+
 using namespace GenericESP;
 
 Flag::Flag(std::string name, Flag::Remaps remaps)
@@ -8,7 +14,7 @@ Flag::Flag(std::string name, Flag::Remaps remaps)
 {
 }
 
-std::string Flag::computeText(const EntityType* e) const
+std::string Flag::compute_text(const EntityType* e) const
 {
 	std::string result = get_format(e);
 	for (const auto& [varName, provider] : remaps) {

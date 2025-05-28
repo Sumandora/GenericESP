@@ -27,7 +27,7 @@ namespace GenericESP {
 		{
 		}
 
-		inline ReturnType operator()(const EntityType* e) const
+		ReturnType operator()(const EntityType* e) const
 		{
 			return lambda(e);
 		}

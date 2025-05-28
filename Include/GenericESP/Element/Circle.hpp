@@ -10,7 +10,7 @@ namespace GenericESP {
 	struct Circle {
 		virtual ~Circle() = default;
 
-		void draw(ImDrawList* drawList, const EntityType* e, const ImVec2& position) const;
+		void draw(ImDrawList* draw_list, const EntityType* e, const ImVec2& position) const;
 
 		GENERICESP_SETTING(ImColor, color);
 		GENERICESP_SETTING(float, radius);

@@ -12,7 +12,7 @@ namespace GenericESP {
 	struct Line {
 		virtual ~Line() = default;
 
-		void draw(ImDrawList* drawList, const EntityType* e, const std::vector<ImVec2>& points) const;
+		void draw(ImDrawList* draw_list, const EntityType* e, const std::vector<ImVec2>& points) const;
 
 		GENERICESP_SETTING(ImColor, color);
 		GENERICESP_SETTING(float, thickness);

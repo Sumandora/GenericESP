@@ -1,62 +1,67 @@
 #include "GenericESP/Element/Flags.hpp"
 
-#include "GenericESP/RendererFactory.hpp"
+#include "GenericESP/Element/Element.hpp"
+#include "GenericESP/Element/SidedElement.hpp"
+#include "GenericESP/Element/Text.hpp"
+#include "GenericESP/Flag.hpp"
+#include "GenericESP/UnionedRect.hpp"
+
+#include "imgui.h"
+#include "imgui_internal.h"
+
+#include <algorithm>
+#include <ranges>
+#include <string>
+#include <vector>
 
 using namespace GenericESP;
 
-ImVec2 Flags::drawEntry(ImDrawList* drawList, const EntityType* e, ImRect& rect, const Flag& flag, float yOffset) const
+ImVec2 Flags::draw_entry(ImDrawList* draw_list, const EntityType* e, ImRect& rect, const Flag& flag, float y_offset) const
 {
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wshadow"
 	const float spacing = this->get_spacing(e);
-#pragma clang diagnostic pop
-	const std::string text = flag.computeText(e);
+	const std::string text = flag.compute_text(e);
 
 	switch (get_side(e)) {
 	case Side::TOP: {
-		auto size = flag.draw(drawList, e, text, { rect.Min.x + (rect.Max.x - rect.Min.x) * 0.5f, rect.Min.y - spacing - yOffset }, TextAlignment::CENTERED, VerticalAlignment::ABOVE_POSITION);
+		auto size = flag.draw(draw_list, e, text, { rect.Min.x + (rect.Max.x - rect.Min.x) * 0.5F, rect.Min.y - spacing - y_offset }, TextAlignment::CENTERED, VerticalAlignment::ABOVE_POSITION);
 		if (size.has_value())
-			return { yOffset + size->y, size->y };
+			return { y_offset + size->y, size->y };
 	}
 	case Side::LEFT: {
-		auto size = flag.draw(drawList, e, text, { rect.Min.x - spacing, rect.Min.y + yOffset }, TextAlignment::RIGHT_BOUNDED, VerticalAlignment::BELOW_POSITION);
+		auto size = flag.draw(draw_list, e, text, { rect.Min.x - spacing, rect.Min.y + y_offset }, TextAlignment::RIGHT_BOUNDED, VerticalAlignment::BELOW_POSITION);
 		if (size.has_value())
 			return size.value();
 	}
 	case Side::BOTTOM: {
-		auto size = flag.draw(drawList, e, text, { rect.Min.x + (rect.Max.x - rect.Min.x) * 0.5f, rect.Max.y + spacing + yOffset }, TextAlignment::CENTERED, VerticalAlignment::BELOW_POSITION);
+		auto size = flag.draw(draw_list, e, text, { rect.Min.x + (rect.Max.x - rect.Min.x) * 0.5F, rect.Max.y + spacing + y_offset }, TextAlignment::CENTERED, VerticalAlignment::BELOW_POSITION);
 		if (size.has_value())
-			return { yOffset + size->y, size->y };
+			return { y_offset + size->y, size->y };
 	}
 	case Side::RIGHT: {
-		auto size = flag.draw(drawList, e, text, { rect.Max.x + spacing, rect.Min.y + yOffset }, TextAlignment::LEFT_BOUNDED, VerticalAlignment::BELOW_POSITION);
+		auto size = flag.draw(draw_list, e, text, { rect.Max.x + spacing, rect.Min.y + y_offset }, TextAlignment::LEFT_BOUNDED, VerticalAlignment::BELOW_POSITION);
 		if (size.has_value())
 			return size.value();
 	}
 	}
-	return { 0.0f, 0.0f };
+	return { 0.0F, 0.0F };
 }
 
-void Flags::draw(ImDrawList* drawList, const EntityType* e, UnionedRect& unionedRect) const
+void Flags::draw(ImDrawList* draw_list, const EntityType* e, UnionedRect& unioned_rect) const
 {
-	ImRect& rect = chooseRect(e, unionedRect);
+	ImRect& rect = choose_rect(e, unioned_rect);
 
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wshadow"
 	const float spacing = this->get_spacing(e);
-	const float lineSpacing = this->get_line_spacing(e);
-#pragma clang diagnostic pop
+	const float line_spacing = this->get_line_spacing(e);
 
-	float biggestOffset = 0.0f;
-	float yOffset = 0.0f;
+	float biggest_offset = 0.0F;
+	float y_offset = 0.0F;
 
-	Side side = get_side(e);
+	const Side side = get_side(e);
 
 	auto process = [&](const Flag& flag) {
-		ImVec2 offset = drawEntry(drawList, e, rect, flag, yOffset);
-		if (offset.x > biggestOffset)
-			biggestOffset = offset.x;
-		yOffset += offset.y * lineSpacing;
+		const ImVec2 offset = draw_entry(draw_list, e, rect, flag, y_offset);
+		biggest_offset = std::max(offset.x, biggest_offset);
+		y_offset += offset.y * line_spacing;
 	};
 
 	const std::vector<Flag*>& flags = get_order(e);
@@ -68,21 +73,20 @@ void Flags::draw(ImDrawList* drawList, const EntityType* e, UnionedRect& unioned
 		for (const auto* flag : flags)
 			process(*flag);
 
-	biggestOffset += spacing;
+	biggest_offset += spacing;
 
 	switch (side) {
 	case Side::TOP:
-		rect.Min.y -= biggestOffset;
+		rect.Min.y -= biggest_offset;
 		break;
 	case Side::LEFT:
-		rect.Min.x -= biggestOffset;
+		rect.Min.x -= biggest_offset;
 		break;
 	case Side::BOTTOM:
-		rect.Max.y += biggestOffset;
+		rect.Max.y += biggest_offset;
 		break;
 	case Side::RIGHT:
-		rect.Max.x += biggestOffset;
+		rect.Max.x += biggest_offset;
 		break;
 	}
 }
-

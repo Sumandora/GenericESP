@@ -1,12 +1,16 @@
 #define IMGUI_DEFINE_MATH_OPERATORS
+#include "GenericESP/Element/Element.hpp"
 
 #include "GenericESP/Element/Rectangle.hpp"
+#include "GenericESP/UnionedRect.hpp"
 
-#include "GenericESP/RendererFactory.hpp"
+#include "imgui.h"
+
+#include <algorithm>
 
 using namespace GenericESP;
 
-ImDrawFlags Rectangle::getRoundingFlags(const EntityType* e) const
+ImDrawFlags Rectangle::get_rounding_flags(const EntityType* e) const
 {
 	int flags = ImDrawFlags_RoundCornersNone;
 
@@ -25,33 +29,30 @@ ImDrawFlags Rectangle::getRoundingFlags(const EntityType* e) const
 	return flags;
 }
 
-void Rectangle::draw(ImDrawList* drawList, const EntityType* e, UnionedRect& rect) const
+void Rectangle::draw(ImDrawList* draw_list, const EntityType* e, UnionedRect& rect) const
 {
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wshadow"
 	const float rounding = this->get_rounding(e);
 
 	const float thickness = this->get_thickness(e);
 	const bool outlined = this->get_outlined(e);
-	const float outlineThickness = this->get_outline_thickness(e);
-#pragma clang diagnostic pop
+	const float outline_thickness = this->get_outline_thickness(e);
 
-	const float totalWidth = outlined ? std::max(thickness, outlineThickness) : thickness;
-	const float halfWidth = totalWidth / 2;
+	const float total_width = outlined ? std::max(thickness, outline_thickness) : thickness;
+	const float half_width = total_width / 2;
 
-	const ImVec2 min = rect.getMin();
-	const ImVec2 max = rect.getMax();
+	const ImVec2 min = rect.get_min();
+	const ImVec2 max = rect.get_max();
 
 	if (outlined)
-		drawList->AddRect(min, max, get_outline_color(e), rounding, getRoundingFlags(e), outlineThickness);
+		draw_list->AddRect(min, max, get_outline_color(e), rounding, get_rounding_flags(e), outline_thickness);
 
 	if (get_fill(e)) {
-		const float halfThickness = thickness / 2.0f;
-		const ImVec2 rectWidth{ halfThickness, halfThickness };
-		drawList->AddRectFilled(min + rectWidth, max - rectWidth, get_fill_color(e), rounding, getRoundingFlags(e));
+		const float half_thickness = thickness / 2.0F;
+		const ImVec2 rect_width{ half_thickness, half_thickness };
+		draw_list->AddRectFilled(min + rect_width, max - rect_width, get_fill_color(e), rounding, get_rounding_flags(e));
 	}
 
-	drawList->AddRect(min, max, get_color(e), rounding, getRoundingFlags(e), thickness);
+	draw_list->AddRect(min, max, get_color(e), rounding, get_rounding_flags(e), thickness);
 
-	rect.expand(halfWidth);
+	rect.expand(half_width);
 }
