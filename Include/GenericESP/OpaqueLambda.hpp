@@ -1,7 +1,7 @@
 #ifndef GENERICESP_OPAQUELAMBDA_HPP
 #define GENERICESP_OPAQUELAMBDA_HPP
 
-#include "ESP.hpp"
+#include "Element/Element.hpp"
 #include <functional>
 
 namespace GenericESP {
@@ -10,24 +10,22 @@ namespace GenericESP {
 	struct OpaqueLambda {
 		std::function<ReturnType(const EntityType*)> lambda;
 
-		template <class FPtr>
-		struct getEntityType;
+		template <typename FPtr>
+		struct FirstArgument;
 
-		template <class T, class F, class Ent>
-		struct getEntityType<T (F::*)(Ent) const> {
-			typedef Ent type;
+		template <typename R, class F, class A1>
+		struct FirstArgument<R (F::*)(A1) const> {
+			using T = A1;
 		};
 
-#pragma clang diagnostic push
-#pragma ide diagnostic ignored "google-explicit-constructor"
 		template <typename Lambda>
+		// NOLINTNEXTLINE(google-explicit-constructor, hicpp-explicit-conversions)
 		OpaqueLambda(Lambda&& l)
 			: lambda([l = std::forward<Lambda>(l)](const void* arg) {
-				return l(reinterpret_cast<getEntityType<decltype(&Lambda::operator())>::type>(arg));
+				return l(reinterpret_cast<FirstArgument<decltype(&Lambda::operator())>::T>(arg));
 			})
 		{
 		}
-#pragma clang diagnostic pop
 
 		inline ReturnType operator()(const EntityType* e) const
 		{

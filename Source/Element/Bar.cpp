@@ -1,100 +1,68 @@
+#include <algorithm>
+#include <stdexcept>
 #define IMGUI_DEFINE_MATH_OPERATORS
 
 #include "GenericESP/Element/Bar.hpp"
-#include "GenericESP/RendererFactory.hpp"
-#include "GenericESP/Serialization/ImColorSerialization.hpp"
 
 #include <utility>
 
 using namespace GenericESP;
 
-Bar::Bar(ESP* base, std::string id, Bar::PercentageProvider percentageProvider, std::optional<NumberText::Provider> numberTextProvider, bool topLevel)
-	: SidedElement(base, std::move(id), Side::LEFT, topLevel)
-	, backgroundColor{ StaticConfig<ImColor>{ "Background color", { 0.0f, 0.0f, 0.0f, 1.0f }, rendererFactory.createColorRenderer(), serializeImColor, deserializeImColor } }
-	, spacing{ StaticConfig<float>{ "Spacing", 1.0f, rendererFactory.createFloatRenderer(0.0, 10.0f, "%.2f") } }
-	, width{ StaticConfig<float>{ "Width", 2.0f, rendererFactory.createFloatRenderer(0.0, 10.0f, "%.2f") } }
-	, filledColor{ StaticConfig<ImColor>{ "Filled color", { 0.0f, 1.0f, 0.0f, 1.0f }, rendererFactory.createColorRenderer(), serializeImColor, deserializeImColor } }
-	, emptyColor{ StaticConfig<ImColor>{ "Empty color", { 1.0f, 0.0f, 0.0f, 1.0f }, rendererFactory.createColorRenderer(), serializeImColor, deserializeImColor } }
-	, hueSteps{ StaticConfig<int>{ "Hue steps", 3, rendererFactory.createIntRenderer(3, 10) }, [this] {
-				   const ConfigurableValue<bool>& selected = gradient.getSelected();
-				   return !selected.isStatic() || selected.getStaticConfig().thing;
-			   } }
-	, flipped{ StaticConfig<bool>{ "Flipped", false, rendererFactory.createBoolRenderer() } }
-	, gradient{ StaticConfig<bool>{ "Gradient", true, rendererFactory.createBoolRenderer() } }
-	, outlined{ StaticConfig<bool>{ "Outlined", true, rendererFactory.createBoolRenderer() } }
-	, outlineColor{ StaticConfig<ImColor>{ "Outline color", { 0.0f, 0.0f, 0.0f, 1.0f }, rendererFactory.createColorRenderer(), serializeImColor, deserializeImColor }, [this] {
-					   const ConfigurableValue<bool>& selected = outlined.getSelected();
-					   return !selected.isStatic() || selected.getStaticConfig().thing;
-				   } }
-	, outlineThickness{ StaticConfig<float>{ "Outline thickness", 1.0f, rendererFactory.createFloatRenderer(0.0, 10.0f, "%.2f") }, [this] {
-						   const ConfigurableValue<bool>& selected = outlined.getSelected();
-						   return !selected.isStatic() || selected.getStaticConfig().thing;
-					   } }
-	, percentageProvider(std::move(percentageProvider))
-	, numberText(numberTextProvider.has_value() ? std::make_optional<NumberText>(base, "Number text", std::move(numberTextProvider.value()), false) : std::nullopt)
+Bar::Bar(Bar::PercentageProvider percentageProvider, std::optional<NumberText::Provider> numberTextProvider)
+	: percentageProvider(std::move(percentageProvider))
+	, numberText(numberTextProvider.has_value() ? std::make_optional<NumberText>(*this, std::move(numberTextProvider.value())) : std::nullopt)
 {
 }
 
-Bar::NumberText::NumberText(ESP* base, std::string id, NumberText::Provider provider, bool topLevel)
-	: Element(base, std::move(id), topLevel)
+Bar::NumberText::NumberText(Bar& bar, NumberText::Provider provider)
+	: bar(bar)
 	, numberTextProvider(std::move(provider))
-	, numberText(base, "Number text", false)
-	, hideWhenFull(false)
-	, popupRenderer(std::move(rendererFactory.createPopupRenderer()))
 {
-	auto& enabledCfg = numberText.enabled.getSelected().getStaticConfig();
-	enabledCfg.renderer = [this, origRenderer = enabledCfg.renderer](const std::string& id, bool& thing) {
-		origRenderer(id, thing);
-		if(thing) {
-			static auto newRenderer = rendererFactory.createBoolRenderer();
-			ImGui::SameLine();
-			newRenderer("Hide when full", hideWhenFull);
-		}
-	};
+}
+
+bool Bar::NumberText::get_enabled(const EntityType* e) const
+{
+	return bar.get_number_text_enabled(e);
+}
+float Bar::NumberText::get_font_scale(const EntityType* e) const
+{
+	return bar.get_number_text_font_scale(e);
+}
+ImColor Bar::NumberText::get_font_color(const EntityType* e) const
+{
+	return bar.get_number_text_font_color(e);
+}
+bool Bar::NumberText::get_shadow(const EntityType* e) const
+{
+	return bar.get_number_text_shadow(e);
+}
+float Bar::NumberText::get_shadow_offset(const EntityType* e) const
+{
+	return bar.get_number_text_shadow_offset(e);
+}
+ImColor Bar::NumberText::get_shadow_color(const EntityType* e) const
+{
+	return bar.get_number_text_shadow_color(e);
+}
+bool Bar::NumberText::get_hide_when_full(const EntityType* e) const
+{
+	return bar.get_number_text_hide_when_full(e);
 }
 
 void Bar::NumberText::draw(ImDrawList* drawList, const EntityType* e, ImVec2 pos) const
 {
-	numberText.draw(drawList, e, numberTextProvider(e), pos, TextAlignment::CENTERED, VerticalAlignment::CENTERED);
-}
-
-void Bar::NumberText::renderGui()
-{
-	ImGui::PushID(id.c_str());
-	popupRenderer(numberText.id, [this]() {
-		// Hide when full will be rendered through the injected render method
-		numberText.renderGui();
-	});
-	ImGui::PopID();
-}
-
-SerializedTypeMap Bar::NumberText::serialize() const
-{
-	SerializedTypeMap map;
-	map.putSubtree("Number text", numberText.serialize());
-	map["Hide when full"] = hideWhenFull;
-	return map;
-}
-
-void Bar::NumberText::deserialize(const SerializedTypeMap& map)
-{
-	auto numberTextOpt = map.getSubtree("Number text");
-	if(numberTextOpt.has_value())
-		numberText.deserialize(numberTextOpt.value());
-	auto hideWhenFullOpt = map.get<bool>("Hide when full");
-	if (hideWhenFullOpt.has_value())
-		hideWhenFull = hideWhenFullOpt.value();
+	Text::draw(drawList, e, numberTextProvider(e), pos, TextAlignment::CENTERED, VerticalAlignment::CENTERED);
 }
 
 ImRect Bar::calculateNewRect(const EntityType* e, const ImRect& rect) const
 {
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wshadow"
-	const float width = this->width(e);
-	const float spacing = this->spacing(e);
+	const float width = this->get_width(e);
+	const float spacing = this->get_spacing(e);
 #pragma clang diagnostic pop
 
-	switch (getSide(e)) {
+	switch (get_side(e)) {
 	case Side::TOP:
 		return ImRect{
 			{ rect.Min.x,
@@ -130,10 +98,10 @@ ImRect Bar::calculateNewRect(const EntityType* e, const ImRect& rect) const
 
 std::optional<ImRect> Bar::calculateInnerRect(const EntityType* e, const ImRect& rect) const
 {
-	if (this->outlined(e)) {
+	if (this->get_outlined(e)) {
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wshadow"
-		const float outlineThickness = this->outlineThickness(e) / 2.0f;
+		const float outlineThickness = this->get_outline_thickness(e) / 2.0f;
 #pragma clang diagnostic pop
 
 		const ImVec2 shrinkage{
@@ -157,7 +125,7 @@ std::optional<ImRect> Bar::calculateInnerRect(const EntityType* e, const ImRect&
 ImRect Bar::calculateBarRect(const EntityType* e, ImRect rect, const bool flipped, const float percentage) const
 #pragma clang diagnostic pop
 {
-	switch (getSide(e)) {
+	switch (get_side(e)) {
 	case Side::LEFT:
 	case Side::RIGHT:
 		if (flipped)
@@ -204,10 +172,7 @@ ImColor Bar::colorHSVtoRGB(Bar::HsvColor hsv)
 
 void Bar::draw(ImDrawList* drawList, const EntityType* e, UnionedRect& unionedRect) const
 {
-	if (!enabled(e))
-		return;
-
-	const Side side = getSide(e);
+	const Side side = get_side(e);
 
 	ImRect& rect = chooseRect(e, unionedRect);
 
@@ -222,18 +187,18 @@ void Bar::draw(ImDrawList* drawList, const EntityType* e, UnionedRect& unionedRe
 
 	const std::optional<ImRect> innerRectOpt = calculateInnerRect(e, newRect);
 
-	if (outlined(e)) {
+	if (get_outlined(e)) {
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wshadow"
-		float outlineThickness = this->outlineThickness(e);
-		if (const float width = this->width(e); outlineThickness > width)
+		float outlineThickness = this->get_outline_thickness(e);
+		if (const float width = this->get_width(e); outlineThickness > width)
 #pragma clang diagnostic pop
 			outlineThickness = width;
 		const ImVec2 shrinkage{
 			outlineThickness / 2.0f,
 			outlineThickness / 2.0f
 		};
-		drawList->AddRect(newRect.Min + shrinkage, newRect.Max - shrinkage, outlineColor(e), 0.0f,
+		drawList->AddRect(newRect.Min + shrinkage, newRect.Max - shrinkage, get_outline_color(e), 0.0f,
 			ImDrawFlags_None, outlineThickness);
 	}
 
@@ -245,11 +210,11 @@ void Bar::draw(ImDrawList* drawList, const EntityType* e, UnionedRect& unionedRe
 
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wshadow"
-		const bool flipped = this->flipped(e);
-		const bool gradient = this->gradient(e);
+		const bool flipped = this->get_flipped(e);
+		const bool gradient = this->get_gradient(e);
 
-		ImColor filledColor = this->filledColor(e);
-		ImColor emptyColor = this->emptyColor(e);
+		ImColor filledColor = this->get_filled_color(e);
+		ImColor emptyColor = this->get_empty_color(e);
 #pragma clang diagnostic pop
 
 		if (gradient && flipped) // To prevent the parameters passed to AddRectFilledMultiColor from varying, just flip the colors once
@@ -258,7 +223,7 @@ void Bar::draw(ImDrawList* drawList, const EntityType* e, UnionedRect& unionedRe
 		const ImRect barRect = calculateBarRect(e, innerRect, flipped, clampedPercentage);
 		const ImRect complementBarRect = calculateBarRect(e, innerRect, !flipped, 1.0f - clampedPercentage);
 
-		drawList->AddRectFilled(complementBarRect.Min, complementBarRect.Max, backgroundColor(e));
+		drawList->AddRectFilled(complementBarRect.Min, complementBarRect.Max, get_background_color(e));
 
 		auto emptyHsv = colorRGBtoHSV(emptyColor);
 		auto filledHsv = colorRGBtoHSV(filledColor);
@@ -266,7 +231,7 @@ void Bar::draw(ImDrawList* drawList, const EntityType* e, UnionedRect& unionedRe
 		if (gradient) {
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wshadow"
-			int hueSteps = this->hueSteps(e);
+			int hueSteps = this->get_hue_steps(e);
 #pragma clang diagnostic pop
 
 			// Draw multiple small rectangle because ImGui lerps RGB, not HSV. (<-- This is common)
@@ -332,7 +297,7 @@ void Bar::draw(ImDrawList* drawList, const EntityType* e, UnionedRect& unionedRe
 #pragma clang diagnostic ignored "-Wshadow"
 			const auto& numberText = this->numberText.value();
 #pragma clang diagnostic pop
-			if (!numberText.hideWhenFull || clampedPercentage < 1.0f) {
+			if (!numberText.get_hide_when_full(e) || clampedPercentage < 1.0f) {
 				auto textPosition = [&]() -> ImVec2 {
 					switch (side) {
 					case Side::TOP:
@@ -348,53 +313,6 @@ void Bar::draw(ImDrawList* drawList, const EntityType* e, UnionedRect& unionedRe
 				}();
 				numberText.draw(drawList, e, textPosition);
 			}
-		}
-	}
-}
-
-void Bar::renderGui()
-{
-	ImGui::PushID(id.c_str());
-	for (Renderable* r : std::initializer_list<Renderable*>{
-			 &enabled, &side, &backgroundColor, &spacing,
-			 &width, &filledColor, &emptyColor, &gradient,
-			 &hueSteps, &flipped, &outlined, &outlineColor,
-			 &outlineThickness })
-		r->renderGui();
-	if (numberText.has_value()) {
-		numberText->renderGui();
-	}
-	ImGui::PopID();
-}
-
-SerializedTypeMap Bar::serialize() const
-{
-	SerializedTypeMap map;
-	for (const MixableBase* mixable : std::initializer_list<const MixableBase*>{
-			 &enabled, &side, &backgroundColor, &spacing,
-			 &width, &filledColor, &emptyColor, &gradient,
-			 &hueSteps, &flipped, &outlined, &outlineColor,
-			 &outlineThickness })
-		mixable->serialize(map);
-	if (numberText.has_value()) {
-		map.putSubtree(numberText->id, numberText->serialize());
-	}
-	return map;
-}
-
-void Bar::deserialize(const SerializedTypeMap& map)
-{
-	for (MixableBase* mixable : std::initializer_list<MixableBase*>{
-			 &enabled, &side, &backgroundColor, &spacing,
-			 &width, &filledColor, &emptyColor, &gradient,
-			 &hueSteps, &flipped, &outlined, &outlineColor,
-			 &outlineThickness })
-		mixable->deserializeFromParent(map);
-	if (numberText.has_value()) {
-		if(map.contains(numberText->id)) {
-			auto opt = map.getSubtree(numberText->id);
-			if(opt.has_value())
-				numberText->deserialize(opt.value());
 		}
 	}
 }

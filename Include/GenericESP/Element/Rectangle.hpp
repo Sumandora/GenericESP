@@ -6,40 +6,25 @@
 
 namespace GenericESP {
 
-	struct Rectangle : Element {
-		Mixable<ImColor> color;
-		Mixable<float> rounding;
+	struct Rectangle {
+		GENERICESP_SETTING(ImColor, color);
+		GENERICESP_SETTING(float, rounding);
 
-		struct RoundedEdges : Element {
-			Mixable<bool> topLeft;
-			Mixable<bool> topRight;
-			Mixable<bool> bottomLeft;
-			Mixable<bool> bottomRight;
+		GENERICESP_SETTING(bool, rounding_top_left);
+		GENERICESP_SETTING(bool, rounding_top_right);
+		GENERICESP_SETTING(bool, rounding_bottom_left);
+		GENERICESP_SETTING(bool, rounding_bottom_right);
 
-			PopupRenderer popupRenderer;
+		GENERICESP_SETTING(float, thickness);
+		GENERICESP_SETTING(bool, outlined);
+		GENERICESP_SETTING(ImColor, outline_color);
+		GENERICESP_SETTING(float, outline_thickness);
+		GENERICESP_SETTING(bool, fill);
+		GENERICESP_SETTING(ImColor, fill_color);
 
-			RoundedEdges(ESP* base, std::string id, bool topLevel = true);
-
-			ImDrawFlags getRoundingFlags(const EntityType* e) const;
-
-			void renderGui() override;
-			[[nodiscard]] SerializedTypeMap serialize() const override;
-			void deserialize(const SerializedTypeMap &map) override;
-		} roundedEdges;
-
-		Mixable<float> thickness;
-		Mixable<bool> outlined;
-		Mixable<ImColor> outlineColor;
-		Mixable<float> outlineThickness;
-		Mixable<bool> fill;
-		Mixable<ImColor> fillColor;
-
-		explicit Rectangle(ESP* base, std::string id, bool topLevel = true);
+		ImDrawFlags getRoundingFlags(const EntityType* e) const;
 
 		void draw(ImDrawList* drawList, const EntityType* e, UnionedRect& rect) const;
-		void renderGui() override;
-		[[nodiscard]] SerializedTypeMap serialize() const override;
-		void deserialize(const SerializedTypeMap &map) override;
 	};
 
 }

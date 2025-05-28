@@ -1,49 +1,64 @@
 #ifndef GENERICESP_ELEMENT_BAR_HPP
 #define GENERICESP_ELEMENT_BAR_HPP
 
+#include "../OpaqueLambda.hpp"
+#include "GenericESP/Element/Element.hpp"
 #include "SidedElement.hpp"
 #include "Text.hpp"
-#include "../OpaqueLambda.hpp"
 
 namespace GenericESP {
 
 	struct Bar : SidedElement {
-		Mixable<ImColor> backgroundColor;
-		Mixable<float> spacing;
-		Mixable<float> width;
-		Mixable<ImColor> filledColor;
-		Mixable<ImColor> emptyColor;
-		Mixable<bool> gradient;
-		Mixable<int> hueSteps;
-		Mixable<bool> flipped;
-		Mixable<bool> outlined;
-		Mixable<ImColor> outlineColor;
-		Mixable<float> outlineThickness;
+		GENERICESP_SETTING(ImColor, background_color);
+		GENERICESP_SETTING(float, spacing);
+		GENERICESP_SETTING(float, width);
+		GENERICESP_SETTING(ImColor, filled_color);
+		GENERICESP_SETTING(ImColor, empty_color);
+		GENERICESP_SETTING(bool, gradient);
+		GENERICESP_SETTING(int, hue_steps);
+		GENERICESP_SETTING(bool, flipped);
+		GENERICESP_SETTING(bool, outlined);
+		GENERICESP_SETTING(ImColor, outline_color);
+		GENERICESP_SETTING(float, outline_thickness);
 
 		using PercentageProvider = OpaqueLambda<float>;
 		PercentageProvider percentageProvider;
 
-		struct NumberText : Element {
-			Text numberText;
-			bool hideWhenFull;
+		struct NumberText : Text {
+			Bar& bar;
 
 			using Provider = OpaqueLambda<std::string>;
 			Provider numberTextProvider;
 
-			PopupRenderer popupRenderer;
-
-			explicit NumberText(ESP* base, std::string id, Provider provider, bool topLevel = true);
+			explicit NumberText(Bar& parent, Provider provider);
+			virtual ~NumberText() = default;
 
 			void draw(ImDrawList* drawList, const EntityType* e, ImVec2 pos) const;
-			void renderGui() override;
 
-			[[nodiscard]] SerializedTypeMap serialize() const override;
-			void deserialize(const SerializedTypeMap& map) override;
+			virtual bool get_enabled(const EntityType*) const;
+
+			float get_font_scale(const EntityType*) const override;
+			ImColor get_font_color(const EntityType*) const override;
+			bool get_shadow(const EntityType*) const override;
+			float get_shadow_offset(const EntityType*) const override;
+			ImColor get_shadow_color(const EntityType*) const override;
+
+			virtual bool get_hide_when_full(const EntityType*) const;
 		};
+
+		GENERICESP_SETTING(bool, number_text_enabled);
+
+		GENERICESP_SETTING(float, number_text_font_scale);
+		GENERICESP_SETTING(ImColor, number_text_font_color);
+		GENERICESP_SETTING(bool, number_text_shadow);
+		GENERICESP_SETTING(float, number_text_shadow_offset);
+		GENERICESP_SETTING(ImColor, number_text_shadow_color);
+
+		GENERICESP_SETTING(bool, number_text_hide_when_full);
 
 		std::optional<NumberText> numberText;
 
-		explicit Bar(ESP* base, std::string id, PercentageProvider percentageProvider, std::optional<NumberText::Provider> numberTextProvider = std::nullopt, bool topLevel = true);
+		explicit Bar(PercentageProvider percentageProvider, std::optional<NumberText::Provider> numberTextProvider = std::nullopt);
 
 		// --- Likely irrelevant for users ---
 		ImRect calculateNewRect(const EntityType* e, const ImRect& rect) const;
@@ -59,9 +74,6 @@ namespace GenericESP {
 		// --- Utility functions for color conversion ---
 
 		void draw(ImDrawList* drawList, const EntityType* e, UnionedRect& unionedRect) const;
-		void renderGui() override;
-		[[nodiscard]] SerializedTypeMap serialize() const override;
-		void deserialize(const SerializedTypeMap& map) override;
 	};
 
 }

@@ -2,33 +2,28 @@
 #define GENERICESP_ELEMENT_FLAGS_HPP
 
 #include "../Flag.hpp"
-#include "../VectorOrdering.hpp"
+#include "GenericESP/Element/Element.hpp"
 #include "SidedElement.hpp"
 
 #include <memory>
 #include <ranges>
+#include <span>
 
 namespace GenericESP {
 
 	struct Flags : SidedElement {
-		Mixable<float> spacing;
-		Mixable<float> lineSpacing;
+		GENERICESP_SETTING(float, spacing);
+		GENERICESP_SETTING(float, line_spacing);
 
-		std::vector<Flag*> flags;
-		VectorOrdering<Flag*> flagOrder;
+		GENERICESP_SETTING(const std::vector<Flag*>&, order);
 
-		// All pointers in 'flags' will be taken ownership of.
-		explicit Flags(ESP* base, std::string id, std::initializer_list<Flag*> flags, bool topLevel = true);
-		~Flags() override;
+		virtual ~Flags() = default;
 
 		// --- Likely irrelevant for users ---
-		ImVec2 drawEntry(ImDrawList* drawList, const EntityType* e, ImRect& rect, const Flag* flag, float yOffset) const;
+		ImVec2 drawEntry(ImDrawList* drawList, const EntityType* e, ImRect& rect, const Flag& flag, float yOffset) const;
 		// --- Likely irrelevant for users ---
 
 		void draw(ImDrawList* drawList, const EntityType* e, UnionedRect& unionedRect) const;
-		void renderGui() override;
-		[[nodiscard]] SerializedTypeMap serialize() const override;
-		void deserialize(const SerializedTypeMap &map) override;
 	};
 
 }

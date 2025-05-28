@@ -4,6 +4,9 @@
 #include "../UnionedRect.hpp"
 #include "Element.hpp"
 
+#include <initializer_list>
+#include <string>
+
 namespace GenericESP {
 	enum class Side {
 		TOP,
@@ -14,18 +17,11 @@ namespace GenericESP {
 
 	extern std::initializer_list<std::string> sideLocalization;
 
-	struct SidedElement : Element {
-		Mixable<std::size_t> side;
-
-		// The renderer which is later replaced by the list renderer
-		std::function<void(const std::string&, std::size_t&)> comboRenderer;
-
-		explicit SidedElement(ESP* base, std::string id, Side defaultSide, bool topLevel);
-
-		Side getSide(const EntityType* e) const;
-
+	struct SidedElement {
 		[[nodiscard]] const ImRect& chooseRect(const EntityType* e, const UnionedRect& unionedRect) const;
 		[[nodiscard]] ImRect& chooseRect(const EntityType* e, UnionedRect& unionedRect) const;
+
+		GENERICESP_SETTING(Side, side);
 	};
 
 }

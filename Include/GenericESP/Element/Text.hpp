@@ -3,7 +3,10 @@
 
 #include "Element.hpp"
 
+#include "imgui.h"
+
 #include <optional>
+#include <string>
 
 namespace GenericESP {
 	enum class TextAlignment {
@@ -18,21 +21,18 @@ namespace GenericESP {
 		ABOVE_POSITION
 	};
 
-	struct Text : Element {
-		Mixable<float> fontScale;
-		Mixable<ImColor> fontColor;
-		Mixable<bool> shadow;
-		Mixable<float> shadowOffset;
-		Mixable<ImColor> shadowColor;
-
-		explicit Text(ESP* base, std::string id, bool topLevel = true);
+	struct Text {
+		virtual ~Text() = default;
 
 		std::optional<ImVec2> draw(ImDrawList* drawList, const EntityType* e, const std::string& text, const ImVec2& pos,
 			TextAlignment horizontalAlignment, VerticalAlignment verticalAlignment) const;
 		[[nodiscard]] float getLineHeight(const EntityType* e) const;
-		void renderGui() override;
-		[[nodiscard]] SerializedTypeMap serialize() const override;
-		void deserialize(const SerializedTypeMap& map) override;
+
+		GENERICESP_SETTING(float, font_scale);
+		GENERICESP_SETTING(ImColor, font_color);
+		GENERICESP_SETTING(bool, shadow);
+		GENERICESP_SETTING(float, shadow_offset);
+		GENERICESP_SETTING(ImColor, shadow_color);
 	};
 
 }

@@ -6,16 +6,16 @@
 
 namespace GenericESP {
 
-	struct SidedText : SidedElement {
-		Mixable<float> spacing;
-		Text textElement;
-
-		explicit SidedText(ESP* base, std::string id, Side side, bool topLevel = true);
+	struct SidedText : SidedElement, Text {
+		GENERICESP_SETTING(float, spacing);
 
 		void draw(ImDrawList* drawList, const EntityType* e, const std::string& text, UnionedRect& unionedRect) const;
-		void renderGui() override;
-		[[nodiscard]] SerializedTypeMap serialize() const override;
-		void deserialize(const SerializedTypeMap &map) override;
+
+		float get_font_scale(const EntityType*) const override = 0;
+		ImColor get_font_color(const EntityType*) const override = 0;
+		bool get_shadow(const EntityType*) const override = 0;
+		float get_shadow_offset(const EntityType*) const override = 0;
+		ImColor get_shadow_color(const EntityType*) const override = 0;
 	};
 
 }

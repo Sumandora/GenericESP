@@ -17,9 +17,7 @@ if(PROJECT_IS_TOP_LEVEL)
     FetchContent_Declare(${IMGUI_DEPENDENCY_OVERRIDE}
             GIT_REPOSITORY https://github.com/ocornut/imgui
             GIT_PROGRESS TRUE
-            GIT_TAG v1.91.9b
-            BUILD_COMMAND ""
-            INSTALL_COMMAND "")
+            GIT_TAG v1.91.9b)
     FetchContent_MakeAvailable(${IMGUI_DEPENDENCY_OVERRIDE})
 
     file(GLOB IMGUI_SOURCE_FILES "${imgui_SOURCE_DIR}/*.cpp")
@@ -39,9 +37,8 @@ target_include_directories(GenericESP PUBLIC "${PROJECT_SOURCE_DIR}/Include")
 target_compile_features(GenericESP PUBLIC cxx_std_23)
 
 if(PROJECT_IS_TOP_LEVEL)
-    add_subdirectory("Extensions/DefaultRenderers")
     add_executable(GenericESPExample "Example/Example.cpp" "Example/ImGuiImpl.cpp")
     target_compile_features(GenericESPExample PUBLIC cxx_std_23)
-    target_link_libraries(GenericESPExample GenericESP imgui SDL2 GenericESPDefaultRenderers)
+    target_link_libraries(GenericESPExample GenericESP imgui SDL2)
 endif()
 

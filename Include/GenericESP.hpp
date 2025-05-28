@@ -8,7 +8,6 @@
 #include "GenericESP/Element/Circle.hpp"
 #include "GenericESP/Element/Line.hpp"
 #include "GenericESP/Element/Flags.hpp"
-#include "GenericESP/ESP.hpp"
 
 #include "GenericESP/OpaqueLambda.hpp"
 

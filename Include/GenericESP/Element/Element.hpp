@@ -1,22 +1,25 @@
 #ifndef GENERICESP_ELEMENT_HPP
 #define GENERICESP_ELEMENT_HPP
 
-#include "../Config/Mixable.hpp"
-#include "GenericESP/ESP.hpp"
+// You can override this macro with one that provides default implementations if you desire so
+#ifndef GENERICESP_SETTING
+#define GENERICESP_SETTING(ty, name) virtual ty get_##name(const EntityType*) const = 0
+#endif
 
 namespace GenericESP {
+	using EntityType = void;
 
-	struct Element : Renderable, Serializable {
-		ESP* base;
-		std::string id;
-		bool topLevel;
+	// struct Element {
+	// 	ESP* base;
+	// 	std::string id;
+	// 	bool topLevel;
 
-		Mixable<bool> enabled;
+	// 	explicit Element(ESP* base, std::string id, bool topLevel);
+	// 	Element(Element&&) = delete; // Moving elements is likely to fail because Mixables use lambdas excessively. If you are in need of moving an element, use a unique ptr or something else that stores the element indirectly
+	// 	~Element();
 
-		explicit Element(ESP* base, std::string id, bool topLevel);
-		Element(Element&&) = delete; // Moving elements is likely to fail because Mixables use lambdas excessively. If you are in need of moving an element, use a unique ptr or something else that stores the element indirectly
-		~Element() override;
-	};
+	// 	GENERICESP_SETTING(bool, enabled);
+	// };
 
 }
 
