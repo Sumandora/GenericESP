@@ -147,7 +147,7 @@ void Bar::draw(ImDrawList* draw_list, const EntityType* e, UnionedRect& unioned_
 
 	if (get_outlined(e)) {
 		float outline_thickness = this->get_outline_thickness(e);
-		outline_thickness = std::min(outline_thickness, get_width(e));
+		outline_thickness = std::min(outline_thickness, get_width(e) / 2.0F);
 		const ImVec2 shrinkage{
 			outline_thickness / 2.0F,
 			outline_thickness / 2.0F
