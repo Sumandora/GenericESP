@@ -1,7 +1,9 @@
+#ifndef IMGUI_DEFINE_MATH_OPERATORS
 #define IMGUI_DEFINE_MATH_OPERATORS
-#include "GenericESP/Element/Element.hpp"
+#endif
 
 #include "GenericESP/Element/Rectangle.hpp"
+#include "GenericESP/Element/Element.hpp"
 #include "GenericESP/UnionedRect.hpp"
 
 #include "imgui.h"

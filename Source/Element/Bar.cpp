@@ -1,17 +1,20 @@
-#include <cmath>
+#ifndef IMGUI_DEFINE_MATH_OPERATORS
 #define IMGUI_DEFINE_MATH_OPERATORS
+#endif
+
+#include "GenericESP/Element/Bar.hpp"
 #include "GenericESP/Element/Element.hpp"
 #include "GenericESP/Element/SidedElement.hpp"
 #include "GenericESP/Element/Text.hpp"
 #include "GenericESP/UnionedRect.hpp"
+
 #include "imgui.h"
 #include "imgui_internal.h"
+
 #include <algorithm>
+#include <cmath>
 #include <optional>
 #include <stdexcept>
-
-#include "GenericESP/Element/Bar.hpp"
-
 #include <utility>
 
 using namespace GenericESP;
