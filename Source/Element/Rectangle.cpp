@@ -39,14 +39,14 @@ void Rectangle::draw(ImDrawList* draw_list, const EntityType* e, UnionedRect& re
 	const bool outlined = this->get_outlined(e);
 	const float outline_thickness = this->get_outline_thickness(e);
 
-	const float total_width = outlined ? std::max(thickness, outline_thickness) : thickness;
+	const float total_width = outlined ? thickness + outline_thickness : thickness;
 	const float half_width = total_width / 2;
 
 	const ImVec2 min = rect.get_min();
 	const ImVec2 max = rect.get_max();
 
 	if (outlined)
-		draw_list->AddRect(min, max, get_outline_color(e), rounding, get_rounding_flags(e), outline_thickness);
+		draw_list->AddRect(min, max, get_outline_color(e), rounding, get_rounding_flags(e), thickness + outline_thickness);
 
 	if (get_fill(e)) {
 		const float half_thickness = thickness / 2.0F;
