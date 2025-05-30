@@ -22,12 +22,12 @@ namespace GenericESP {
 	extern std::initializer_list<std::string> side_localization;
 
 	struct SidedElement {
+		GENERICESP_SETTING(Side, side);
+
 		virtual ~SidedElement() = default;
 
 		[[nodiscard]] const ImRect& choose_rect(const EntityType* e, const UnionedRect& unioned_rect) const;
 		[[nodiscard]] ImRect& choose_rect(const EntityType* e, UnionedRect& unioned_rect) const;
-
-		GENERICESP_SETTING(Side, side);
 	};
 
 }

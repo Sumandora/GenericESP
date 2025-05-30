@@ -65,12 +65,6 @@ namespace GenericESP {
 
 		void draw_number(ImDrawList* draw_list, const EntityType* e, const ImRect& bar_rect, float clamped_percentage) const;
 		using Bar::draw;
-
-		float get_font_scale(const EntityType* e) const override = 0;
-		ImColor get_font_color(const EntityType* e) const override = 0;
-		bool get_shadow(const EntityType* e) const override = 0;
-		float get_shadow_offset(const EntityType* e) const override = 0;
-		ImColor get_shadow_color(const EntityType* e) const override = 0;
 	};
 
 }
