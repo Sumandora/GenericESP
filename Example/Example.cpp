@@ -243,7 +243,10 @@ struct DemoBarWithText : BarWithText {
 	DEFINE_BASIC_FORWARD(float, outline_thickness, 1.0F);
 
 	DEFINE_BASIC_FORWARD(bool, text_enabled, false);
-	DEFINE_BASIC_FORWARD(float, font_scale, 1.0F);
+
+	ImFont* get_font(const EntityType* /*e*/) const override { return ImGui::GetFont(); }
+
+	DEFINE_BASIC_FORWARD(float, font_size, 12.0F);
 	DEFINE_BASIC_FORWARD(ImColor, font_color, { 1.0F, 1.0F, 1.0F, 1.0F });
 	DEFINE_BASIC_FORWARD(bool, shadow, true);
 	DEFINE_BASIC_FORWARD(float, shadow_offset, 1.0F);
@@ -277,7 +280,7 @@ struct DemoBarWithText : BarWithText {
 
 		render_popup("Number text", [this]() {
 			render_bool("Enabled", text_enabled);
-			render_float("Font scale", font_scale, 0.0F, 10.0F);
+			render_float("Font size", font_size, 0.0F, 24.0F);
 			render_color("Font color", font_color);
 			render_bool("Shadow", shadow);
 			render_float("Shadow offset", shadow_offset, 0.0F, 10.0F);
@@ -342,7 +345,10 @@ struct DemoSidedText : SidedText {
 
 	DEFINE_BASIC_FORWARD(Side, side, Side::TOP);
 	DEFINE_BASIC_FORWARD(float, spacing, 1.0F);
-	DEFINE_BASIC_FORWARD(float, font_scale, 1.0F);
+	DEFINE_BASIC_FORWARD(float, font_size, 12.0F);
+
+	ImFont* get_font(const EntityType* /*e*/) const override { return ImGui::GetFont(); }
+
 	DEFINE_BASIC_FORWARD(ImColor, font_color, { 1.0F, 1.0F, 1.0F, 1.0F });
 	DEFINE_BASIC_FORWARD(bool, shadow, true);
 	DEFINE_BASIC_FORWARD(float, shadow_offset, 1.0F);
@@ -358,7 +364,7 @@ struct DemoSidedText : SidedText {
 				"Right",
 			});
 		render_float("Spacing", spacing, 0.0F, 10.0F);
-		render_float("Font scale", font_scale, 0.0F, 10.0F);
+		render_float("Font size", font_size, 0.0F, 24.0F);
 		render_color("Font color", font_color);
 		render_bool("Shadow", shadow);
 		render_float("Shadow offset", shadow_offset, 0.0F, 10.0F);
@@ -367,7 +373,9 @@ struct DemoSidedText : SidedText {
 };
 
 struct DemoFlag : Flag {
-	DEFINE_BASIC_FORWARD(float, font_scale, 1.0F);
+	ImFont* get_font(const EntityType* /*e*/) const override { return ImGui::GetFont(); }
+
+	DEFINE_BASIC_FORWARD(float, font_size, 12.0F);
 	DEFINE_BASIC_FORWARD(ImColor, font_color, { 1.0F, 1.0F, 1.0F, 1.0F });
 	DEFINE_BASIC_FORWARD(bool, shadow, true);
 	DEFINE_BASIC_FORWARD(float, shadow_offset, 1.0F);
@@ -384,7 +392,7 @@ struct DemoFlag : Flag {
 
 	void render_gui()
 	{
-		render_float("Font scale", font_scale, 0.0F, 10.0F);
+		render_float("Font size", font_size, 0.0F, 24.0F);
 		render_color("Font color", font_color);
 		render_bool("Shadow", shadow);
 		render_float("Shadow offset", shadow_offset, 0.0F, 10.0F);

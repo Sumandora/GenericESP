@@ -4,6 +4,7 @@
 
 #include "imgui.h"
 
+#include <cfloat>
 #include <optional>
 #include <string>
 
@@ -14,16 +15,13 @@ std::optional<ImVec2> Text::draw(ImDrawList* draw_list, const EntityType* e, con
 	if (text.empty())
 		return std::nullopt;
 
-	const float font_scale = this->get_font_scale(e);
-	if (font_scale <= 0.0F)
+	const float font_size = this->get_font_size(e);
+	if (font_size <= 0.0F)
 		return std::nullopt;
 
-	// Hack
-	const float old_font_scale = ImGui::GetFont()->Scale;
-	ImGui::GetFont()->Scale *= font_scale;
-	ImGui::PushFont(ImGui::GetFont());
+	ImFont* font = this->get_font(e);
 
-	const ImVec2 size = ImGui::CalcTextSize(text.c_str());
+	const ImVec2 size = get_text_size(text, font, font_size);
 
 	ImVec2 position(pos.x, pos.y);
 
@@ -51,18 +49,23 @@ std::optional<ImVec2> Text::draw(ImDrawList* draw_list, const EntityType* e, con
 
 	if (get_shadow(e)) {
 		const float shadow_offset = this->get_shadow_offset(e);
-		draw_list->AddText(ImVec2(position.x + shadow_offset, position.y + shadow_offset), get_shadow_color(e), text.c_str());
+		draw_list->AddText(font, font_size, ImVec2(position.x + shadow_offset, position.y + shadow_offset), get_shadow_color(e), text.c_str());
 	}
 
-	draw_list->AddText(position, get_font_color(e), text.c_str());
-
-	ImGui::GetFont()->Scale = old_font_scale;
-	ImGui::PopFont();
+	draw_list->AddText(font, font_size, position, get_font_color(e), text.c_str());
 
 	return size;
 }
 
-[[nodiscard]] float Text::get_line_height(const EntityType* e) const
+ImVec2 Text::get_text_size(const std::string& text, const EntityType* e) const
 {
-	return ImGui::GetTextLineHeight() * get_font_scale(e);
+	ImFont* font = get_font(e);
+	const float font_size = get_font_size(e);
+	return get_text_size(text, font, font_size);
+}
+
+ImVec2 Text::get_text_size(const std::string& text, ImFont* font, float font_size)
+{
+	// This is an internal function, too bad.
+	return font->CalcTextSizeA(font_size, FLT_MAX, 0.0F, text.c_str());
 }

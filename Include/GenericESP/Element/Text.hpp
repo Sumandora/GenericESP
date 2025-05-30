@@ -23,17 +23,19 @@ namespace GenericESP {
 	};
 
 	struct Text {
-		virtual ~Text() = default;
-
-		std::optional<ImVec2> draw(ImDrawList* draw_list, const EntityType* e, const std::string& text, const ImVec2& pos,
-			TextAlignment horizontal_alignment, VerticalAlignment vertical_alignment) const;
-		[[nodiscard]] float get_line_height(const EntityType* e) const;
-
-		GENERICESP_SETTING(float, font_scale);
+		GENERICESP_SETTING(ImFont*, font);
+		GENERICESP_SETTING(float, font_size);
 		GENERICESP_SETTING(ImColor, font_color);
 		GENERICESP_SETTING(bool, shadow);
 		GENERICESP_SETTING(float, shadow_offset);
 		GENERICESP_SETTING(ImColor, shadow_color);
+
+		virtual ~Text() = default;
+
+		std::optional<ImVec2> draw(ImDrawList* draw_list, const EntityType* e, const std::string& text, const ImVec2& pos,
+			TextAlignment horizontal_alignment, VerticalAlignment vertical_alignment) const;
+		[[nodiscard]] ImVec2 get_text_size(const std::string& text, const EntityType* e) const;
+		[[nodiscard]] static ImVec2 get_text_size(const std::string& text, ImFont* font, float font_size);
 	};
 
 }
