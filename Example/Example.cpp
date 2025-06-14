@@ -202,6 +202,12 @@ struct DemoBar : Bar {
 	using Bar::Bar;
 	~DemoBar() override = default;
 
+	float get_filled_percentage(const EntityType* e) const override
+	{
+		const auto* entity = static_cast<const Entity*>(e);
+		return static_cast<float>(entity->health) / static_cast<float>(entity->max_health);
+	}
+
 	void render_gui()
 	{
 		render_combo("Side", *reinterpret_cast<std::size_t*>(&side),
@@ -255,6 +261,18 @@ struct DemoBarWithText : BarWithText {
 
 	using BarWithText::BarWithText;
 	~DemoBarWithText() override = default;
+
+	float get_filled_percentage(const EntityType* e) const override
+	{
+		const auto* entity = static_cast<const Entity*>(e);
+		return static_cast<float>(entity->health) / static_cast<float>(entity->max_health);
+	}
+
+	std::string get_number_text_content(const EntityType* e) const override
+	{
+		const auto* entity = static_cast<const Entity*>(e);
+		return std::to_string(entity->health);
+	}
 
 	void render_gui()
 	{
@@ -472,13 +490,8 @@ struct DemoFlags : Flags {
 
 struct EntityESP {
 	DemoRectangle box;
-	DemoBar bar{
-		[](const Entity* entity) { return static_cast<float>(entity->health) / static_cast<float>(entity->max_health); }
-	};
-	DemoBarWithText bar2{
-		[](const Entity* entity) { return static_cast<float>(entity->health) / static_cast<float>(entity->max_health); },
-		[](const Entity* entity) { return std::to_string(entity->health); }
-	};
+	DemoBar bar;
+	DemoBarWithText bar2;
 	DemoLine line;
 	DemoCircle circle;
 	DemoSidedText name;
@@ -487,11 +500,11 @@ struct EntityESP {
 	DemoFlags flags{
 		{ new DemoFlag{
 			  "My flag",
-			  { { "percentage", [](const Entity* e) { return std::to_string(e->flag_percentage); } } },
+			  { { "percentage", [](const EntityType* e) { return std::to_string(static_cast<const Entity*>(e)->flag_percentage); } } },
 			  "My flag: %percentage%" },
 			new DemoFlag{
 				"Another flag",
-				{ { "percentage", [](const Entity* e) { return std::to_string(e->another_flag_percentage); } } },
+				{ { "percentage", [](const EntityType* e) { return std::to_string(static_cast<const Entity*>(e)->another_flag_percentage); } } },
 				"Another flag: %percentage%" } }
 	};
 

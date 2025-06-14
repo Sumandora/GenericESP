@@ -1,7 +1,6 @@
 #ifndef GENERICESP_ELEMENT_BAR_HPP
 #define GENERICESP_ELEMENT_BAR_HPP
 
-#include "../OpaqueLambda.hpp"
 #include "../UnionedRect.hpp"
 #include "Element.hpp"
 #include "SidedElement.hpp"
@@ -29,12 +28,11 @@ namespace GenericESP {
 		GENERICESP_SETTING(ImColor, outline_color);
 		GENERICESP_SETTING(float, outline_thickness);
 
-		using PercentageProvider = OpaqueLambda<float>;
-		PercentageProvider percentage_provider;
+		GENERICESP_SETTING(float, filled_percentage); // Not intended as a setting.
 
 		bool has_text = false; // True, when inherited by BarWithText
 
-		explicit Bar(PercentageProvider percentage_provider);
+		explicit Bar() = default;
 		~Bar() override = default;
 
 		// --- Likely irrelevant for users ---
@@ -57,10 +55,9 @@ namespace GenericESP {
 		GENERICESP_SETTING(bool, text_enabled);
 		GENERICESP_SETTING(bool, hide_when_full);
 
-		using Provider = OpaqueLambda<std::string>;
-		Provider text_provider;
+		GENERICESP_SETTING(std::string, number_text_content); // Not intended as a setting.
 
-		explicit BarWithText(PercentageProvider percentage_provider, Provider text_provider);
+		explicit BarWithText();
 		~BarWithText() override = default;
 
 		void draw_number(ImDrawList* draw_list, const EntityType* e, const ImRect& bar_rect, float clamped_percentage) const;

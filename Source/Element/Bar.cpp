@@ -19,11 +19,6 @@
 
 using namespace GenericESP;
 
-Bar::Bar(Bar::PercentageProvider percentage_provider)
-	: percentage_provider(std::move(percentage_provider))
-{
-}
-
 ImRect Bar::calculate_new_rect(const EntityType* e, const ImRect& rect) const
 {
 	const float width = this->get_width(e);
@@ -162,7 +157,7 @@ void Bar::draw(ImDrawList* draw_list, const EntityType* e, UnionedRect& unioned_
 	if (inner_rect_opt.has_value()) {
 		const ImRect inner_rect = inner_rect_opt.value();
 
-		const float percentage = percentage_provider(e);
+		const float percentage = get_filled_percentage(e);
 		const float clamped_percentage = std::clamp(percentage, 0.0F, 1.0F);
 
 		const bool flipped = this->get_flipped(e);
@@ -247,9 +242,7 @@ void Bar::draw(ImDrawList* draw_list, const EntityType* e, UnionedRect& unioned_
 	}
 }
 
-BarWithText::BarWithText(PercentageProvider percentage_provider, Provider text_provider)
-	: Bar(std::move(percentage_provider))
-	, text_provider(std::move(text_provider))
+BarWithText::BarWithText()
 {
 	has_text = true; // This is not very extendable, however I don't think there will be another user in the same fashion as this one.
 }
@@ -280,5 +273,5 @@ void BarWithText::draw_number(ImDrawList* draw_list, const EntityType* e, const 
 		std::unreachable();
 	}
 
-	Text::draw(draw_list, e, text_provider(e), text_position, TextAlignment::CENTERED, VerticalAlignment::CENTERED);
+	Text::draw(draw_list, e, get_number_text_content(e), text_position, TextAlignment::CENTERED, VerticalAlignment::CENTERED);
 }

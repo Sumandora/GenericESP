@@ -3,10 +3,8 @@
 
 #include "Element/Text.hpp"
 #include "Element/Element.hpp"
-#include "OpaqueLambda.hpp"
 
-#include "imgui.h"
-
+#include <functional>
 #include <string>
 #include <unordered_map>
 
@@ -17,8 +15,7 @@ namespace GenericESP {
 
 		std::string name;
 
-		using Provider = OpaqueLambda<std::string>;
-		using Remaps = std::unordered_map<std::string, Provider>;
+		using Remaps = std::unordered_map<std::string, std::function<std::string(const EntityType*)>>;
 
 		Remaps remaps;
 

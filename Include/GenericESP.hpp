@@ -9,6 +9,4 @@
 #include "GenericESP/Element/Line.hpp"
 #include "GenericESP/Element/Flags.hpp"
 
-#include "GenericESP/OpaqueLambda.hpp"
-
 #endif
